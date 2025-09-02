@@ -16,10 +16,11 @@ const BusinessSustainabilityAssessment = () => {
       name: '輝達 Nvidia Corp',
       ticker: 'NVDA',
       overallScore: 85,
-      revenue: '441.0億',
-      growth: '+11%',
-      marketCap: '44310億元',
-      pe: '52.85',
+      revenue: '1305億美元',
+      growth: '+114%',
+      marketCap: '23000億美元',
+      pe: '31.2',
+      eps: '28.12美元',
       metrics: {
         營運能力: 88,
         財務能力: 92,
@@ -37,6 +38,7 @@ const BusinessSustainabilityAssessment = () => {
       growth: '+2.8%',
       marketCap: '3115億元',
       pe: '23.7',
+      eps: '4.85新台幣',
       metrics: {
         營運能力: 75,
         財務能力: 78,
@@ -47,20 +49,21 @@ const BusinessSustainabilityAssessment = () => {
       }
     },
     CHT: {
-      name: '中華電信 Chunghwa Telecom',
-      ticker: '2412',
-      overallScore: 76,
-      revenue: '2156億',
-      growth: '+2.8%',
-      marketCap: '8950億元',
-      pe: '15.2',
+      name: '台積電 TSMC',
+      ticker: 'TSM',
+      overallScore: 88,
+      revenue: '2096億新台幣',
+      growth: '+37.6%',
+      marketCap: '18500億新台幣',
+      pe: '20.7',
+      eps: '35.85新台幣',
       metrics: {
-        營運能力: 82,
-        財務能力: 85,
-        未來力: 65,
-        AI數位力: 78,
-        ESG永續力: 88,
-        創新能力: 68
+        營運能力: 90,
+        財務能力: 92,
+        未來力: 85,
+        AI數位力: 88,
+        ESG永續力: 85,
+        創新能力: 90
       }
     },
     TWM: {
@@ -71,6 +74,7 @@ const BusinessSustainabilityAssessment = () => {
       growth: '+1.8%',
       marketCap: '3280億元',
       pe: '16.8',
+      eps: '6.12新台幣',
       metrics: {
         營運能力: 78,
         財務能力: 80,
@@ -88,7 +92,7 @@ const BusinessSustainabilityAssessment = () => {
   ];
 
   const compareOptions = [
-    { value: 'CHT', label: '中華電信 Chunghwa Telecom' },
+    { value: 'CHT', label: '台積電 TSMC' },
     { value: 'TWM', label: '台灣大哥大 Taiwan Mobile' }
   ];
 
@@ -280,23 +284,28 @@ const BusinessSustainabilityAssessment = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">營收</div>
-                <div className="text-xl font-bold text-white">{companyData[selectedCompany].revenue}</div>
-                <div className="text-green-400 text-sm font-medium">{companyData[selectedCompany].growth}</div>
+            <div className="flex gap-6">
+              {/* 左側三個卡片 */}
+              <div className="flex flex-col gap-4 flex-1">
+                <div className="bg-teal-600 p-4 rounded-lg">
+                  <div className="text-white text-sm font-medium">營收</div>
+                  <div className="text-2xl font-bold text-white">{companyData[selectedCompany].revenue}</div>
+                  <div className="text-teal-100 text-sm font-medium">{companyData[selectedCompany].growth}</div>
+                </div>
+                <div className="bg-teal-600 p-4 rounded-lg">
+                  <div className="text-white text-sm font-medium">市值</div>
+                  <div className="text-xl font-bold text-white">{companyData[selectedCompany].marketCap}</div>
+                </div>
+                <div className="bg-teal-600 p-4 rounded-lg">
+                  <div className="text-white text-sm font-medium">每股盈餘</div>
+                  <div className="text-xl font-bold text-white">{companyData[selectedCompany].eps}</div>
+                </div>
               </div>
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">市值</div>
-                <div className="text-lg font-bold text-white">{companyData[selectedCompany].marketCap}</div>
-              </div>
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">本益比</div>
-                <div className="text-lg font-bold text-white">{companyData[selectedCompany].pe}</div>
-              </div>
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">綜合評分</div>
-                <div className="text-xl font-bold" style={{color: getScoreColor(companyData[selectedCompany].overallScore)}}>
+              
+              {/* 右側大圓形綜合評分 */}
+              <div className="bg-teal-600 rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px]">
+                <div className="text-white text-sm font-medium mb-2">綜合評分</div>
+                <div className="text-6xl font-bold text-yellow-400">
                   {companyData[selectedCompany].overallScore}
                 </div>
               </div>
@@ -315,23 +324,28 @@ const BusinessSustainabilityAssessment = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">營收</div>
-                <div className="text-xl font-bold text-white">{companyData[compareCompany].revenue}</div>
-                <div className="text-green-400 text-sm font-medium">{companyData[compareCompany].growth}</div>
+            <div className="flex gap-6">
+              {/* 左側三個卡片 */}
+              <div className="flex flex-col gap-4 flex-1">
+                <div className="bg-teal-600 p-4 rounded-lg">
+                  <div className="text-white text-sm font-medium">營收</div>
+                  <div className="text-2xl font-bold text-white">{companyData[compareCompany].revenue}</div>
+                  <div className="text-teal-100 text-sm font-medium">{companyData[compareCompany].growth}</div>
+                </div>
+                <div className="bg-teal-600 p-4 rounded-lg">
+                  <div className="text-white text-sm font-medium">市值</div>
+                  <div className="text-xl font-bold text-white">{companyData[compareCompany].marketCap}</div>
+                </div>
+                <div className="bg-teal-600 p-4 rounded-lg">
+                  <div className="text-white text-sm font-medium">每股盈餘</div>
+                  <div className="text-xl font-bold text-white">{companyData[compareCompany].eps}</div>
+                </div>
               </div>
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">市值</div>
-                <div className="text-lg font-bold text-white">{companyData[compareCompany].marketCap}</div>
-              </div>
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">本益比</div>
-                <div className="text-lg font-bold text-white">{companyData[compareCompany].pe}</div>
-              </div>
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">綜合評分</div>
-                <div className="text-xl font-bold" style={{color: getScoreColor(companyData[compareCompany].overallScore)}}>
+              
+              {/* 右側大圓形綜合評分 */}
+              <div className="bg-teal-600 rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px]">
+                <div className="text-white text-sm font-medium mb-2">綜合評分</div>
+                <div className="text-6xl font-bold text-yellow-400">
                   {companyData[compareCompany].overallScore}
                 </div>
               </div>
