@@ -4,7 +4,8 @@
       "Bash(npx vite:*)",
       "Bash(npm run build:*)",
       "Bash(yarn install)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
