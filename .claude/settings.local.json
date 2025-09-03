@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(rm:*)",
+      "Bash(git checkout:*)",
+      "Bash(mv:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
