@@ -139,6 +139,44 @@ const BusinessSustainabilityAssessment = () => {
     { period: '4Q25', score: 85 }
   ];
 
+  // 基本面數據
+  const fundamentalData = {
+    NVDA: {
+      earnings: [
+        { period: '2023-Q3', value: 0.4, growth: -5 },
+        { period: '2024-Q1', value: 0.6, growth: 50 },
+        { period: '2024-Q3', value: 0.8, growth: 33 },
+        { period: '2025-Q1', value: 0.95, growth: 19 },
+        { period: '2025-Q3', value: 1.0, growth: 5 },
+        { period: '2026-Q1', value: 1.1, growth: 10 }
+      ],
+      revenue: [
+        { period: '2023-Q3', value: 10000, growth: 100 },
+        { period: '2024-Q1', value: 15000, growth: 150 },
+        { period: '2024-Q3', value: 25000, growth: 167 },
+        { period: '2025-Q1', value: 35000, growth: 140 },
+        { period: '2025-Q3', value: 42000, growth: 120 },
+        { period: '2026-Q1', value: 48000, growth: 114 }
+      ],
+      ebitda: [
+        { period: '2023-Q3', value: 8000, growth: 0 },
+        { period: '2024-Q1', value: 12000, growth: 200 },
+        { period: '2024-Q3', value: 20000, growth: 500 },
+        { period: '2025-Q1', value: 25000, growth: 108 },
+        { period: '2025-Q3', value: 28000, growth: 40 },
+        { period: '2026-Q1', value: 30000, growth: 25 }
+      ],
+      marketCap: [
+        { period: '2023-Q3', value: 800, growth: 0 },
+        { period: '2024-Q1', value: 1200, growth: 50 },
+        { period: '2024-Q3', value: 2800, growth: 133 },
+        { period: '2025-Q1', value: 4200, growth: 50 },
+        { period: '2025-Q3', value: 4800, growth: 14 },
+        { period: '2026-Q1', value: 5000, growth: 4 }
+      ]
+    }
+  };
+
   // 側邊選單項目
   const menuItems = [
     { id: 'dashboard', label: '六大核心能力', icon: <Target className="w-5 h-5" />, active: true },
@@ -183,21 +221,300 @@ const BusinessSustainabilityAssessment = () => {
     
     if (currentPage === 'companies') {
       return (
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6">基本面分析</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.values(companyData).map((company) => (
-              <div key={company.ticker} className="bg-slate-800 rounded-xl p-4 hover:bg-slate-700 transition-colors cursor-pointer">
-                <h3 className="font-bold text-lg mb-2">{company.name}</h3>
-                <p className="text-slate-400 mb-3">{company.ticker}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">評分: </span>
-                  <span className="font-bold" style={{color: getScoreColor(company.overallScore)}}>
-                    {company.overallScore}
-                  </span>
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold">基本面分析</h2>
+            <select 
+              value={selectedCompany}
+              onChange={(e) => setSelectedCompany(e.target.value)}
+              className="liquid-glass-card px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              {companyOptions.map(option => (
+                <option key={option.value} value={option.value} className="bg-slate-800">
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 基本面圖表 - 2x2 佈局 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 每股盈餘 */}
+            <div className="liquid-glass-warm rounded-xl p-6 card-hover">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-teal-500 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold">每股盈餘</h3>
+                </div>
+                <button className="text-sm text-slate-400 hover:text-white transition-colors">
+                  <span>單季</span> | <span className="text-orange-400">近4季</span>
+                </button>
+              </div>
+              
+              <div className="flex items-center space-x-2 mb-4">
+                <span className="text-xs text-slate-400">美元</span>
+                <span className="text-xs text-slate-400">%</span>
+              </div>
+              
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={fundamentalData[selectedCompany]?.earnings || []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.3)" />
+                  <XAxis 
+                    dataKey="period" 
+                    stroke="#94a3b8" 
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#94a3b8" 
+                    fontSize={12}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
+                      borderRadius: '8px',
+                      backdropFilter: 'blur(8px)'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="value" 
+                    fill="url(#earningsGradient)" 
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="growth" 
+                    stroke="#06d6a0"
+                    strokeWidth={2}
+                    dot={{ fill: '#06d6a0', strokeWidth: 2, r: 4 }}
+                  />
+                  <defs>
+                    <linearGradient id="earningsGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#1e40af" />
+                      <stop offset="100%" stopColor="#3b82f6" />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* 每股淨值 */}
+            <div className="liquid-glass-warm rounded-xl p-6 card-hover">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold">每股淨值</h3>
+                </div>
+                <button className="text-sm text-slate-400 hover:text-white transition-colors">
+                  <span>單季</span> | <span className="text-orange-400">近4季</span>
+                </button>
+              </div>
+              
+              <div className="flex items-center space-x-2 mb-4">
+                <span className="text-xs text-slate-400">美元</span>
+                <span className="text-xs text-slate-400">%</span>
+              </div>
+              
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={fundamentalData[selectedCompany]?.marketCap || []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.3)" />
+                  <XAxis 
+                    dataKey="period" 
+                    stroke="#94a3b8" 
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#94a3b8" 
+                    fontSize={12}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
+                      borderRadius: '8px',
+                      backdropFilter: 'blur(8px)'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="value" 
+                    fill="url(#netValueGradient)" 
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="growth" 
+                    stroke="#06d6a0"
+                    strokeWidth={2}
+                    dot={{ fill: '#06d6a0', strokeWidth: 2, r: 4 }}
+                  />
+                  <defs>
+                    <linearGradient id="netValueGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0891b2" />
+                      <stop offset="100%" stopColor="#06b6d4" />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* 營收 */}
+            <div className="liquid-glass-warm rounded-xl p-6 card-hover">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold">營收</h3>
+                </div>
+                <button className="text-sm text-slate-400 hover:text-white transition-colors">
+                  <span>單季</span> | <span className="text-orange-400">近4季</span>
+                </button>
+              </div>
+              
+              <div className="flex items-center space-x-2 mb-4">
+                <span className="text-xs text-slate-400">百萬美元</span>
+                <span className="text-xs text-slate-400">%</span>
+              </div>
+              
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={fundamentalData[selectedCompany]?.revenue || []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.3)" />
+                  <XAxis 
+                    dataKey="period" 
+                    stroke="#94a3b8" 
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#94a3b8" 
+                    fontSize={12}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
+                      borderRadius: '8px',
+                      backdropFilter: 'blur(8px)'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="value" 
+                    fill="url(#revenueGradient)" 
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="growth" 
+                    stroke="#06d6a0"
+                    strokeWidth={2}
+                    dot={{ fill: '#06d6a0', strokeWidth: 2, r: 4 }}
+                  />
+                  <defs>
+                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#059669" />
+                      <stop offset="100%" stopColor="#10b981" />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* EBITDA */}
+            <div className="liquid-glass-warm rounded-xl p-6 card-hover">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
+                    <Target className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold">EBITDA</h3>
+                </div>
+                <button className="text-sm text-slate-400 hover:text-white transition-colors">
+                  <span>單季</span> | <span className="text-orange-400">近4季</span>
+                </button>
+              </div>
+              
+              <div className="flex items-center space-x-2 mb-4">
+                <span className="text-xs text-slate-400">百萬美元</span>
+                <span className="text-xs text-slate-400">%</span>
+              </div>
+              
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={fundamentalData[selectedCompany]?.ebitda || []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.3)" />
+                  <XAxis 
+                    dataKey="period" 
+                    stroke="#94a3b8" 
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#94a3b8" 
+                    fontSize={12}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
+                      borderRadius: '8px',
+                      backdropFilter: 'blur(8px)'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="value" 
+                    fill="url(#ebitdaGradient)" 
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="growth" 
+                    stroke="#06d6a0"
+                    strokeWidth={2}
+                    dot={{ fill: '#06d6a0', strokeWidth: 2, r: 4 }}
+                  />
+                  <defs>
+                    <linearGradient id="ebitdaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ea580c" />
+                      <stop offset="100%" stopColor="#f97316" />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* 公司基本資訊卡片 */}
+          <div className="liquid-glass-card rounded-xl p-6">
+            <h3 className="text-xl font-bold mb-4">
+              {companyData[selectedCompany].name} - 基本資訊
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="warm-gradient-card p-4 rounded-lg">
+                <div className="text-slate-300 text-sm">股票代號</div>
+                <div className="text-2xl font-bold text-orange-400">
+                  {companyData[selectedCompany].ticker}
                 </div>
               </div>
-            ))}
+              <div className="warm-gradient-card p-4 rounded-lg">
+                <div className="text-slate-300 text-sm">市值</div>
+                <div className="text-2xl font-bold text-orange-400">
+                  {companyData[selectedCompany].marketCap}
+                </div>
+              </div>
+              <div className="warm-gradient-card p-4 rounded-lg">
+                <div className="text-slate-300 text-sm">本益比</div>
+                <div className="text-2xl font-bold text-orange-400">
+                  {companyData[selectedCompany].pe}
+                </div>
+              </div>
+              <div className="warm-gradient-card p-4 rounded-lg">
+                <div className="text-slate-300 text-sm">每股盈餘</div>
+                <div className="text-2xl font-bold text-orange-400">
+                  {companyData[selectedCompany].eps}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -236,17 +553,17 @@ const BusinessSustainabilityAssessment = () => {
     return (
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* 公司選擇區 */}
-        <div className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700 mb-6">
+        <div className="liquid-glass-warm rounded-xl p-6 shadow-lg border border-orange-500/30 mb-6 card-hover">
           <div className="flex flex-row gap-8 items-center justify-center">
             <div className="flex items-center space-x-3">
-              <label className="text-slate-300 font-medium">主要分析公司:</label>
+              <label className="text-orange-200 font-medium">主要分析公司:</label>
               <select 
                 value={selectedCompany}
                 onChange={(e) => setSelectedCompany(e.target.value)}
-                className="bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="liquid-glass border border-orange-500/40 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent btn-primary"
               >
                 {companyOptions.map(option => (
-                  <option key={option.value} value={option.value}>
+                  <option key={option.value} value={option.value} className="bg-slate-800">
                     {option.label}
                   </option>
                 ))}
@@ -254,14 +571,14 @@ const BusinessSustainabilityAssessment = () => {
             </div>
             
             <div className="flex items-center space-x-3">
-              <label className="text-slate-300 font-medium">比較公司:</label>
+              <label className="text-orange-200 font-medium">比較公司:</label>
               <select 
                 value={compareCompany}
                 onChange={(e) => setCompareCompany(e.target.value)}
-                className="bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="liquid-glass border border-orange-500/40 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent btn-primary"
               >
                 {compareOptions.map(option => (
-                  <option key={option.value} value={option.value}>
+                  <option key={option.value} value={option.value} className="bg-slate-800">
                     {option.label}
                   </option>
                 ))}
@@ -273,13 +590,13 @@ const BusinessSustainabilityAssessment = () => {
         {/* 公司概覽 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 主要公司 */}
-          <div className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
+          <div className="liquid-glass-warm rounded-xl p-6 shadow-lg border border-blue-500/30 card-hover">
             <div className="flex items-center space-x-4 mb-6">
-              <div className="bg-blue-500 p-3 rounded-lg">
+              <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-3 rounded-lg shadow-lg">
                 <Award className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-blue-400">{companyData[selectedCompany].name}</h2>
+                <h2 className="text-xl font-bold text-blue-300">{companyData[selectedCompany].name}</h2>
                 <p className="text-slate-300">{companyData[selectedCompany].ticker}</p>
               </div>
             </div>
@@ -287,25 +604,25 @@ const BusinessSustainabilityAssessment = () => {
             <div className="flex gap-6">
               {/* 左側三個卡片 */}
               <div className="flex flex-col gap-4 flex-1">
-                <div className="bg-teal-600 p-4 rounded-lg">
-                  <div className="text-white text-sm font-medium">營收</div>
-                  <div className="text-2xl font-bold text-white">{companyData[selectedCompany].revenue}</div>
-                  <div className="text-teal-100 text-sm font-medium">{companyData[selectedCompany].growth}</div>
+                <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
+                  <div className="text-orange-200 text-sm font-medium">營收</div>
+                  <div className="text-2xl font-bold text-orange-300">{companyData[selectedCompany].revenue}</div>
+                  <div className="text-orange-100 text-sm font-medium">{companyData[selectedCompany].growth}</div>
                 </div>
-                <div className="bg-teal-600 p-4 rounded-lg">
-                  <div className="text-white text-sm font-medium">市值</div>
-                  <div className="text-xl font-bold text-white">{companyData[selectedCompany].marketCap}</div>
+                <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
+                  <div className="text-orange-200 text-sm font-medium">市值</div>
+                  <div className="text-xl font-bold text-orange-300">{companyData[selectedCompany].marketCap}</div>
                 </div>
-                <div className="bg-teal-600 p-4 rounded-lg">
-                  <div className="text-white text-sm font-medium">每股盈餘</div>
-                  <div className="text-xl font-bold text-white">{companyData[selectedCompany].eps}</div>
+                <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
+                  <div className="text-orange-200 text-sm font-medium">每股盈餘</div>
+                  <div className="text-xl font-bold text-orange-300">{companyData[selectedCompany].eps}</div>
                 </div>
               </div>
               
               {/* 右側大圓形綜合評分 */}
-              <div className="bg-teal-600 rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px]">
-                <div className="text-white text-sm font-medium mb-2">綜合評分</div>
-                <div className="text-6xl font-bold text-yellow-400">
+              <div className="warm-gradient-card rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg">
+                <div className="text-orange-200 text-sm font-medium mb-2">綜合評分</div>
+                <div className="text-6xl font-bold text-yellow-300">
                   {companyData[selectedCompany].overallScore}
                 </div>
               </div>
@@ -313,13 +630,13 @@ const BusinessSustainabilityAssessment = () => {
           </div>
 
           {/* 比較公司 */}
-          <div className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
+          <div className="liquid-glass-warm rounded-xl p-6 shadow-lg border border-green-500/30 card-hover">
             <div className="flex items-center space-x-4 mb-6">
-              <div className="bg-green-500 p-3 rounded-lg">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-lg shadow-lg">
                 <Award className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-green-400">{companyData[compareCompany].name}</h2>
+                <h2 className="text-xl font-bold text-green-300">{companyData[compareCompany].name}</h2>
                 <p className="text-slate-300">{companyData[compareCompany].ticker}</p>
               </div>
             </div>
@@ -327,25 +644,25 @@ const BusinessSustainabilityAssessment = () => {
             <div className="flex gap-6">
               {/* 左側三個卡片 */}
               <div className="flex flex-col gap-4 flex-1">
-                <div className="bg-teal-600 p-4 rounded-lg">
-                  <div className="text-white text-sm font-medium">營收</div>
-                  <div className="text-2xl font-bold text-white">{companyData[compareCompany].revenue}</div>
-                  <div className="text-teal-100 text-sm font-medium">{companyData[compareCompany].growth}</div>
+                <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
+                  <div className="text-orange-200 text-sm font-medium">營收</div>
+                  <div className="text-2xl font-bold text-orange-300">{companyData[compareCompany].revenue}</div>
+                  <div className="text-orange-100 text-sm font-medium">{companyData[compareCompany].growth}</div>
                 </div>
-                <div className="bg-teal-600 p-4 rounded-lg">
-                  <div className="text-white text-sm font-medium">市值</div>
-                  <div className="text-xl font-bold text-white">{companyData[compareCompany].marketCap}</div>
+                <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
+                  <div className="text-orange-200 text-sm font-medium">市值</div>
+                  <div className="text-xl font-bold text-orange-300">{companyData[compareCompany].marketCap}</div>
                 </div>
-                <div className="bg-teal-600 p-4 rounded-lg">
-                  <div className="text-white text-sm font-medium">每股盈餘</div>
-                  <div className="text-xl font-bold text-white">{companyData[compareCompany].eps}</div>
+                <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
+                  <div className="text-orange-200 text-sm font-medium">每股盈餘</div>
+                  <div className="text-xl font-bold text-orange-300">{companyData[compareCompany].eps}</div>
                 </div>
               </div>
               
               {/* 右側大圓形綜合評分 */}
-              <div className="bg-teal-600 rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px]">
-                <div className="text-white text-sm font-medium mb-2">綜合評分</div>
-                <div className="text-6xl font-bold text-yellow-400">
+              <div className="warm-gradient-card rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg">
+                <div className="text-orange-200 text-sm font-medium mb-2">綜合評分</div>
+                <div className="text-6xl font-bold text-yellow-300">
                   {companyData[compareCompany].overallScore}
                 </div>
               </div>
@@ -355,8 +672,8 @@ const BusinessSustainabilityAssessment = () => {
 
         {/* 六大維度雷達圖 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
-            <h3 className="text-xl font-bold mb-6 text-center">六大核心能力比較雷達圖</h3>
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+            <h3 className="text-xl font-bold mb-6 text-center text-orange-200">六大核心能力比較雷達圖</h3>
             <ResponsiveContainer width="100%" height={400}>
               <RadarChart data={radarData}>
                 <PolarGrid gridType="polygon" stroke="#475569" />
@@ -397,33 +714,33 @@ const BusinessSustainabilityAssessment = () => {
           </div>
 
           {/* 維度評分詳情 - 比較模式 */}
-          <div className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
-            <h3 className="text-xl font-bold mb-6">維度評分比較</h3>
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+            <h3 className="text-xl font-bold mb-6 text-orange-200">維度評分比較</h3>
             <div className="space-y-4">
               {Object.entries(companyData[selectedCompany].metrics).map(([dimension, score]) => (
                 <div key={dimension} 
-                     className="p-4 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors">
+                     className="p-4 warm-gradient-card rounded-lg hover:scale-105 transition-all duration-300">
                   <div className="flex items-center space-x-3 mb-3">
-                    <div className="text-blue-400">
+                    <div className="text-orange-300">
                       {dimensionIcons[dimension]}
                     </div>
-                    <span className="font-medium text-lg">{dimension}</span>
+                    <span className="font-medium text-lg text-orange-200">{dimension}</span>
                   </div>
                   
                   {/* 主要公司 */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                      <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full shadow-sm"></div>
                       <span className="text-sm text-slate-300">{companyData[selectedCompany].name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-20 bg-slate-600 rounded-full h-2">
+                      <div className="w-20 liquid-glass rounded-full h-2">
                         <div 
-                          className="h-2 rounded-full bg-green-400 transition-all duration-1000"
+                          className="h-2 rounded-full bg-gradient-to-r from-green-400 to-emerald-400 transition-all duration-1000 shadow-sm"
                           style={{ width: `${score}%` }}
                         />
                       </div>
-                      <span className="text-sm font-bold min-w-[3rem] text-green-400">
+                      <span className="text-sm font-bold min-w-[3rem] text-green-300">
                         {score}
                       </span>
                     </div>
@@ -432,17 +749,17 @@ const BusinessSustainabilityAssessment = () => {
                   {/* 比較公司 */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+                      <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full shadow-sm"></div>
                       <span className="text-sm text-slate-300">{companyData[compareCompany].name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-20 bg-slate-600 rounded-full h-2">
+                      <div className="w-20 liquid-glass rounded-full h-2">
                         <div 
-                          className="h-2 rounded-full bg-blue-400 transition-all duration-1000"
+                          className="h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-1000 shadow-sm"
                           style={{ width: `${companyData[compareCompany].metrics[dimension]}%` }}
                         />
                       </div>
-                      <span className="text-sm font-bold min-w-[3rem] text-blue-400">
+                      <span className="text-sm font-bold min-w-[3rem] text-blue-300">
                         {companyData[compareCompany].metrics[dimension]}
                       </span>
                     </div>
@@ -455,8 +772,8 @@ const BusinessSustainabilityAssessment = () => {
 
         {/* 趨勢分析 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
-            <h3 className="text-xl font-bold mb-6">評分趨勢</h3>
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+            <h3 className="text-xl font-bold mb-6 text-orange-200">評分趨勢</h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
@@ -483,24 +800,24 @@ const BusinessSustainabilityAssessment = () => {
           </div>
 
           {/* 風險預警 */}
-          <div className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
-            <h3 className="text-xl font-bold mb-6">風險預警指標</h3>
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+            <h3 className="text-xl font-bold mb-6 text-orange-200">風險預警指標</h3>
             <div className="space-y-4">
-              <div className="flex items-center space-x-3 p-3 bg-green-900/30 border border-green-700 rounded-lg">
+              <div className="flex items-center space-x-3 p-3 warm-gradient-card border border-green-500/30 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-400" />
                 <div>
                   <div className="font-medium text-green-400">財務健康度</div>
                   <div className="text-sm text-slate-300">流動比率、ROE表現優異</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 p-3 bg-yellow-900/30 border border-yellow-700 rounded-lg">
+              <div className="flex items-center space-x-3 p-3 warm-gradient-card border border-yellow-500/30 rounded-lg">
                 <AlertTriangle className="w-5 h-5 text-yellow-400" />
                 <div>
                   <div className="font-medium text-yellow-400">ESG關注點</div>
                   <div className="text-sm text-slate-300">能源效率需要持續改善</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 p-3 bg-green-900/30 border border-green-700 rounded-lg">
+              <div className="flex items-center space-x-3 p-3 warm-gradient-card border border-green-500/30 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-400" />
                 <div>
                   <div className="font-medium text-green-400">創新動能</div>
@@ -512,17 +829,17 @@ const BusinessSustainabilityAssessment = () => {
         </div>
 
         {/* 評估標準 */}
-        <div className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
-          <h3 className="text-xl font-bold mb-6">評分標準</h3>
+        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+          <h3 className="text-xl font-bold mb-6 text-orange-200">評分標準</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {Object.entries(performanceColors).map(([level, color]) => (
-              <div key={level} className="flex items-center space-x-2 p-3 bg-slate-700 rounded-lg">
+              <div key={level} className="flex items-center space-x-2 p-3 warm-gradient-card rounded-lg transition-all duration-300 hover:scale-105">
                 <div 
-                  className="w-4 h-4 rounded-full"
+                  className="w-4 h-4 rounded-full shadow-sm"
                   style={{backgroundColor: color}}
                 />
                 <div>
-                  <div className="font-medium text-sm">{level}</div>
+                  <div className="font-medium text-sm text-orange-200">{level}</div>
                   <div className="text-xs text-slate-400">
                     {level === '優異' && '90-100分'}
                     {level === '良好' && '75-89分'}
@@ -540,30 +857,32 @@ const BusinessSustainabilityAssessment = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 text-white flex">
+    <div className="min-h-screen dynamic-bg text-white flex">
       {/* 左側邊欄 */}
-      <div className="w-64 bg-slate-800 shadow-xl border-r border-slate-700 flex flex-col h-screen overflow-hidden">
+      <div className="w-64 liquid-glass-card shadow-xl border-r border-orange-500/20 flex flex-col h-screen overflow-hidden backdrop-blur-xl">
         {/* Logo區域 */}
-        <div className="p-4 border-b border-slate-700">
+        <div className="p-4 border-b border-orange-500/20">
           <div className="flex items-center space-x-3">
-            <div className="bg-blue-500 p-2 rounded-lg">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 rounded-lg shadow-lg">
               <Award className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold">企業評估平台</h1>
-              <p className="text-xs text-slate-400">v6.0</p>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                企業評估平台
+              </h1>
+              <p className="text-xs text-slate-400">v2.0 Liquid Glass</p>
             </div>
           </div>
         </div>
 
         {/* 搜尋框 */}
-        <div className="p-4 border-b border-slate-700">
+        <div className="p-4 border-b border-orange-500/20">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-orange-400" />
             <input 
               type="text" 
               placeholder="Search here..." 
-              className="w-full bg-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-600"
+              className="w-full liquid-glass rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 border border-orange-500/30 placeholder-slate-400"
             />
           </div>
         </div>
@@ -575,23 +894,23 @@ const BusinessSustainabilityAssessment = () => {
               <button
                 key={item.id}
                 onClick={() => setCurrentPage(item.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors group relative ${
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 group relative ${
                   currentPage === item.id 
-                    ? 'bg-blue-600 text-white' 
-                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                    ? 'warm-gradient-card text-white shadow-lg' 
+                    : 'text-slate-300 hover:liquid-glass-warm hover:text-white'
                 }`}
               >
-                <div className={currentPage === item.id ? 'text-white' : 'text-slate-400 group-hover:text-white'}>
+                <div className={currentPage === item.id ? 'text-orange-300' : 'text-slate-400 group-hover:text-orange-300'}>
                   {item.icon}
                 </div>
                 <span className="font-medium">{item.label}</span>
                 {item.badge && (
-                  <div className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                  <div className="ml-auto bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs px-2 py-1 rounded-full shadow-lg">
                     {item.badge}
                   </div>
                 )}
                 {currentPage === item.id && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r"></div>
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-400 to-red-400 rounded-r shadow-lg"></div>
                 )}
               </button>
             ))}
@@ -599,13 +918,14 @@ const BusinessSustainabilityAssessment = () => {
         </div>
 
         {/* 底部用戶資訊 */}
-        <div className="p-4 border-t border-slate-700">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+        <div className="p-4 border-t border-orange-500/20">
+          <div className="flex items-center space-x-3 liquid-glass-warm rounded-lg p-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-lg">
               <User className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
-              <div className="text-sm font-medium">Audit01</div>
+              <div className="text-sm font-medium text-orange-200">Audit01</div>
+              <div className="text-xs text-slate-400">分析師</div>
             </div>
           </div>
         </div>
@@ -614,21 +934,21 @@ const BusinessSustainabilityAssessment = () => {
       {/* 主要內容區域 */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4 shadow-xl">
+        <div className="liquid-glass-warm border-b border-orange-500/20 px-6 py-4 shadow-xl backdrop-blur-xl">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold capitalize">
-                {currentPage === 'dashboard' ? '儀表板' : 
+              <h2 className="text-xl font-bold">
+                {currentPage === 'dashboard' ? '六大核心能力' : 
                  currentPage === 'profile' ? '用戶資料' :
-                 currentPage === 'companies' ? '公司管理' :
+                 currentPage === 'companies' ? '基本面分析' :
                  currentPage === 'reports' ? '報告中心' :
                  currentPage}
               </h2>
-              <p className="text-blue-100 text-sm">企業持續經營能力分析</p>
+              <p className="text-slate-300 text-sm">企業持續經營能力分析</p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-blue-100">評估日期</div>
-              <div className="text-lg font-semibold">2025-08-31</div>
+              <div className="text-sm text-slate-300">評估日期</div>
+              <div className="text-lg font-semibold text-orange-300">2025-08-31</div>
             </div>
           </div>
         </div>
