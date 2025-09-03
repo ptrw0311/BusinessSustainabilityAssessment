@@ -34,11 +34,11 @@ const BusinessSustainabilityAssessment = () => {
       name: '遠傳電信 Far EasTone',
       ticker: '4904',
       overallScore: 72,
-      revenue: '968.7億',
+      revenue: '1051.7億元',
       growth: '+2.8%',
-      marketCap: '3115億元',
+      marketCap: '3036億元',
       pe: '23.7',
-      eps: '4.85新台幣',
+      eps: '2.15元',
       metrics: {
         營運能力: 75,
         財務能力: 78,
@@ -141,6 +141,40 @@ const BusinessSustainabilityAssessment = () => {
 
   // 基本面數據
   const fundamentalData = {
+    FET: {
+      earnings: [
+        { period: '2023-Q3', value: 1.8, growth: -8 },
+        { period: '2024-Q1', value: 2.0, growth: 11 },
+        { period: '2024-Q3', value: 2.1, growth: 5 },
+        { period: '2025-Q1', value: 2.15, growth: 2 },
+        { period: '2025-Q3', value: 2.2, growth: 2 },
+        { period: '2026-Q1', value: 2.3, growth: 5 }
+      ],
+      revenue: [
+        { period: '2023-Q3', value: 980, growth: 2 },
+        { period: '2024-Q1', value: 1020, growth: 4 },
+        { period: '2024-Q3', value: 1040, growth: 2 },
+        { period: '2025-Q1', value: 1051, growth: 1 },
+        { period: '2025-Q3', value: 1065, growth: 1 },
+        { period: '2026-Q1', value: 1080, growth: 1 }
+      ],
+      ebitda: [
+        { period: '2023-Q3', value: 180, growth: 3 },
+        { period: '2024-Q1', value: 185, growth: 3 },
+        { period: '2024-Q3', value: 190, growth: 3 },
+        { period: '2025-Q1', value: 195, growth: 3 },
+        { period: '2025-Q3', value: 200, growth: 3 },
+        { period: '2026-Q1', value: 205, growth: 3 }
+      ],
+      marketCap: [
+        { period: '2023-Q3', value: 2800, growth: -2 },
+        { period: '2024-Q1', value: 2900, growth: 4 },
+        { period: '2024-Q3', value: 3000, growth: 3 },
+        { period: '2025-Q1', value: 3036, growth: 1 },
+        { period: '2025-Q3', value: 3050, growth: 0 },
+        { period: '2026-Q1', value: 3080, growth: 1 }
+      ]
+    },
     NVDA: {
       earnings: [
         { period: '2023-Q3', value: 0.4, growth: -5 },
@@ -199,19 +233,9 @@ const BusinessSustainabilityAssessment = () => {
                 <User className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">張經理</h3>
-                <p className="text-slate-400">投資分析師</p>
-                <p className="text-slate-400">email@company.com</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">分析報告</div>
-                <div className="text-2xl font-bold">156</div>
-              </div>
-              <div className="bg-slate-700 p-4 rounded-lg">
-                <div className="text-slate-400 text-sm">評估公司</div>
-                <div className="text-2xl font-bold">43</div>
+                <h3 className="text-xl font-bold">Audit01</h3>
+                <p className="text-slate-400">聯稽總部</p>
+                <p className="text-slate-400">audit01@company.com</p>
               </div>
             </div>
           </div>
@@ -240,7 +264,7 @@ const BusinessSustainabilityAssessment = () => {
           {/* 基本面圖表 - 2x2 佈局 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* 每股盈餘 */}
-            <div className="liquid-glass-warm rounded-xl p-6 card-hover">
+            <div className="liquid-glass-warm rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-teal-500 flex items-center justify-center">
@@ -254,7 +278,7 @@ const BusinessSustainabilityAssessment = () => {
               </div>
               
               <div className="flex items-center space-x-2 mb-4">
-                <span className="text-xs text-slate-400">美元</span>
+                <span className="text-xs text-slate-400">{selectedCompany === 'FET' ? '新台幣' : '美元'}</span>
                 <span className="text-xs text-slate-400">%</span>
               </div>
               
@@ -301,7 +325,7 @@ const BusinessSustainabilityAssessment = () => {
             </div>
 
             {/* 每股淨值 */}
-            <div className="liquid-glass-warm rounded-xl p-6 card-hover">
+            <div className="liquid-glass-warm rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
@@ -315,7 +339,7 @@ const BusinessSustainabilityAssessment = () => {
               </div>
               
               <div className="flex items-center space-x-2 mb-4">
-                <span className="text-xs text-slate-400">美元</span>
+                <span className="text-xs text-slate-400">{selectedCompany === 'FET' ? '新台幣' : '美元'}</span>
                 <span className="text-xs text-slate-400">%</span>
               </div>
               
@@ -362,7 +386,7 @@ const BusinessSustainabilityAssessment = () => {
             </div>
 
             {/* 營收 */}
-            <div className="liquid-glass-warm rounded-xl p-6 card-hover">
+            <div className="liquid-glass-warm rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
@@ -376,7 +400,7 @@ const BusinessSustainabilityAssessment = () => {
               </div>
               
               <div className="flex items-center space-x-2 mb-4">
-                <span className="text-xs text-slate-400">百萬美元</span>
+                <span className="text-xs text-slate-400">{selectedCompany === 'FET' ? '億新台幣' : '百萬美元'}</span>
                 <span className="text-xs text-slate-400">%</span>
               </div>
               
@@ -423,7 +447,7 @@ const BusinessSustainabilityAssessment = () => {
             </div>
 
             {/* EBITDA */}
-            <div className="liquid-glass-warm rounded-xl p-6 card-hover">
+            <div className="liquid-glass-warm rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
@@ -437,7 +461,7 @@ const BusinessSustainabilityAssessment = () => {
               </div>
               
               <div className="flex items-center space-x-2 mb-4">
-                <span className="text-xs text-slate-400">百萬美元</span>
+                <span className="text-xs text-slate-400">{selectedCompany === 'FET' ? '億新台幣' : '百萬美元'}</span>
                 <span className="text-xs text-slate-400">%</span>
               </div>
               
@@ -553,7 +577,7 @@ const BusinessSustainabilityAssessment = () => {
     return (
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* 公司選擇區 */}
-        <div className="liquid-glass-warm rounded-xl p-6 shadow-lg border border-orange-500/30 mb-6 card-hover">
+        <div className="liquid-glass-warm rounded-xl p-6 shadow-lg border border-orange-500/30 mb-6">
           <div className="flex flex-row gap-8 items-center justify-center">
             <div className="flex items-center space-x-3">
               <label className="text-orange-200 font-medium">主要分析公司:</label>
@@ -590,7 +614,7 @@ const BusinessSustainabilityAssessment = () => {
         {/* 公司概覽 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 主要公司 */}
-          <div className="liquid-glass-warm rounded-xl p-6 shadow-lg border border-blue-500/30 card-hover">
+          <div className="liquid-glass-warm rounded-xl p-6 shadow-lg border border-blue-500/30">
             <div className="flex items-center space-x-4 mb-6">
               <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-3 rounded-lg shadow-lg">
                 <Award className="w-8 h-8 text-white" />
@@ -630,7 +654,7 @@ const BusinessSustainabilityAssessment = () => {
           </div>
 
           {/* 比較公司 */}
-          <div className="liquid-glass-warm rounded-xl p-6 shadow-lg border border-green-500/30 card-hover">
+          <div className="liquid-glass-warm rounded-xl p-6 shadow-lg border border-green-500/30">
             <div className="flex items-center space-x-4 mb-6">
               <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-lg shadow-lg">
                 <Award className="w-8 h-8 text-white" />
@@ -672,7 +696,7 @@ const BusinessSustainabilityAssessment = () => {
 
         {/* 六大維度雷達圖 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
             <h3 className="text-xl font-bold mb-6 text-center text-orange-200">六大核心能力比較雷達圖</h3>
             <ResponsiveContainer width="100%" height={400}>
               <RadarChart data={radarData}>
@@ -714,7 +738,7 @@ const BusinessSustainabilityAssessment = () => {
           </div>
 
           {/* 維度評分詳情 - 比較模式 */}
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
             <h3 className="text-xl font-bold mb-6 text-orange-200">維度評分比較</h3>
             <div className="space-y-4">
               {Object.entries(companyData[selectedCompany].metrics).map(([dimension, score]) => (
@@ -772,7 +796,7 @@ const BusinessSustainabilityAssessment = () => {
 
         {/* 趨勢分析 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
             <h3 className="text-xl font-bold mb-6 text-orange-200">評分趨勢</h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={trendData}>
@@ -800,7 +824,7 @@ const BusinessSustainabilityAssessment = () => {
           </div>
 
           {/* 風險預警 */}
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
             <h3 className="text-xl font-bold mb-6 text-orange-200">風險預警指標</h3>
             <div className="space-y-4">
               <div className="flex items-center space-x-3 p-3 warm-gradient-card border border-green-500/30 rounded-lg">
@@ -829,7 +853,7 @@ const BusinessSustainabilityAssessment = () => {
         </div>
 
         {/* 評估標準 */}
-        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30 card-hover">
+        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
           <h3 className="text-xl font-bold mb-6 text-orange-200">評分標準</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {Object.entries(performanceColors).map(([level, color]) => (
@@ -925,7 +949,7 @@ const BusinessSustainabilityAssessment = () => {
             </div>
             <div className="flex-1">
               <div className="text-sm font-medium text-orange-200">Audit01</div>
-              <div className="text-xs text-slate-400">分析師</div>
+              <div className="text-xs text-slate-400">聯稽總部</div>
             </div>
           </div>
         </div>

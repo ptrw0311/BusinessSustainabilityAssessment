@@ -5,7 +5,8 @@
       "Bash(npm run build:*)",
       "Bash(yarn install)",
       "Bash(npm install)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
