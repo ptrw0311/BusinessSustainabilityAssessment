@@ -6,72 +6,74 @@ html, body, #root {
   height: 100%;
   margin: 0;
   font-family: 'Inter', 'Noto Sans TC', sans-serif;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%, #f8fafc 100%);
-  color: #0f172a; /* slate-900 */
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 25%, #6366f1 50%, #8b5cf6 75%, #a855f7 100%);
+  color: #ffffff;
 }
 
 /* Liquid Glass 效果 */
 .liquid-glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 
-    0 8px 32px rgba(31, 38, 135, 0.37),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 8px 32px rgba(14, 165, 233, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .liquid-glass-warm {
   background: linear-gradient(135deg, 
-    rgba(148, 163, 184, 0.1) 0%, 
-    rgba(156, 163, 175, 0.08) 25%, 
-    rgba(165, 180, 198, 0.06) 50%, 
-    rgba(156, 163, 175, 0.08) 75%, 
-    rgba(148, 163, 184, 0.1) 100%);
+    rgba(14, 165, 233, 0.12) 0%, 
+    rgba(59, 130, 246, 0.1) 25%, 
+    rgba(99, 102, 241, 0.08) 50%, 
+    rgba(139, 92, 246, 0.1) 75%, 
+    rgba(168, 85, 247, 0.12) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 
-    0 8px 32px rgba(148, 163, 184, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 8px 32px rgba(59, 130, 246, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .liquid-glass-card {
   background: linear-gradient(135deg, 
-    rgba(15, 23, 42, 0.85) 0%, 
-    rgba(30, 41, 59, 0.75) 50%, 
-    rgba(15, 23, 42, 0.85) 100%);
+    rgba(14, 165, 233, 0.15) 0%, 
+    rgba(59, 130, 246, 0.12) 25%, 
+    rgba(99, 102, 241, 0.1) 50%, 
+    rgba(139, 92, 246, 0.12) 75%, 
+    rgba(168, 85, 247, 0.15) 100%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(71, 85, 105, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 
-    0 4px 16px rgba(15, 23, 42, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 4px 16px rgba(99, 102, 241, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* 淺灰色漸層卡片 */
+/* 天空蓝到未来紫渐层卡片 */
 .warm-gradient-card {
   background: linear-gradient(135deg, 
-    rgba(148, 163, 184, 0.15) 0%, 
-    rgba(156, 163, 175, 0.12) 25%, 
-    rgba(165, 180, 198, 0.1) 50%, 
-    rgba(156, 163, 175, 0.12) 75%, 
-    rgba(148, 163, 184, 0.15) 100%);
+    rgba(14, 165, 233, 0.18) 0%, 
+    rgba(59, 130, 246, 0.15) 25%, 
+    rgba(99, 102, 241, 0.12) 50%, 
+    rgba(139, 92, 246, 0.15) 75%, 
+    rgba(168, 85, 247, 0.18) 100%);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 
-    0 6px 24px rgba(148, 163, 184, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    0 6px 24px rgba(99, 102, 241, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 /* 動態背景 */
 .dynamic-bg {
   background: 
-    radial-gradient(circle at 20% 30%, rgba(226, 232, 240, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(241, 245, 249, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 60% 20%, rgba(203, 213, 225, 0.25) 0%, transparent 50%),
-    linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%, #f8fafc 100%);
+    radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 60% 20%, rgba(99, 102, 241, 0.35) 0%, transparent 50%),
+    linear-gradient(135deg, #0ea5e9 0%, #3b82f6 25%, #6366f1 50%, #8b5cf6 75%, #a855f7 100%);
   animation: subtleFloat 20s ease-in-out infinite;
 }
 
@@ -83,15 +85,15 @@ html, body, #root {
 /* 捲軸樣式 */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { 
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(8px);
 }
 ::-webkit-scrollbar-thumb { 
-  background: linear-gradient(135deg, rgba(148, 163, 184, 0.6), rgba(156, 163, 175, 0.6));
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.6), rgba(139, 92, 246, 0.6));
   border-radius: 4px; 
 }
 ::-webkit-scrollbar-thumb:hover { 
-  background: linear-gradient(135deg, rgba(148, 163, 184, 0.8), rgba(156, 163, 175, 0.8));
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(139, 92, 246, 0.8));
 }
 
 /* 自訂工具類 */
@@ -99,21 +101,21 @@ html, body, #root {
 .card-hover { @apply transition-all duration-300 hover:scale-105; }
 .btn-primary { 
   @apply text-white px-4 py-2 rounded-lg font-medium transition-all duration-300;
-  background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
-  box-shadow: 0 4px 16px rgba(148, 163, 184, 0.3);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #475569 0%, #64748b 100%);
-  box-shadow: 0 6px 20px rgba(148, 163, 184, 0.4);
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
   transform: translateY(-2px);
 }
 .btn-secondary { 
-  @apply text-slate-200 px-4 py-2 rounded-lg font-medium transition-all duration-300; 
-  background: rgba(71, 85, 105, 0.6);
+  @apply text-white px-4 py-2 rounded-lg font-medium transition-all duration-300; 
+  background: rgba(99, 102, 241, 0.4);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .btn-secondary:hover {
-  background: rgba(71, 85, 105, 0.8);
+  background: rgba(99, 102, 241, 0.6);
   transform: translateY(-1px);
 }

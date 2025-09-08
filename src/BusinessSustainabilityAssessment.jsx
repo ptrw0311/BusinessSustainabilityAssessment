@@ -284,14 +284,14 @@ const BusinessSustainabilityAssessment = () => {
               
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fundamentalData[selectedCompany]?.earnings || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.3)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
                   <XAxis 
                     dataKey="period" 
-                    stroke="#94a3b8" 
+                    stroke="#ffffff" 
                     fontSize={12}
                   />
                   <YAxis 
-                    stroke="#94a3b8" 
+                    stroke="#ffffff" 
                     fontSize={12}
                   />
                   <Tooltip 
@@ -310,14 +310,14 @@ const BusinessSustainabilityAssessment = () => {
                   <Line 
                     type="monotone" 
                     dataKey="growth" 
-                    stroke="#06d6a0"
+                    stroke="#ffffff"
                     strokeWidth={2}
-                    dot={{ fill: '#06d6a0', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#ffffff', strokeWidth: 2, r: 4 }}
                   />
                   <defs>
                     <linearGradient id="earningsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#1e40af" />
-                      <stop offset="100%" stopColor="#3b82f6" />
+                      <stop offset="0%" stopColor="#ffffff" />
+                      <stop offset="100%" stopColor="#e5e7eb" />
                     </linearGradient>
                   </defs>
                 </BarChart>
@@ -345,14 +345,14 @@ const BusinessSustainabilityAssessment = () => {
               
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fundamentalData[selectedCompany]?.marketCap || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.3)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
                   <XAxis 
                     dataKey="period" 
-                    stroke="#94a3b8" 
+                    stroke="#ffffff" 
                     fontSize={12}
                   />
                   <YAxis 
-                    stroke="#94a3b8" 
+                    stroke="#ffffff" 
                     fontSize={12}
                   />
                   <Tooltip 
@@ -371,14 +371,14 @@ const BusinessSustainabilityAssessment = () => {
                   <Line 
                     type="monotone" 
                     dataKey="growth" 
-                    stroke="#06d6a0"
+                    stroke="#ffffff"
                     strokeWidth={2}
-                    dot={{ fill: '#06d6a0', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#ffffff', strokeWidth: 2, r: 4 }}
                   />
                   <defs>
                     <linearGradient id="netValueGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#0891b2" />
-                      <stop offset="100%" stopColor="#06b6d4" />
+                      <stop offset="0%" stopColor="#f8fafc" />
+                      <stop offset="100%" stopColor="#d1d5db" />
                     </linearGradient>
                   </defs>
                 </BarChart>
@@ -406,14 +406,14 @@ const BusinessSustainabilityAssessment = () => {
               
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fundamentalData[selectedCompany]?.revenue || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.3)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
                   <XAxis 
                     dataKey="period" 
-                    stroke="#94a3b8" 
+                    stroke="#ffffff" 
                     fontSize={12}
                   />
                   <YAxis 
-                    stroke="#94a3b8" 
+                    stroke="#ffffff" 
                     fontSize={12}
                   />
                   <Tooltip 
@@ -432,14 +432,14 @@ const BusinessSustainabilityAssessment = () => {
                   <Line 
                     type="monotone" 
                     dataKey="growth" 
-                    stroke="#06d6a0"
+                    stroke="#ffffff"
                     strokeWidth={2}
-                    dot={{ fill: '#06d6a0', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#ffffff', strokeWidth: 2, r: 4 }}
                   />
                   <defs>
                     <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#059669" />
-                      <stop offset="100%" stopColor="#10b981" />
+                      <stop offset="0%" stopColor="#ffffff" />
+                      <stop offset="100%" stopColor="#f1f5f9" />
                     </linearGradient>
                   </defs>
                 </BarChart>
@@ -467,14 +467,14 @@ const BusinessSustainabilityAssessment = () => {
               
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fundamentalData[selectedCompany]?.ebitda || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.3)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
                   <XAxis 
                     dataKey="period" 
-                    stroke="#94a3b8" 
+                    stroke="#ffffff" 
                     fontSize={12}
                   />
                   <YAxis 
-                    stroke="#94a3b8" 
+                    stroke="#ffffff" 
                     fontSize={12}
                   />
                   <Tooltip 
@@ -493,14 +493,14 @@ const BusinessSustainabilityAssessment = () => {
                   <Line 
                     type="monotone" 
                     dataKey="growth" 
-                    stroke="#06d6a0"
+                    stroke="#ffffff"
                     strokeWidth={2}
-                    dot={{ fill: '#06d6a0', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#ffffff', strokeWidth: 2, r: 4 }}
                   />
                   <defs>
                     <linearGradient id="ebitdaGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#ea580c" />
-                      <stop offset="100%" stopColor="#f97316" />
+                      <stop offset="0%" stopColor="#f9fafb" />
+                      <stop offset="100%" stopColor="#e5e7eb" />
                     </linearGradient>
                   </defs>
                 </BarChart>
@@ -697,28 +697,28 @@ const BusinessSustainabilityAssessment = () => {
         {/* 六大維度雷達圖 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
-            <h3 className="text-xl font-bold mb-6 text-center text-slate-100">六大核心能力比較雷達圖</h3>
+            <h3 className="text-xl font-bold mb-6 text-center text-white">六大核心能力比較雷達圖</h3>
             <ResponsiveContainer width="100%" height={400}>
               <RadarChart data={radarData}>
-                <PolarGrid gridType="polygon" stroke="#475569" />
+                <PolarGrid gridType="polygon" stroke="#ffffff" strokeOpacity={0.3} />
                 <PolarAngleAxis 
                   dataKey="dimension" 
-                  tick={{ fontSize: 12, fill: '#e2e8f0' }}
+                  tick={{ fontSize: 12, fill: '#ffffff' }}
                   className="text-sm"
                 />
                 <PolarRadiusAxis 
                   angle={90} 
                   domain={[0, 100]} 
-                  tick={{ fontSize: 10, fill: '#94a3b8' }}
+                  tick={{ fontSize: 10, fill: '#ffffff' }}
                 />
                 <Radar
                   name={companyData[selectedCompany].name}
                   dataKey="主要公司"
-                  stroke="#06d6a0"
-                  fill="#06d6a0"
+                  stroke="#ffffff"
+                  fill="#ffffff"
                   fillOpacity={0.4}
                   strokeWidth={3}
-                  dot={{ fill: '#06d6a0', strokeWidth: 3, r: 5, fillOpacity: 1 }}
+                  dot={{ fill: '#ffffff', strokeWidth: 3, r: 5, fillOpacity: 1 }}
                 />
                 <Radar
                   name={companyData[compareCompany].name}
@@ -797,12 +797,12 @@ const BusinessSustainabilityAssessment = () => {
         {/* 趨勢分析 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
-            <h3 className="text-xl font-bold mb-6 text-slate-100">評分趨勢</h3>
+            <h3 className="text-xl font-bold mb-6 text-white">評分趨勢</h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                <XAxis dataKey="period" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" domain={[80, 86]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.2} />
+                <XAxis dataKey="period" stroke="#ffffff" />
+                <YAxis stroke="#ffffff" domain={[80, 86]} />
                 <Tooltip 
                   contentStyle={{
                     backgroundColor: '#1e293b',
@@ -814,10 +814,10 @@ const BusinessSustainabilityAssessment = () => {
                 <Line 
                   type="monotone" 
                   dataKey="score" 
-                  stroke="#10b981" 
+                  stroke="#f0f9ff" 
                   strokeWidth={3}
-                  dot={{ fill: '#10b981', strokeWidth: 2, r: 5 }}
-                  activeDot={{ r: 7, fill: '#10b981' }}
+                  dot={{ fill: '#f0f9ff', strokeWidth: 2, r: 5 }}
+                  activeDot={{ r: 7, fill: '#f0f9ff' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -885,28 +885,27 @@ const BusinessSustainabilityAssessment = () => {
       {/* 左側邊欄 */}
       <div className="w-64 liquid-glass-card shadow-xl border-r border-slate-500/20 flex flex-col h-screen overflow-hidden backdrop-blur-xl text-white">
         {/* Logo區域 */}
-        <div className="p-4 border-b border-slate-500/20">
+        <div className="p-4 border-b border-white/20">
           <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-r from-slate-500 to-slate-600 p-2 rounded-lg shadow-lg">
+            <div className="bg-gradient-to-r from-white/20 to-white/30 p-2 rounded-lg shadow-lg">
               <Award className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-slate-300 to-slate-400 bg-clip-text text-transparent">
+              <h1 className="text-lg font-bold text-white">
                 企業評估平台
               </h1>
-              <p className="text-xs text-slate-400">v2.0 Liquid Glass</p>
             </div>
           </div>
         </div>
 
         {/* 搜尋框 */}
-        <div className="p-4 border-b border-slate-500/20">
+        <div className="p-4 border-b border-white/20">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-white/70" />
             <input 
               type="text" 
               placeholder="Search here..." 
-              className="w-full liquid-glass rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 border border-slate-500/30 placeholder-slate-400"
+              className="w-full liquid-glass rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/30 border border-white/30 placeholder-white/50 text-white"
             />
           </div>
         </div>
@@ -921,20 +920,20 @@ const BusinessSustainabilityAssessment = () => {
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 group relative ${
                   currentPage === item.id 
                     ? 'warm-gradient-card text-white shadow-lg' 
-                    : 'text-slate-300 hover:warm-gradient-card hover:text-white'
+                    : 'text-white/80 hover:warm-gradient-card hover:text-white'
                 }`}
               >
-                <div className={currentPage === item.id ? 'text-slate-300' : 'text-slate-400 group-hover:text-slate-300'}>
+                <div className={currentPage === item.id ? 'text-white' : 'text-white/70 group-hover:text-white'}>
                   {item.icon}
                 </div>
                 <span className="font-medium">{item.label}</span>
                 {item.badge && (
-                  <div className="ml-auto bg-gradient-to-r from-slate-500 to-slate-600 text-white text-xs px-2 py-1 rounded-full shadow-lg">
+                  <div className="ml-auto bg-gradient-to-r from-white/20 to-white/30 text-white text-xs px-2 py-1 rounded-full shadow-lg">
                     {item.badge}
                   </div>
                 )}
                 {currentPage === item.id && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-slate-400 to-slate-500 rounded-r shadow-lg"></div>
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-white/60 to-white/80 rounded-r shadow-lg"></div>
                 )}
               </button>
             ))}
@@ -942,14 +941,14 @@ const BusinessSustainabilityAssessment = () => {
         </div>
 
         {/* 底部用戶資訊 */}
-        <div className="p-4 border-t border-slate-500/20">
+        <div className="p-4 border-t border-white/20">
           <div className="flex items-center space-x-3 warm-gradient-card rounded-lg p-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-slate-500 to-slate-600 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-r from-white/20 to-white/30 rounded-full flex items-center justify-center shadow-lg">
               <User className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
-              <div className="text-sm font-medium text-slate-200">Audit01</div>
-              <div className="text-xs text-slate-400">聯稽總部</div>
+              <div className="text-sm font-medium text-white">Audit01</div>
+              <div className="text-xs text-white/70">聯稽總部</div>
             </div>
           </div>
         </div>
