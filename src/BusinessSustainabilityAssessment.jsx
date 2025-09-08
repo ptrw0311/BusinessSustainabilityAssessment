@@ -316,8 +316,8 @@ const BusinessSustainabilityAssessment = () => {
                   />
                   <defs>
                     <linearGradient id="earningsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#ffffff" />
-                      <stop offset="100%" stopColor="#e5e7eb" />
+                      <stop offset="0%" stopColor="#a855f7" />
+                      <stop offset="100%" stopColor="#7c3aed" />
                     </linearGradient>
                   </defs>
                 </BarChart>
@@ -377,8 +377,8 @@ const BusinessSustainabilityAssessment = () => {
                   />
                   <defs>
                     <linearGradient id="netValueGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f8fafc" />
-                      <stop offset="100%" stopColor="#d1d5db" />
+                      <stop offset="0%" stopColor="#fbbf24" />
+                      <stop offset="100%" stopColor="#f59e0b" />
                     </linearGradient>
                   </defs>
                 </BarChart>
@@ -438,8 +438,8 @@ const BusinessSustainabilityAssessment = () => {
                   />
                   <defs>
                     <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#ffffff" />
-                      <stop offset="100%" stopColor="#f1f5f9" />
+                      <stop offset="0%" stopColor="#10b981" />
+                      <stop offset="100%" stopColor="#059669" />
                     </linearGradient>
                   </defs>
                 </BarChart>
@@ -499,8 +499,8 @@ const BusinessSustainabilityAssessment = () => {
                   />
                   <defs>
                     <linearGradient id="ebitdaGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f9fafb" />
-                      <stop offset="100%" stopColor="#e5e7eb" />
+                      <stop offset="0%" stopColor="#f97316" />
+                      <stop offset="100%" stopColor="#ea580c" />
                     </linearGradient>
                   </defs>
                 </BarChart>
@@ -703,7 +703,7 @@ const BusinessSustainabilityAssessment = () => {
                 <PolarGrid gridType="polygon" stroke="#ffffff" strokeOpacity={0.3} />
                 <PolarAngleAxis 
                   dataKey="dimension" 
-                  tick={{ fontSize: 12, fill: '#ffffff' }}
+                  tick={{ fontSize: 14, fill: '#ffffff' }}
                   className="text-sm"
                 />
                 <PolarRadiusAxis 
@@ -714,20 +714,20 @@ const BusinessSustainabilityAssessment = () => {
                 <Radar
                   name={companyData[selectedCompany].name}
                   dataKey="主要公司"
-                  stroke="#ffffff"
-                  fill="#ffffff"
+                  stroke="#e8c07d"
+                  fill="#e8c07d"
                   fillOpacity={0.4}
                   strokeWidth={3}
-                  dot={{ fill: '#ffffff', strokeWidth: 3, r: 5, fillOpacity: 1 }}
+                  dot={{ fill: '#e8c07d', strokeWidth: 3, r: 5, fillOpacity: 1 }}
                 />
                 <Radar
                   name={companyData[compareCompany].name}
                   dataKey="比較公司"
-                  stroke="#3b82f6"
-                  fill="#3b82f6"
+                  stroke="#91a7ff"
+                  fill="#91a7ff"
                   fillOpacity={0.3}
                   strokeWidth={3}
-                  dot={{ fill: '#3b82f6', strokeWidth: 3, r: 4, fillOpacity: 1 }}
+                  dot={{ fill: '#91a7ff', strokeWidth: 3, r: 4, fillOpacity: 1 }}
                 />
                 <Legend 
                   wrapperStyle={{ paddingTop: '20px' }}
@@ -754,17 +754,20 @@ const BusinessSustainabilityAssessment = () => {
                   {/* 主要公司 */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full shadow-sm"></div>
+                      <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#e8c07d'}}></div>
                       <span className="text-sm text-slate-300">{companyData[selectedCompany].name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-20 liquid-glass rounded-full h-2">
                         <div 
-                          className="h-2 rounded-full bg-gradient-to-r from-green-400 to-emerald-400 transition-all duration-1000 shadow-sm"
-                          style={{ width: `${score}%` }}
+                          className="h-2 rounded-full transition-all duration-1000 shadow-sm"
+                          style={{ 
+                            width: `${score}%`, 
+                            backgroundColor: '#e8c07d'
+                          }}
                         />
                       </div>
-                      <span className="text-sm font-bold min-w-[3rem] text-green-300">
+                      <span className="text-sm font-bold min-w-[3rem]" style={{color: '#e8c07d'}}>
                         {score}
                       </span>
                     </div>
@@ -773,17 +776,20 @@ const BusinessSustainabilityAssessment = () => {
                   {/* 比較公司 */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full shadow-sm"></div>
+                      <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#91a7ff'}}></div>
                       <span className="text-sm text-slate-300">{companyData[compareCompany].name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-20 liquid-glass rounded-full h-2">
                         <div 
-                          className="h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-1000 shadow-sm"
-                          style={{ width: `${companyData[compareCompany].metrics[dimension]}%` }}
+                          className="h-2 rounded-full transition-all duration-1000 shadow-sm"
+                          style={{ 
+                            width: `${companyData[compareCompany].metrics[dimension]}%`,
+                            backgroundColor: '#91a7ff'
+                          }}
                         />
                       </div>
-                      <span className="text-sm font-bold min-w-[3rem] text-blue-300">
+                      <span className="text-sm font-bold min-w-[3rem]" style={{color: '#91a7ff'}}>
                         {companyData[compareCompany].metrics[dimension]}
                       </span>
                     </div>
@@ -854,7 +860,7 @@ const BusinessSustainabilityAssessment = () => {
 
         {/* 評估標準 */}
         <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
-          <h3 className="text-xl font-bold mb-6 text-slate-100">評分標準</h3>
+          <h3 className="text-xl font-bold mb-6 text-white">評分標準</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {Object.entries(performanceColors).map(([level, color]) => (
               <div key={level} className="flex items-center space-x-2 p-3 warm-gradient-card rounded-lg transition-all duration-300 hover:scale-105">
@@ -863,8 +869,8 @@ const BusinessSustainabilityAssessment = () => {
                   style={{backgroundColor: color}}
                 />
                 <div>
-                  <div className="font-medium text-sm text-slate-200">{level}</div>
-                  <div className="text-xs text-slate-400">
+                  <div className="font-medium text-sm text-white">{level}</div>
+                  <div className="text-xs text-white">
                     {level === '優異' && '90-100分'}
                     {level === '良好' && '75-89分'}
                     {level === '一般' && '60-74分'}
@@ -967,17 +973,20 @@ const BusinessSustainabilityAssessment = () => {
                  currentPage === 'reports' ? '報告中心' :
                  currentPage}
               </h2>
-              <p className="text-slate-400 text-sm">企業持續經營能力分析</p>
+              <p className="text-white text-sm">企業持續經營能力分析</p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-slate-400">評估日期</div>
-              <div className="text-lg font-semibold text-slate-300">2025-08-31</div>
+              <div className="text-sm text-white">評估日期</div>
+              <div className="text-lg font-semibold text-white">2025-08-31</div>
             </div>
           </div>
         </div>
 
         {/* 內容區域 - 可滾動 */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto" style={{
+          background: 'rgba(255, 255, 255, 0.03)',
+          backdropFilter: 'blur(1px)'
+        }}>
           {renderPageContent()}
         </div>
       </div>
