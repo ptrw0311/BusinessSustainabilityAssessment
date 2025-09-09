@@ -123,6 +123,18 @@ const BusinessSustainabilityAssessment = () => {
     return performanceColors[getPerformanceLevel(score)];
   };
 
+  const getPerformanceBackground = (score) => {
+    const level = getPerformanceLevel(score);
+    switch(level) {
+      case '優異': return 'linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)'; // 綠色系
+      case '良好': return 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)'; // 藍色系  
+      case '一般': return 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)'; // 橘色系
+      case '待改善': return 'linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%)'; // 粉紅色系
+      case '風險': return 'linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #9333ea 100%)'; // 紫色系
+      default: return 'linear-gradient(135deg, #4a90e2 0%, #b19cd9 100%)';
+    }
+  };
+
   const dimensionIcons = {
     營運能力: <BarChart3 className="w-5 h-5" />,
     財務能力: <TrendingUp className="w-5 h-5" />,
@@ -643,8 +655,15 @@ const BusinessSustainabilityAssessment = () => {
               </div>
               
               {/* 右側大圓形綜合評價 */}
-              <div className="warm-gradient-card rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg">
-                <div className="text-slate-200 text-sm font-medium mb-2">綜合評價</div>
+              <div className="rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg"
+                   style={{
+                     background: getPerformanceBackground(companyData[selectedCompany].overallScore),
+                     backdropFilter: 'blur(16px)',
+                     WebkitBackdropFilter: 'blur(16px)',
+                     border: '1px solid rgba(255, 255, 255, 0.3)',
+                     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+                   }}>
+                <div className="text-white text-sm font-medium mb-2">綜合評價</div>
                 <div className="text-2xl mb-2">
                   {companyData[selectedCompany].overallScore >= 90 && '🏆'}
                   {companyData[selectedCompany].overallScore >= 75 && companyData[selectedCompany].overallScore < 90 && '👍'}
@@ -653,11 +672,7 @@ const BusinessSustainabilityAssessment = () => {
                   {companyData[selectedCompany].overallScore < 40 && '🚨'}
                 </div>
                 <div className="text-2xl font-bold text-white">
-                  {companyData[selectedCompany].overallScore >= 90 && '優異'}
-                  {companyData[selectedCompany].overallScore >= 75 && companyData[selectedCompany].overallScore < 90 && '良好'}
-                  {companyData[selectedCompany].overallScore >= 60 && companyData[selectedCompany].overallScore < 75 && '一般'}
-                  {companyData[selectedCompany].overallScore >= 40 && companyData[selectedCompany].overallScore < 60 && '待改善'}
-                  {companyData[selectedCompany].overallScore < 40 && '風險'}
+                  {getPerformanceLevel(companyData[selectedCompany].overallScore)}
                 </div>
               </div>
             </div>
@@ -694,8 +709,15 @@ const BusinessSustainabilityAssessment = () => {
               </div>
               
               {/* 右側大圓形綜合評價 */}
-              <div className="warm-gradient-card rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg">
-                <div className="text-slate-200 text-sm font-medium mb-2">綜合評價</div>
+              <div className="rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg"
+                   style={{
+                     background: getPerformanceBackground(companyData[compareCompany].overallScore),
+                     backdropFilter: 'blur(16px)',
+                     WebkitBackdropFilter: 'blur(16px)',
+                     border: '1px solid rgba(255, 255, 255, 0.3)',
+                     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+                   }}>
+                <div className="text-white text-sm font-medium mb-2">綜合評價</div>
                 <div className="text-2xl mb-2">
                   {companyData[compareCompany].overallScore >= 90 && '🏆'}
                   {companyData[compareCompany].overallScore >= 75 && companyData[compareCompany].overallScore < 90 && '👍'}
@@ -704,11 +726,7 @@ const BusinessSustainabilityAssessment = () => {
                   {companyData[compareCompany].overallScore < 40 && '🚨'}
                 </div>
                 <div className="text-2xl font-bold text-white">
-                  {companyData[compareCompany].overallScore >= 90 && '優異'}
-                  {companyData[compareCompany].overallScore >= 75 && companyData[compareCompany].overallScore < 90 && '良好'}
-                  {companyData[compareCompany].overallScore >= 60 && companyData[compareCompany].overallScore < 75 && '一般'}
-                  {companyData[compareCompany].overallScore >= 40 && companyData[compareCompany].overallScore < 60 && '待改善'}
-                  {companyData[compareCompany].overallScore < 40 && '風險'}
+                  {getPerformanceLevel(companyData[compareCompany].overallScore)}
                 </div>
               </div>
             </div>
@@ -735,20 +753,20 @@ const BusinessSustainabilityAssessment = () => {
                 <Radar
                   name={companyData[selectedCompany].name}
                   dataKey="主要公司"
-                  stroke="#e8c07d"
-                  fill="#e8c07d"
+                  stroke="#FFB84D"
+                  fill="#FFB84D"
                   fillOpacity={0.4}
                   strokeWidth={3}
-                  dot={{ fill: '#e8c07d', strokeWidth: 3, r: 5, fillOpacity: 1 }}
+                  dot={{ fill: '#FFB84D', strokeWidth: 3, r: 5, fillOpacity: 1 }}
                 />
                 <Radar
                   name={companyData[compareCompany].name}
                   dataKey="比較公司"
-                  stroke="#91a7ff"
-                  fill="#91a7ff"
+                  stroke="#4ECDC4"
+                  fill="#4ECDC4"
                   fillOpacity={0.3}
                   strokeWidth={3}
-                  dot={{ fill: '#91a7ff', strokeWidth: 3, r: 4, fillOpacity: 1 }}
+                  dot={{ fill: '#4ECDC4', strokeWidth: 3, r: 4, fillOpacity: 1 }}
                 />
                 <Legend 
                   wrapperStyle={{ paddingTop: '20px' }}
@@ -775,7 +793,7 @@ const BusinessSustainabilityAssessment = () => {
                   {/* 主要公司 */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#e8c07d'}}></div>
+                      <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#FFB84D'}}></div>
                       <span className="text-sm text-slate-300">{companyData[selectedCompany].name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
@@ -784,11 +802,11 @@ const BusinessSustainabilityAssessment = () => {
                           className="h-2 rounded-full transition-all duration-1000 shadow-sm"
                           style={{ 
                             width: `${score}%`, 
-                            backgroundColor: '#e8c07d'
+                            backgroundColor: '#FFB84D'
                           }}
                         />
                       </div>
-                      <span className="text-sm font-bold min-w-[3rem]" style={{color: '#e8c07d'}}>
+                      <span className="text-sm font-bold min-w-[3rem]" style={{color: '#FFB84D'}}>
                         {score}
                       </span>
                     </div>
@@ -797,7 +815,7 @@ const BusinessSustainabilityAssessment = () => {
                   {/* 比較公司 */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#91a7ff'}}></div>
+                      <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#4ECDC4'}}></div>
                       <span className="text-sm text-slate-300">{companyData[compareCompany].name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
@@ -806,11 +824,11 @@ const BusinessSustainabilityAssessment = () => {
                           className="h-2 rounded-full transition-all duration-1000 shadow-sm"
                           style={{ 
                             width: `${companyData[compareCompany].metrics[dimension]}%`,
-                            backgroundColor: '#91a7ff'
+                            backgroundColor: '#4ECDC4'
                           }}
                         />
                       </div>
-                      <span className="text-sm font-bold min-w-[3rem]" style={{color: '#91a7ff'}}>
+                      <span className="text-sm font-bold min-w-[3rem]" style={{color: '#4ECDC4'}}>
                         {companyData[compareCompany].metrics[dimension]}
                       </span>
                     </div>
