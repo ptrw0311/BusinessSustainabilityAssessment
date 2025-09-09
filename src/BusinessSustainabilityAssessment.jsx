@@ -18,7 +18,7 @@ const BusinessSustainabilityAssessment = () => {
       overallScore: 85,
       revenue: '1305億美元',
       growth: '+114%',
-      marketCap: '23000億美元',
+      marketCap: '40600億美元',
       pe: '31.2',
       eps: '28.12美元',
       metrics: {
@@ -54,7 +54,7 @@ const BusinessSustainabilityAssessment = () => {
       overallScore: 88,
       revenue: '2096億新台幣',
       growth: '+37.6%',
-      marketCap: '18500億新台幣',
+      marketCap: '12800億美元',
       pe: '20.7',
       eps: '35.85新台幣',
       metrics: {
@@ -246,8 +246,7 @@ const BusinessSustainabilityAssessment = () => {
     if (currentPage === 'companies') {
       return (
         <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold">基本面分析</h2>
+          <div className="flex items-center justify-end mb-6">
             <select 
               value={selectedCompany}
               onChange={(e) => setSelectedCompany(e.target.value)}
@@ -521,7 +520,7 @@ const BusinessSustainabilityAssessment = () => {
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
-                <div className="text-slate-200 text-sm">市值</div>
+                <div className="text-slate-200 text-sm">淨值</div>
                 <div className="text-2xl font-bold text-white">
                   {companyData[selectedCompany].marketCap}
                 </div>
@@ -634,7 +633,7 @@ const BusinessSustainabilityAssessment = () => {
                   <div className="text-slate-200 text-sm font-medium">{companyData[selectedCompany].growth}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-200 text-sm font-medium">市值</div>
+                  <div className="text-slate-200 text-sm font-medium">淨值</div>
                   <div className="text-xl font-bold text-slate-100">{companyData[selectedCompany].marketCap}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
@@ -643,11 +642,22 @@ const BusinessSustainabilityAssessment = () => {
                 </div>
               </div>
               
-              {/* 右側大圓形綜合評分 */}
+              {/* 右側大圓形綜合評價 */}
               <div className="warm-gradient-card rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg">
-                <div className="text-slate-200 text-sm font-medium mb-2">綜合評分</div>
-                <div className="text-6xl font-bold text-yellow-400">
-                  {companyData[selectedCompany].overallScore}
+                <div className="text-slate-200 text-sm font-medium mb-2">綜合評價</div>
+                <div className="text-2xl mb-2">
+                  {companyData[selectedCompany].overallScore >= 90 && '🏆'}
+                  {companyData[selectedCompany].overallScore >= 75 && companyData[selectedCompany].overallScore < 90 && '👍'}
+                  {companyData[selectedCompany].overallScore >= 60 && companyData[selectedCompany].overallScore < 75 && '⚖️'}
+                  {companyData[selectedCompany].overallScore >= 40 && companyData[selectedCompany].overallScore < 60 && '⚠️'}
+                  {companyData[selectedCompany].overallScore < 40 && '🚨'}
+                </div>
+                <div className="text-2xl font-bold text-white">
+                  {companyData[selectedCompany].overallScore >= 90 && '優異'}
+                  {companyData[selectedCompany].overallScore >= 75 && companyData[selectedCompany].overallScore < 90 && '良好'}
+                  {companyData[selectedCompany].overallScore >= 60 && companyData[selectedCompany].overallScore < 75 && '一般'}
+                  {companyData[selectedCompany].overallScore >= 40 && companyData[selectedCompany].overallScore < 60 && '待改善'}
+                  {companyData[selectedCompany].overallScore < 40 && '風險'}
                 </div>
               </div>
             </div>
@@ -674,7 +684,7 @@ const BusinessSustainabilityAssessment = () => {
                   <div className="text-slate-200 text-sm font-medium">{companyData[compareCompany].growth}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-200 text-sm font-medium">市值</div>
+                  <div className="text-slate-200 text-sm font-medium">淨值</div>
                   <div className="text-xl font-bold text-slate-100">{companyData[compareCompany].marketCap}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
@@ -683,11 +693,22 @@ const BusinessSustainabilityAssessment = () => {
                 </div>
               </div>
               
-              {/* 右側大圓形綜合評分 */}
+              {/* 右側大圓形綜合評價 */}
               <div className="warm-gradient-card rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg">
-                <div className="text-slate-200 text-sm font-medium mb-2">綜合評分</div>
-                <div className="text-6xl font-bold text-yellow-400">
-                  {companyData[compareCompany].overallScore}
+                <div className="text-slate-200 text-sm font-medium mb-2">綜合評價</div>
+                <div className="text-2xl mb-2">
+                  {companyData[compareCompany].overallScore >= 90 && '🏆'}
+                  {companyData[compareCompany].overallScore >= 75 && companyData[compareCompany].overallScore < 90 && '👍'}
+                  {companyData[compareCompany].overallScore >= 60 && companyData[compareCompany].overallScore < 75 && '⚖️'}
+                  {companyData[compareCompany].overallScore >= 40 && companyData[compareCompany].overallScore < 60 && '⚠️'}
+                  {companyData[compareCompany].overallScore < 40 && '🚨'}
+                </div>
+                <div className="text-2xl font-bold text-white">
+                  {companyData[compareCompany].overallScore >= 90 && '優異'}
+                  {companyData[compareCompany].overallScore >= 75 && companyData[compareCompany].overallScore < 90 && '良好'}
+                  {companyData[compareCompany].overallScore >= 60 && companyData[compareCompany].overallScore < 75 && '一般'}
+                  {companyData[compareCompany].overallScore >= 40 && companyData[compareCompany].overallScore < 60 && '待改善'}
+                  {companyData[compareCompany].overallScore < 40 && '風險'}
                 </div>
               </div>
             </div>
@@ -864,10 +885,13 @@ const BusinessSustainabilityAssessment = () => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {Object.entries(performanceColors).map(([level, color]) => (
               <div key={level} className="flex items-center space-x-2 p-3 warm-gradient-card rounded-lg transition-all duration-300 hover:scale-105">
-                <div 
-                  className="w-4 h-4 rounded-full shadow-sm"
-                  style={{backgroundColor: color}}
-                />
+                <div className="text-lg">
+                  {level === '優異' && '🏆'}
+                  {level === '良好' && '👍'}
+                  {level === '一般' && '⚖️'}
+                  {level === '待改善' && '⚠️'}
+                  {level === '風險' && '🚨'}
+                </div>
                 <div>
                   <div className="font-medium text-sm text-white">{level}</div>
                   <div className="text-xs text-white">
