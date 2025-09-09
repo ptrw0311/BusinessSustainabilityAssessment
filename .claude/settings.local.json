@@ -12,7 +12,8 @@
       "Bash(npx gh-pages:*)",
       "Bash(git log:*)",
       "Bash(npm run dev:*)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Bash(git switch:*)"
     ],
     "deny": [],
     "ask": []
