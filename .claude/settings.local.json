@@ -5,9 +5,20 @@
       "Bash(npm run build:*)",
       "Bash(yarn install)",
       "Bash(npm install)",
-      "Bash(git merge:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(npm run deploy:*)",
+      "Bash(npx gh-pages:*)",
+      "Bash(git log:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git tag:*)",
+      "Bash(git switch:*)",
+      "WebSearch",
+      "Bash(git rm:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []
