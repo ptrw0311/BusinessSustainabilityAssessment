@@ -238,7 +238,7 @@ const BusinessSustainabilityAssessment = () => {
     if (currentPage === 'profile') {
       return (
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6">用戶資料</h2>
+          <h2 className="text-2xl font-bold mb-6 text-slate-800">用戶資料</h2>
           <div className="bg-slate-800 rounded-xl p-6">
             <div className="flex items-center space-x-4 mb-6">
               <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center">
@@ -262,7 +262,7 @@ const BusinessSustainabilityAssessment = () => {
             <select 
               value={selectedCompany}
               onChange={(e) => setSelectedCompany(e.target.value)}
-              className="liquid-glass-card px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-white"
+              className="liquid-glass-card px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-slate-800"
             >
               {companyOptions.map(option => (
                 <option key={option.value} value={option.value} className="bg-slate-800">
@@ -275,15 +275,15 @@ const BusinessSustainabilityAssessment = () => {
           {/* 基本面圖表 - 2x2 佈局 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* 每股盈餘 */}
-            <div className="liquid-glass-card rounded-xl p-6 text-white">
+            <div className="liquid-glass-card rounded-xl p-6 text-slate-800">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-teal-500 flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold">每股盈餘</h3>
+                  <h3 className="text-lg font-bold text-slate-800">每股盈餘</h3>
                 </div>
-                <button className="text-sm text-slate-400 hover:text-white transition-colors">
+                <button className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
                   <span>單季</span> | <span className="text-slate-400">近4季</span>
                 </button>
               </div>
@@ -295,14 +295,14 @@ const BusinessSustainabilityAssessment = () => {
               
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fundamentalData[selectedCompany]?.earnings || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.3)" />
                   <XAxis 
                     dataKey="period" 
-                    stroke="#ffffff" 
+                    stroke="#1e293b" 
                     fontSize={12}
                   />
                   <YAxis 
-                    stroke="#ffffff" 
+                    stroke="#1e293b" 
                     fontSize={12}
                   />
                   <Tooltip 
@@ -321,9 +321,9 @@ const BusinessSustainabilityAssessment = () => {
                   <Line 
                     type="monotone" 
                     dataKey="growth" 
-                    stroke="#ffffff"
+                    stroke="#1e293b"
                     strokeWidth={2}
-                    dot={{ fill: '#ffffff', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#1e293b', strokeWidth: 2, r: 4 }}
                   />
                   <defs>
                     <linearGradient id="earningsGradient" x1="0" y1="0" x2="0" y2="1">
@@ -336,7 +336,7 @@ const BusinessSustainabilityAssessment = () => {
             </div>
 
             {/* 每股淨值 */}
-            <div className="liquid-glass-card rounded-xl p-6 text-white">
+            <div className="liquid-glass-card rounded-xl p-6 text-slate-800">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
@@ -344,7 +344,7 @@ const BusinessSustainabilityAssessment = () => {
                   </div>
                   <h3 className="text-lg font-bold">每股淨值</h3>
                 </div>
-                <button className="text-sm text-slate-400 hover:text-white transition-colors">
+                <button className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
                   <span>單季</span> | <span className="text-slate-400">近4季</span>
                 </button>
               </div>
@@ -356,14 +356,14 @@ const BusinessSustainabilityAssessment = () => {
               
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fundamentalData[selectedCompany]?.marketCap || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.3)" />
                   <XAxis 
                     dataKey="period" 
-                    stroke="#ffffff" 
+                    stroke="#1e293b" 
                     fontSize={12}
                   />
                   <YAxis 
-                    stroke="#ffffff" 
+                    stroke="#1e293b" 
                     fontSize={12}
                   />
                   <Tooltip 
@@ -382,9 +382,9 @@ const BusinessSustainabilityAssessment = () => {
                   <Line 
                     type="monotone" 
                     dataKey="growth" 
-                    stroke="#ffffff"
+                    stroke="#1e293b"
                     strokeWidth={2}
-                    dot={{ fill: '#ffffff', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#1e293b', strokeWidth: 2, r: 4 }}
                   />
                   <defs>
                     <linearGradient id="netValueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -397,7 +397,7 @@ const BusinessSustainabilityAssessment = () => {
             </div>
 
             {/* 營收 */}
-            <div className="liquid-glass-card rounded-xl p-6 text-white">
+            <div className="liquid-glass-card rounded-xl p-6 text-slate-800">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
@@ -405,7 +405,7 @@ const BusinessSustainabilityAssessment = () => {
                   </div>
                   <h3 className="text-lg font-bold">營收</h3>
                 </div>
-                <button className="text-sm text-slate-400 hover:text-white transition-colors">
+                <button className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
                   <span>單季</span> | <span className="text-slate-400">近4季</span>
                 </button>
               </div>
@@ -417,14 +417,14 @@ const BusinessSustainabilityAssessment = () => {
               
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fundamentalData[selectedCompany]?.revenue || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.3)" />
                   <XAxis 
                     dataKey="period" 
-                    stroke="#ffffff" 
+                    stroke="#1e293b" 
                     fontSize={12}
                   />
                   <YAxis 
-                    stroke="#ffffff" 
+                    stroke="#1e293b" 
                     fontSize={12}
                   />
                   <Tooltip 
@@ -443,9 +443,9 @@ const BusinessSustainabilityAssessment = () => {
                   <Line 
                     type="monotone" 
                     dataKey="growth" 
-                    stroke="#ffffff"
+                    stroke="#1e293b"
                     strokeWidth={2}
-                    dot={{ fill: '#ffffff', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#1e293b', strokeWidth: 2, r: 4 }}
                   />
                   <defs>
                     <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -458,7 +458,7 @@ const BusinessSustainabilityAssessment = () => {
             </div>
 
             {/* EBITDA */}
-            <div className="liquid-glass-card rounded-xl p-6 text-white">
+            <div className="liquid-glass-card rounded-xl p-6 text-slate-800">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
@@ -466,7 +466,7 @@ const BusinessSustainabilityAssessment = () => {
                   </div>
                   <h3 className="text-lg font-bold">EBITDA</h3>
                 </div>
-                <button className="text-sm text-slate-400 hover:text-white transition-colors">
+                <button className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
                   <span>單季</span> | <span className="text-slate-400">近4季</span>
                 </button>
               </div>
@@ -478,14 +478,14 @@ const BusinessSustainabilityAssessment = () => {
               
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={fundamentalData[selectedCompany]?.ebitda || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(100, 116, 139, 0.3)" />
                   <XAxis 
                     dataKey="period" 
-                    stroke="#ffffff" 
+                    stroke="#1e293b" 
                     fontSize={12}
                   />
                   <YAxis 
-                    stroke="#ffffff" 
+                    stroke="#1e293b" 
                     fontSize={12}
                   />
                   <Tooltip 
@@ -504,9 +504,9 @@ const BusinessSustainabilityAssessment = () => {
                   <Line 
                     type="monotone" 
                     dataKey="growth" 
-                    stroke="#ffffff"
+                    stroke="#1e293b"
                     strokeWidth={2}
-                    dot={{ fill: '#ffffff', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#1e293b', strokeWidth: 2, r: 4 }}
                   />
                   <defs>
                     <linearGradient id="ebitdaGradient" x1="0" y1="0" x2="0" y2="1">
@@ -521,13 +521,13 @@ const BusinessSustainabilityAssessment = () => {
 
           {/* 公司基本資訊卡片 */}
           <div className="liquid-glass-card rounded-xl p-6 text-white">
-            <h3 className="text-xl font-bold mb-4 text-white">
+            <h3 className="text-xl font-bold mb-4 text-slate-800">
               {companyData[selectedCompany].name} - 基本資訊
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="warm-gradient-card p-4 rounded-lg">
-                <div className="text-slate-200 text-sm">股票代號</div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-slate-600 text-sm">股票代號</div>
+                <div className="text-2xl font-bold text-slate-800">
                   {companyData[selectedCompany].ticker}
                 </div>
               </div>
@@ -558,18 +558,18 @@ const BusinessSustainabilityAssessment = () => {
     if (currentPage === 'reports') {
       return (
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6">報表中心</h2>
+          <h2 className="text-2xl font-bold mb-6 text-slate-800">報表中心</h2>
           <div className="space-y-4">
             <div className="bg-slate-800 rounded-xl p-4 flex justify-between items-center">
               <div>
-                <h3 className="font-bold">Q3 2025 企業評估報告</h3>
-                <p className="text-slate-400 text-sm">2025-08-31</p>
+                <h3 className="font-bold text-slate-800">Q3 2025 企業評估報告</h3>
+                <p className="text-slate-600 text-sm">2025-08-31</p>
               </div>
               <div className="text-green-400 font-semibold">已完成</div>
             </div>
             <div className="bg-slate-800 rounded-xl p-4 flex justify-between items-center">
               <div>
-                <h3 className="font-bold">科技股比較分析</h3>
+                <h3 className="font-bold text-slate-800">科技股比較分析</h3>
                 <p className="text-slate-400 text-sm">2025-08-28</p>
               </div>
               <div className="text-yellow-400 font-semibold">進行中</div>
@@ -588,14 +588,14 @@ const BusinessSustainabilityAssessment = () => {
     return (
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* 公司選擇區 */}
-        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 mb-6 text-white">
+        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 mb-6 text-slate-800">
           <div className="flex flex-row gap-8 items-center justify-center">
             <div className="flex items-center space-x-3">
-              <label className="text-slate-300 font-medium">主要分析公司:</label>
+              <label className="text-slate-600 font-medium">主要分析公司:</label>
               <select 
                 value={selectedCompany}
                 onChange={(e) => setSelectedCompany(e.target.value)}
-                className="liquid-glass border border-slate-500/40 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent btn-primary"
+                className="liquid-glass border border-slate-500/40 text-slate-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 {companyOptions.map(option => (
                   <option key={option.value} value={option.value} className="bg-slate-800">
@@ -606,11 +606,11 @@ const BusinessSustainabilityAssessment = () => {
             </div>
             
             <div className="flex items-center space-x-3">
-              <label className="text-slate-300 font-medium">比較公司:</label>
+              <label className="text-slate-600 font-medium">比較公司:</label>
               <select 
                 value={compareCompany}
                 onChange={(e) => setCompareCompany(e.target.value)}
-                className="liquid-glass border border-slate-500/40 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent btn-primary"
+                className="liquid-glass border border-slate-500/40 text-slate-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 {compareOptions.map(option => (
                   <option key={option.value} value={option.value} className="bg-slate-800">
@@ -625,14 +625,14 @@ const BusinessSustainabilityAssessment = () => {
         {/* 公司概覽 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 主要公司 */}
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 text-white">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 text-slate-800">
             <div className="flex items-center space-x-4 mb-6">
               <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-3 rounded-lg shadow-lg">
                 <Award className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-blue-300">{companyData[selectedCompany].name}</h2>
-                <p className="text-slate-300">{companyData[selectedCompany].ticker}</p>
+                <h2 className="text-xl font-bold text-slate-800">{companyData[selectedCompany].name}</h2>
+                <p className="text-slate-600">{companyData[selectedCompany].ticker}</p>
               </div>
             </div>
 
@@ -640,17 +640,17 @@ const BusinessSustainabilityAssessment = () => {
               {/* 左側三個卡片 */}
               <div className="flex flex-col gap-4 flex-1">
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-200 text-sm font-medium">營收</div>
-                  <div className="text-2xl font-bold text-white">{companyData[selectedCompany].revenue}</div>
-                  <div className="text-slate-200 text-sm font-medium">{companyData[selectedCompany].growth}</div>
+                  <div className="text-slate-600 text-sm font-medium">營收</div>
+                  <div className="text-2xl font-bold text-slate-800">{companyData[selectedCompany].revenue}</div>
+                  <div className="text-slate-600 text-sm font-medium">{companyData[selectedCompany].growth}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-200 text-sm font-medium">淨值</div>
-                  <div className="text-xl font-bold text-slate-100">{companyData[selectedCompany].marketCap}</div>
+                  <div className="text-slate-600 text-sm font-medium">淨值</div>
+                  <div className="text-xl font-bold text-slate-800">{companyData[selectedCompany].marketCap}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-200 text-sm font-medium">每股盈餘</div>
-                  <div className="text-xl font-bold text-slate-100">{companyData[selectedCompany].eps}</div>
+                  <div className="text-slate-600 text-sm font-medium">每股盈餘</div>
+                  <div className="text-xl font-bold text-slate-800">{companyData[selectedCompany].eps}</div>
                 </div>
               </div>
               
@@ -679,14 +679,14 @@ const BusinessSustainabilityAssessment = () => {
           </div>
 
           {/* 比較公司 */}
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 text-white">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 text-slate-800">
             <div className="flex items-center space-x-4 mb-6">
               <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-lg shadow-lg">
                 <Award className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-green-300">{companyData[compareCompany].name}</h2>
-                <p className="text-slate-300">{companyData[compareCompany].ticker}</p>
+                <h2 className="text-xl font-bold text-slate-800">{companyData[compareCompany].name}</h2>
+                <p className="text-slate-600">{companyData[compareCompany].ticker}</p>
               </div>
             </div>
 
@@ -694,17 +694,17 @@ const BusinessSustainabilityAssessment = () => {
               {/* 左側三個卡片 */}
               <div className="flex flex-col gap-4 flex-1">
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-200 text-sm font-medium">營收</div>
-                  <div className="text-2xl font-bold text-white">{companyData[compareCompany].revenue}</div>
-                  <div className="text-slate-200 text-sm font-medium">{companyData[compareCompany].growth}</div>
+                  <div className="text-slate-600 text-sm font-medium">營收</div>
+                  <div className="text-2xl font-bold text-slate-800">{companyData[compareCompany].revenue}</div>
+                  <div className="text-slate-600 text-sm font-medium">{companyData[compareCompany].growth}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-200 text-sm font-medium">淨值</div>
-                  <div className="text-xl font-bold text-slate-100">{companyData[compareCompany].marketCap}</div>
+                  <div className="text-slate-600 text-sm font-medium">淨值</div>
+                  <div className="text-xl font-bold text-slate-800">{companyData[compareCompany].marketCap}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-200 text-sm font-medium">每股盈餘</div>
-                  <div className="text-xl font-bold text-slate-100">{companyData[compareCompany].eps}</div>
+                  <div className="text-slate-600 text-sm font-medium">每股盈餘</div>
+                  <div className="text-xl font-bold text-slate-800">{companyData[compareCompany].eps}</div>
                 </div>
               </div>
               
@@ -736,19 +736,19 @@ const BusinessSustainabilityAssessment = () => {
         {/* 六大維度雷達圖 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
-            <h3 className="text-xl font-bold mb-6 text-center text-white">六大核心能力比較雷達圖</h3>
+            <h3 className="text-xl font-bold mb-6 text-center text-slate-800">六大核心能力比較雷達圖</h3>
             <ResponsiveContainer width="100%" height={400}>
               <RadarChart data={radarData}>
-                <PolarGrid gridType="polygon" stroke="#ffffff" strokeOpacity={0.3} />
+                <PolarGrid gridType="polygon" stroke="#64748b" strokeOpacity={0.4} />
                 <PolarAngleAxis 
                   dataKey="dimension" 
-                  tick={{ fontSize: 14, fill: '#ffffff' }}
+                  tick={{ fontSize: 14, fill: '#1e293b' }}
                   className="text-sm"
                 />
                 <PolarRadiusAxis 
                   angle={90} 
                   domain={[0, 100]} 
-                  tick={{ fontSize: 10, fill: '#ffffff' }}
+                  tick={{ fontSize: 10, fill: '#1e293b' }}
                 />
                 <Radar
                   name={companyData[selectedCompany].name}
@@ -778,23 +778,23 @@ const BusinessSustainabilityAssessment = () => {
 
           {/* 維度評分詳情 - 比較模式 */}
           <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
-            <h3 className="text-xl font-bold mb-6 text-slate-100">維度評分比較</h3>
+            <h3 className="text-xl font-bold mb-6 text-slate-800">維度評分比較</h3>
             <div className="space-y-4">
               {Object.entries(companyData[selectedCompany].metrics).map(([dimension, score]) => (
                 <div key={dimension} 
                      className="p-4 warm-gradient-card rounded-lg hover:scale-105 transition-all duration-300">
                   <div className="flex items-center space-x-3 mb-3">
-                    <div className="text-slate-300">
+                    <div className="text-slate-600">
                       {dimensionIcons[dimension]}
                     </div>
-                    <span className="font-medium text-lg text-slate-200">{dimension}</span>
+                    <span className="font-medium text-lg text-slate-800">{dimension}</span>
                   </div>
                   
                   {/* 主要公司 */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#FFB84D'}}></div>
-                      <span className="text-sm text-slate-300">{companyData[selectedCompany].name}</span>
+                      <span className="text-sm text-slate-600">{companyData[selectedCompany].name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-20 liquid-glass rounded-full h-2">
@@ -816,7 +816,7 @@ const BusinessSustainabilityAssessment = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#4ECDC4'}}></div>
-                      <span className="text-sm text-slate-300">{companyData[compareCompany].name}</span>
+                      <span className="text-sm text-slate-600">{companyData[compareCompany].name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-20 liquid-glass rounded-full h-2">
@@ -842,12 +842,12 @@ const BusinessSustainabilityAssessment = () => {
         {/* 趨勢分析 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
-            <h3 className="text-xl font-bold mb-6 text-white">評分趨勢</h3>
+            <h3 className="text-xl font-bold mb-6 text-slate-800">評分趨勢</h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.2} />
-                <XAxis dataKey="period" stroke="#ffffff" />
-                <YAxis stroke="#ffffff" domain={[80, 86]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#64748b" strokeOpacity={0.3} />
+                <XAxis dataKey="period" stroke="#1e293b" />
+                <YAxis stroke="#1e293b" domain={[80, 86]} />
                 <Tooltip 
                   contentStyle={{
                     backgroundColor: '#1e293b',
@@ -870,27 +870,27 @@ const BusinessSustainabilityAssessment = () => {
 
           {/* 風險預警 */}
           <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
-            <h3 className="text-xl font-bold mb-6 text-slate-100">風險預警指標</h3>
+            <h3 className="text-xl font-bold mb-6 text-slate-800">風險預警指標</h3>
             <div className="space-y-4">
               <div className="flex items-center space-x-3 p-3 warm-gradient-card border border-green-500/30 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-400" />
                 <div>
                   <div className="font-medium text-green-400">財務健康度</div>
-                  <div className="text-sm text-slate-300">流動比率、ROE表現優異</div>
+                  <div className="text-sm text-slate-600">流動比率、ROE表現優異</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3 p-3 warm-gradient-card border border-yellow-500/30 rounded-lg">
                 <AlertTriangle className="w-5 h-5 text-yellow-400" />
                 <div>
                   <div className="font-medium text-yellow-400">ESG關注點</div>
-                  <div className="text-sm text-slate-300">能源效率需要持續改善</div>
+                  <div className="text-sm text-slate-600">能源效率需要持續改善</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3 p-3 warm-gradient-card border border-green-500/30 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-400" />
                 <div>
                   <div className="font-medium text-green-400">創新動能</div>
-                  <div className="text-sm text-slate-300">研發投入與專利成長強勁</div>
+                  <div className="text-sm text-slate-600">研發投入與專利成長強勁</div>
                 </div>
               </div>
             </div>
@@ -899,7 +899,7 @@ const BusinessSustainabilityAssessment = () => {
 
         {/* 評估標準 */}
         <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
-          <h3 className="text-xl font-bold mb-6 text-white">評分標準</h3>
+          <h3 className="text-xl font-bold mb-6 text-slate-800">評分標準</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {Object.entries(performanceColors).map(([level, color]) => (
               <div key={level} className="flex items-center space-x-2 p-3 warm-gradient-card rounded-lg transition-all duration-300 hover:scale-105">
@@ -911,8 +911,8 @@ const BusinessSustainabilityAssessment = () => {
                   {level === '風險' && '🚨'}
                 </div>
                 <div>
-                  <div className="font-medium text-sm text-white">{level}</div>
-                  <div className="text-xs text-white">
+                  <div className="font-medium text-sm text-slate-800">{level}</div>
+                  <div className="text-xs text-slate-600">
                     {level === '優異' && '90-100分'}
                     {level === '良好' && '75-89分'}
                     {level === '一般' && '60-74分'}
@@ -931,7 +931,7 @@ const BusinessSustainabilityAssessment = () => {
   return (
     <div className="min-h-screen dynamic-bg text-slate-900 flex">
       {/* 左側邊欄 */}
-      <div className="w-64 liquid-glass-card shadow-xl border-r border-slate-500/20 flex flex-col h-screen overflow-hidden backdrop-blur-xl text-white">
+      <div className="w-64 liquid-glass-card shadow-xl border-r border-slate-500/20 flex flex-col h-screen overflow-hidden backdrop-blur-xl text-slate-800">
         {/* Logo區域 */}
         <div className="p-4 border-b border-white/20">
           <div className="flex items-center space-x-3">
@@ -939,7 +939,7 @@ const BusinessSustainabilityAssessment = () => {
               <Award className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">
+              <h1 className="text-lg font-bold text-slate-800">
                 企業評估平台
               </h1>
             </div>
@@ -949,11 +949,11 @@ const BusinessSustainabilityAssessment = () => {
         {/* 搜尋框 */}
         <div className="p-4 border-b border-white/20">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-white/70" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
             <input 
               type="text" 
               placeholder="Search here..." 
-              className="w-full liquid-glass rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/30 border border-white/30 placeholder-white/50 text-white"
+              className="w-full liquid-glass rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/50 border border-slate-300/50 placeholder-slate-500 text-slate-800"
             />
           </div>
         </div>
@@ -967,21 +967,21 @@ const BusinessSustainabilityAssessment = () => {
                 onClick={() => setCurrentPage(item.id)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 group relative ${
                   currentPage === item.id 
-                    ? 'warm-gradient-card text-white shadow-lg' 
-                    : 'text-white/80 hover:warm-gradient-card hover:text-white'
+                    ? 'warm-gradient-card text-slate-800 shadow-lg' 
+                    : 'text-slate-600 hover:warm-gradient-card hover:text-slate-800'
                 }`}
               >
-                <div className={currentPage === item.id ? 'text-white' : 'text-white/70 group-hover:text-white'}>
+                <div className={currentPage === item.id ? 'text-slate-800' : 'text-slate-500 group-hover:text-slate-800'}>
                   {item.icon}
                 </div>
                 <span className="font-medium">{item.label}</span>
                 {item.badge && (
-                  <div className="ml-auto bg-gradient-to-r from-white/20 to-white/30 text-white text-xs px-2 py-1 rounded-full shadow-lg">
+                  <div className="ml-auto bg-gradient-to-r from-slate-200 to-slate-300 text-slate-800 text-xs px-2 py-1 rounded-full shadow-lg">
                     {item.badge}
                   </div>
                 )}
                 {currentPage === item.id && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-white/60 to-white/80 rounded-r shadow-lg"></div>
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-slate-600 to-slate-800 rounded-r shadow-lg"></div>
                 )}
               </button>
             ))}
@@ -991,12 +991,12 @@ const BusinessSustainabilityAssessment = () => {
         {/* 底部用戶資訊 */}
         <div className="p-4 border-t border-white/20">
           <div className="flex items-center space-x-3 warm-gradient-card rounded-lg p-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-white/20 to-white/30 rounded-full flex items-center justify-center shadow-lg">
-              <User className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-gradient-to-r from-slate-200 to-slate-300 rounded-full flex items-center justify-center shadow-lg">
+              <User className="w-5 h-5 text-slate-700" />
             </div>
             <div className="flex-1">
-              <div className="text-sm font-medium text-white">Audit01</div>
-              <div className="text-xs text-white/70">聯稽總部</div>
+              <div className="text-sm font-medium text-slate-800">Audit01</div>
+              <div className="text-xs text-slate-600">聯稽總部</div>
             </div>
           </div>
         </div>
@@ -1005,7 +1005,7 @@ const BusinessSustainabilityAssessment = () => {
       {/* 主要內容區域 */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="liquid-glass-card border-b border-slate-500/20 px-6 py-4 shadow-xl backdrop-blur-xl text-white">
+        <div className="liquid-glass-card border-b border-slate-500/20 px-6 py-4 shadow-xl backdrop-blur-xl text-slate-800">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold">
@@ -1015,11 +1015,11 @@ const BusinessSustainabilityAssessment = () => {
                  currentPage === 'reports' ? '報告中心' :
                  currentPage}
               </h2>
-              <p className="text-white text-sm">企業持續經營能力分析</p>
+              <p className="text-slate-600 text-sm">企業持續經營能力分析</p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-white">評估日期</div>
-              <div className="text-lg font-semibold text-white">2025-08-31</div>
+              <div className="text-sm text-slate-600">評估日期</div>
+              <div className="text-lg font-semibold text-slate-800">2025-08-31</div>
             </div>
           </div>
         </div>
