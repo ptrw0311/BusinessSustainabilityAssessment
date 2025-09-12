@@ -100,3 +100,39 @@ html, body, #root {
   background: rgba(99, 102, 241, 0.6);
   transform: translateY(-1px);
 }
+
+/* 自定義下拉選單樣式 */
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6,9 12,15 18,9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+.custom-select option {
+  background-color: white;
+  color: #1e293b;
+  padding: 8px 12px;
+}
+
+.custom-select option:hover {
+  background-color: #E6F0FF !important;
+  color: #333333 !important;
+}
+
+.custom-select option:checked {
+  background-color: #E6F0FF !important;
+  color: #333333 !important;
+}
+
+/* Webkit 專用樣式 */
+@supports (-webkit-appearance: none) {
+  .custom-select option:hover {
+    background: linear-gradient(to bottom, #E6F0FF 0%, #E6F0FF 100%);
+    color: #333333;
+  }
+}

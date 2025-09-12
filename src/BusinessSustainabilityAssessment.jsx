@@ -262,10 +262,10 @@ const BusinessSustainabilityAssessment = () => {
             <select 
               value={selectedCompany}
               onChange={(e) => setSelectedCompany(e.target.value)}
-              className="liquid-glass-card px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-slate-800"
+              className="liquid-glass-card custom-select px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-slate-800"
             >
               {companyOptions.map(option => (
-                <option key={option.value} value={option.value} className="bg-slate-800">
+                <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
@@ -532,20 +532,20 @@ const BusinessSustainabilityAssessment = () => {
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
-                <div className="text-slate-200 text-sm">淨值</div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-slate-600 text-sm">淨值</div>
+                <div className="text-2xl font-bold text-slate-800">
                   {companyData[selectedCompany].marketCap}
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
-                <div className="text-slate-200 text-sm">本益比</div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-slate-600 text-sm">本益比</div>
+                <div className="text-2xl font-bold text-slate-800">
                   {companyData[selectedCompany].pe}
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
-                <div className="text-slate-200 text-sm">每股盈餘</div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-slate-600 text-sm">每股盈餘</div>
+                <div className="text-2xl font-bold text-slate-800">
                   {companyData[selectedCompany].eps}
                 </div>
               </div>
@@ -595,10 +595,10 @@ const BusinessSustainabilityAssessment = () => {
               <select 
                 value={selectedCompany}
                 onChange={(e) => setSelectedCompany(e.target.value)}
-                className="liquid-glass border border-slate-500/40 text-slate-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="liquid-glass custom-select border border-slate-500/40 text-slate-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 {companyOptions.map(option => (
-                  <option key={option.value} value={option.value} className="bg-slate-800">
+                  <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
@@ -610,10 +610,10 @@ const BusinessSustainabilityAssessment = () => {
               <select 
                 value={compareCompany}
                 onChange={(e) => setCompareCompany(e.target.value)}
-                className="liquid-glass border border-slate-500/40 text-slate-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="liquid-glass custom-select border border-slate-500/40 text-slate-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 {compareOptions.map(option => (
-                  <option key={option.value} value={option.value} className="bg-slate-800">
+                  <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
@@ -859,10 +859,10 @@ const BusinessSustainabilityAssessment = () => {
                 <Line 
                   type="monotone" 
                   dataKey="score" 
-                  stroke="#f0f9ff" 
+                  stroke="#FFB84D" 
                   strokeWidth={3}
-                  dot={{ fill: '#f0f9ff', strokeWidth: 2, r: 5 }}
-                  activeDot={{ r: 7, fill: '#f0f9ff' }}
+                  dot={{ fill: '#FFB84D', strokeWidth: 2, r: 5 }}
+                  activeDot={{ r: 7, fill: '#FFB84D' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -935,8 +935,8 @@ const BusinessSustainabilityAssessment = () => {
         {/* Logo區域 */}
         <div className="p-4 border-b border-white/20">
           <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-r from-white/20 to-white/30 p-2 rounded-lg shadow-lg">
-              <Award className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-2 rounded-lg shadow-lg">
+              <User className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-slate-800">
