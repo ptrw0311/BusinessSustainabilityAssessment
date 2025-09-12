@@ -2,9 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ ui-redesign-v2 ]
+    branches: [ database-integration ]
   pull_request:
-    branches: [ ui-redesign-v2 ]
+    branches: [ database-integration ]
 
 jobs:
   build-and-deploy:
