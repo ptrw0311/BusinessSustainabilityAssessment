@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vite:*)",
+      "Bash(npm run build:*)",
+      "Bash(yarn install)",
+      "Bash(npm install)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(npm run deploy:*)",
+      "Bash(npx gh-pages:*)",
+      "Bash(git log:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git tag:*)",
+      "Bash(git switch:*)",
+      "WebSearch",
+      "Bash(git rm:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run deploy:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
