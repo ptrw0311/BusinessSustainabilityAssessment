@@ -27,7 +27,12 @@
       "Bash(git push:*)",
       "Bash(npm run build:*)",
       "Bash(npm run deploy:*)",
-      "Bash(git worktree:*)"
+      "Bash(git worktree:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(cat:*)",
+      "WebFetch(domain:ptrw0311.github.io)",
+      "Bash(npm install:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": [],
