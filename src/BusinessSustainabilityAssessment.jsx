@@ -622,6 +622,34 @@ const BusinessSustainabilityAssessment = () => {
           </div>
         </div>
 
+        {/* 評分標準 */}
+        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
+          <h3 className="text-xl font-bold mb-6 text-slate-800">評分標準</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {Object.entries(performanceColors).map(([level, color]) => (
+              <div key={level} className="flex items-center space-x-2 p-3 warm-gradient-card rounded-lg transition-all duration-300 hover:scale-105">
+                <div className="text-lg">
+                  {level === '優異' && '🏆'}
+                  {level === '良好' && '👍'}
+                  {level === '一般' && '⚖️'}
+                  {level === '待改善' && '⚠️'}
+                  {level === '風險' && '🚨'}
+                </div>
+                <div>
+                  <div className="font-medium text-sm text-slate-800">{level}</div>
+                  <div className="text-xs text-slate-600">
+                    {level === '優異' && '90-100分'}
+                    {level === '良好' && '75-89分'}
+                    {level === '一般' && '60-74分'}
+                    {level === '待改善' && '40-59分'}
+                    {level === '風險' && '0-39分'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* 公司概覽 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 主要公司 */}
@@ -894,34 +922,6 @@ const BusinessSustainabilityAssessment = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* 評估標準 */}
-        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
-          <h3 className="text-xl font-bold mb-6 text-slate-800">評分標準</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {Object.entries(performanceColors).map(([level, color]) => (
-              <div key={level} className="flex items-center space-x-2 p-3 warm-gradient-card rounded-lg transition-all duration-300 hover:scale-105">
-                <div className="text-lg">
-                  {level === '優異' && '🏆'}
-                  {level === '良好' && '👍'}
-                  {level === '一般' && '⚖️'}
-                  {level === '待改善' && '⚠️'}
-                  {level === '風險' && '🚨'}
-                </div>
-                <div>
-                  <div className="font-medium text-sm text-slate-800">{level}</div>
-                  <div className="text-xs text-slate-600">
-                    {level === '優異' && '90-100分'}
-                    {level === '良好' && '75-89分'}
-                    {level === '一般' && '60-74分'}
-                    {level === '待改善' && '40-59分'}
-                    {level === '風險' && '0-39分'}
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
