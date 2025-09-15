@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Award, AlertTriangle, CheckCircle, BarChart3, Zap, Leaf, Lightbulb, User, Building, FileText, Settings, History, MessageSquare, Star, LogOut, Search, Activity, Target, Database, Plus, Edit, Trash2, Eye, Download, Filter } from 'lucide-react';
+import { TrendingUp, Award, AlertTriangle, CheckCircle, BarChart3, Zap, Leaf, Lightbulb, User, Building, FileText, Settings, History, MessageSquare, Star, LogOut, Search, Activity, Target, Database, Plus, Edit, Trash2, Eye, Download, Filter, ChevronDown, ChevronRight, DollarSign, Calculator } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
 const BusinessSustainabilityAssessment = () => {
@@ -10,6 +10,15 @@ const BusinessSustainabilityAssessment = () => {
   const [compareCompany, setCompareCompany] = useState('CHT');
   const [hoveredMetric, setHoveredMetric] = useState(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [dataManagementExpanded, setDataManagementExpanded] = useState(false);
+  const [selectedDataType, setSelectedDataType] = useState('pl_income_basics');
+
+  // 當頁面切換到資料管理的子項目時，自動展開資料管理選單
+  useEffect(() => {
+    if (currentPage === 'pl_income_basics' || currentPage === 'financial_basics') {
+      setDataManagementExpanded(true);
+    }
+  }, [currentPage]);
 
   // 數字格式化函數 - 加上千分位逗號
   const formatNumber = (num) => {
@@ -45,9 +54,39 @@ const BusinessSustainabilityAssessment = () => {
     net_income_cont_ops: '繼續營業單位本期淨利(淨損)',
     net_income: '本期淨利(淨損)'
   };
+
+  // 財務基本數據欄位對應表
+  const financialFieldLabels = {
+    fiscal_year: '會計年度',
+    tax_id: '統一編號',
+    company_name: '公司名稱',
+    cash_equivalents: '現金及約當現金',
+    fvtpl_assets_current: '透過損益按公允價值衡量之金融資產-流動',
+    fvoci_assets_current: '透過其它綜合損益按公允價值衡量之金融資產-流動',
+    debt_investments_current: '按攤銷後成本衡量之金融資產-流動',
+    accounts_receivable_net: '應收帳款淨額',
+    accounts_receivable_related: '應收帳款-關係人',
+    other_receivables: '其他應收款',
+    inventories: '存貨',
+    prepaid_expenses: '預付款項',
+    other_current_assets: '其他流動資產',
+    current_assets_total: '流動資產合計',
+    financial_assets_noncurrent: '透過損益按公允價值衡量之金融資產-非流動',
+    debt_investments_noncurrent: '按攤銷後成本衡量之金融資產-非流動',
+    equity_investments_fvoci: '透過其它綜合損益按公允價值衡量之權益工具投資',
+    investments_accounted_equity: '採用權益法之投資',
+    property_plant_equipment: '不動產、廠房及設備',
+    right_of_use_assets: '使用權資產',
+    intangible_assets: '無形資產',
+    deferred_tax_assets: '遞延所得稅資產',
+    other_noncurrent_assets: '其他非流動資產',
+    noncurrent_assets_total: '非流動資產合計',
+    assets_total: '資產總計'
+  };
   
   // 資料管理相關狀態
   const [financialData, setFinancialData] = useState([]);
+  const [financialBasicsData, setFinancialBasicsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -92,8 +131,9 @@ const BusinessSustainabilityAssessment = () => {
 
   const updateRecord = async (updatedData) => {
     try {
+      const tableName = (currentPage === 'financial_basics' || selectedDataType === 'financial_basics') ? 'financial_basics' : 'pl_income_basics';
       const { error } = await supabase
-        .from('pl_income_basics')
+        .from(tableName)
         .update(updatedData)
         .eq('id', editingItem.id);
       
@@ -103,7 +143,11 @@ const BusinessSustainabilityAssessment = () => {
       
       setShowEditModal(false);
       setEditingItem(null);
-      await fetchFinancialData();
+      if (currentPage === 'financial_basics' || selectedDataType === 'financial_basics') {
+        await fetchFinancialBasicsData();
+      } else {
+        await fetchFinancialData();
+      }
       alert('資料更新成功！');
     } catch (err) {
       alert('更新失敗: ' + err.message);
@@ -112,8 +156,9 @@ const BusinessSustainabilityAssessment = () => {
 
   const deleteRecord = async (item) => {
     try {
+      const tableName = (currentPage === 'financial_basics' || selectedDataType === 'financial_basics') ? 'financial_basics' : 'pl_income_basics';
       const { error } = await supabase
-        .from('pl_income_basics')
+        .from(tableName)
         .delete()
         .eq('fiscal_year', item.fiscal_year)
         .eq('tax_id', item.tax_id)
@@ -125,7 +170,11 @@ const BusinessSustainabilityAssessment = () => {
       
       setShowDeleteModal(false);
       setDeleteItem(null);
-      await fetchFinancialData();
+      if (currentPage === 'financial_basics' || selectedDataType === 'financial_basics') {
+        await fetchFinancialBasicsData();
+      } else {
+        await fetchFinancialData();
+      }
       alert('資料刪除成功！');
     } catch (err) {
       alert('刪除失敗: ' + err.message);
@@ -134,8 +183,9 @@ const BusinessSustainabilityAssessment = () => {
 
   const addRecord = async (newData) => {
     try {
+      const tableName = (currentPage === 'financial_basics' || selectedDataType === 'financial_basics') ? 'financial_basics' : 'pl_income_basics';
       const { error } = await supabase
-        .from('pl_income_basics')
+        .from(tableName)
         .insert([newData]);
       
       if (error) {
@@ -144,10 +194,85 @@ const BusinessSustainabilityAssessment = () => {
       
       setShowAddModal(false);
       setNewItem({});
-      await fetchFinancialData();
+      if (currentPage === 'financial_basics' || selectedDataType === 'financial_basics') {
+        await fetchFinancialBasicsData();
+      } else {
+        await fetchFinancialData();
+      }
       alert('資料新增成功！');
     } catch (err) {
       alert('新增失敗: ' + err.message);
+    }
+  };
+
+  // 財務基本數據獲取功能
+  const fetchFinancialBasicsData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      let query = supabase
+        .from('financial_basics')
+        .select('*');
+      
+      if (searchTerm) {
+        query = query.ilike('company_name', `%${searchTerm}%`);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        throw error;
+      }
+      
+      setFinancialBasicsData(data || []);
+    } catch (err) {
+      setError(err.message);
+      console.error('獲取財務基本數據錯誤:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateFinancialBasicsRecord = async (updatedData) => {
+    try {
+      const { error } = await supabase
+        .from('financial_basics')
+        .update(updatedData)
+        .eq('id', editingItem.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      setShowEditModal(false);
+      setEditingItem(null);
+      await fetchFinancialBasicsData();
+      alert('資料更新成功！');
+    } catch (err) {
+      alert('更新失敗: ' + err.message);
+    }
+  };
+
+  const deleteFinancialBasicsRecord = async (item) => {
+    try {
+      const { error } = await supabase
+        .from('financial_basics')
+        .delete()
+        .eq('fiscal_year', item.fiscal_year)
+        .eq('tax_id', item.tax_id)
+        .eq('company_name', item.company_name);
+      
+      if (error) {
+        throw error;
+      }
+      
+      setShowDeleteModal(false);
+      setDeleteItem(null);
+      await fetchFinancialBasicsData();
+      alert('資料刪除成功！');
+    } catch (err) {
+      alert('刪除失敗: ' + err.message);
     }
   };
 
@@ -168,10 +293,15 @@ const BusinessSustainabilityAssessment = () => {
 
   // 當進入資料管理頁面時自動獲取資料
   useEffect(() => {
-    if (currentPage === 'data-management') {
-      fetchFinancialData();
+    if (currentPage === 'data-management' || currentPage === 'pl_income_basics' || currentPage === 'financial_basics') {
+      if (currentPage === 'pl_income_basics' || (currentPage === 'data-management' && selectedDataType === 'pl_income_basics')) {
+        fetchFinancialData();
+      }
+      if (currentPage === 'financial_basics' || (currentPage === 'data-management' && selectedDataType === 'financial_basics')) {
+        fetchFinancialBasicsData();
+      }
     }
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, selectedDataType]);
 
   // 示範數據 - 多家公司
   const companyData = {
@@ -390,7 +520,16 @@ const BusinessSustainabilityAssessment = () => {
   const menuItems = [
     { id: 'dashboard', label: '六大核心能力', icon: <Target className="w-5 h-5" />, active: true },
     { id: 'companies', label: '基本面分析', icon: <Building className="w-5 h-5" /> },
-    { id: 'data-management', label: '資料管理', icon: <Database className="w-5 h-5" /> },
+    { 
+      id: 'data-management', 
+      label: '資料管理', 
+      icon: <Database className="w-5 h-5" />,
+      expandable: true,
+      subItems: [
+        { id: 'pl_income_basics', label: '損益基本數據', icon: <DollarSign className="w-4 h-4" /> },
+        { id: 'financial_basics', label: '財務基本數據', icon: <Calculator className="w-4 h-4" /> }
+      ]
+    },
     { id: 'reports', label: '報表', icon: <FileText className="w-5 h-5" /> },
     { id: 'analytics', label: '趨勢分析', icon: <TrendingUp className="w-5 h-5" /> },
     { id: 'messages', label: '最新訊息', icon: <MessageSquare className="w-5 h-5" />, badge: '3' },
@@ -419,7 +558,180 @@ const BusinessSustainabilityAssessment = () => {
       );
     }
     
-    if (currentPage === 'data-management') {
+    if (currentPage === 'financial_basics') {
+      // 取得唯一的年度和公司名稱選項
+      const uniqueYears = [...new Set(financialBasicsData.map(item => item.fiscal_year))].filter(Boolean).sort((a, b) => b - a);
+      const uniqueCompanies = [...new Set(financialBasicsData.map(item => item.company_name))].filter(Boolean).sort();
+
+      // 過濾資料邏輯
+      const filteredData = financialBasicsData.filter(item => {
+        const yearMatch = !yearFilter || item.fiscal_year?.toString() === yearFilter;
+        const companyMatch = !companyFilter || item.company_name === companyFilter;
+        return yearMatch && companyMatch;
+      });
+
+      return (
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-slate-800">財務基本數據</h2>
+            <div className="flex space-x-3">
+              <button 
+                onClick={handleAdd}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span>新增資料</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 過濾器區域 */}
+          <div className="liquid-glass-card rounded-xl p-4 shadow-lg border border-slate-500/30">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-slate-700">年度</label>
+                <select 
+                  value={yearFilter}
+                  onChange={(e) => setYearFilter(e.target.value)}
+                  className="liquid-glass custom-select border border-slate-500/40 text-slate-800 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">所有年度</option>
+                  {uniqueYears.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-slate-700">公司名稱</label>
+                <select 
+                  value={companyFilter}
+                  onChange={(e) => setCompanyFilter(e.target.value)}
+                  className="liquid-glass custom-select border border-slate-500/40 text-slate-800 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">所有公司</option>
+                  {uniqueCompanies.map(company => (
+                    <option key={company} value={company}>{company}</option>
+                  ))}
+                </select>
+              </div>
+              <button 
+                onClick={() => {
+                  setYearFilter('');
+                  setCompanyFilter('');
+                }}
+                className="px-4 py-2 text-sm bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors"
+              >
+                清除篩選
+              </button>
+            </div>
+          </div>
+
+          {/* 資料表格 */}
+          <div className="liquid-glass-card rounded-xl shadow-lg border border-slate-500/30 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-800/50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white">年度</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white">公司名稱</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white">現金及約當現金</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white">透過損益按公允價值衡量之金融資產-流動</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white">透過其它綜合損益按公允價值衡量之金融資產-流動</th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-white">...</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white">操作</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white/50 divide-y divide-slate-200">
+                  {loading ? (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-8 text-center text-slate-600">
+                        <div className="flex items-center justify-center space-x-2">
+                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
+                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                          <span className="ml-2">載入中...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : error ? (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-8 text-center text-red-600">
+                        <div className="flex flex-col items-center space-y-2">
+                          <AlertTriangle className="w-8 h-8" />
+                          <div>連線錯誤: {error}</div>
+                          <button 
+                            onClick={fetchFinancialBasicsData}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                          >
+                            重新載入
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : filteredData.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-8 text-center text-slate-600">
+                        <div className="flex flex-col items-center space-y-2">
+                          <Database className="w-8 h-8" />
+                          <div>目前沒有資料</div>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredData.map((item, index) => (
+                      <tr key={item.id} className="hover:bg-slate-100/50 transition-colors">
+                        <td className="px-6 py-4 text-sm text-slate-900">{item.fiscal_year || 'N/A'}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-slate-900">{item.company_name || 'N/A'}</td>
+                        <td className="px-6 py-4 text-sm text-slate-700">{formatNumber(item.cash_equivalents)}</td>
+                        <td className="px-6 py-4 text-sm text-slate-700">{formatNumber(item.fvtpl_assets_current)}</td>
+                        <td className="px-6 py-4 text-sm text-slate-700">{formatNumber(item.fvoci_assets_current)}</td>
+                        <td className="px-6 py-4 text-center text-sm text-slate-500">...</td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex space-x-2">
+                            <button 
+                              onClick={() => handleEdit(item)}
+                              className="p-1 text-green-600 hover:text-green-800 transition-colors" 
+                              title="編輯"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(item)}
+                              className="p-1 text-red-600 hover:text-red-800 transition-colors" 
+                              title="刪除"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 分頁控制 */}
+            <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between">
+              <div className="text-sm text-slate-700">
+                顯示 1-{filteredData.length} 筆，共 {filteredData.length} 筆資料
+              </div>
+              <div className="flex space-x-2">
+                <button className="px-3 py-1 text-sm bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-colors">
+                  上一頁
+                </button>
+                <button className="px-3 py-1 text-sm bg-blue-500 text-white rounded">1</button>
+                <button className="px-3 py-1 text-sm bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-colors">
+                  下一頁
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    if (currentPage === 'data-management' || currentPage === 'pl_income_basics') {
       // 取得唯一的年度和公司名稱選項
       const uniqueYears = [...new Set(financialData.map(item => item.fiscal_year))].filter(Boolean).sort((a, b) => b - a);
       const uniqueCompanies = [...new Set(financialData.map(item => item.company_name))].filter(Boolean).sort();
@@ -434,7 +746,9 @@ const BusinessSustainabilityAssessment = () => {
       return (
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-slate-800">資料管理</h2>
+            <h2 className="text-2xl font-bold text-slate-800">
+              {currentPage === 'pl_income_basics' ? '損益基本數據' : '資料管理'}
+            </h2>
             <div className="flex space-x-3">
               <button 
                 onClick={handleAdd}
@@ -591,129 +905,8 @@ const BusinessSustainabilityAssessment = () => {
             </div>
           </div>
 
-          {/* 編輯彈出視窗 */}
-          {showEditModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-hidden">
-                <h3 className="text-lg font-bold mb-4 text-slate-800">編輯資料</h3>
-                <div className="overflow-y-auto max-h-[calc(90vh-150px)]">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(fieldLabels).map(([field, label]) => (
-                      <div key={field}>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-                        <input
-                          type="text"
-                          value={editingItem?.[field] || ''}
-                          onChange={(e) => setEditingItem({...editingItem, [field]: e.target.value})}
-                          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex space-x-3 mt-6 pt-4 border-t">
-                  <button
-                    onClick={() => {
-                      updateRecord(editingItem);
-                      setShowEditModal(false);
-                    }}
-                    className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    更新
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowEditModal(false);
-                      setEditingItem(null);
-                    }}
-                    className="flex-1 bg-slate-300 text-slate-700 py-2 px-4 rounded-lg hover:bg-slate-400 transition-colors"
-                  >
-                    取消
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* 刪除確認對話框 */}
-          {showDeleteModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-6 w-96">
-                <div className="flex items-center space-x-3 mb-4">
-                  <AlertTriangle className="w-6 h-6 text-red-500" />
-                  <h3 className="text-lg font-bold text-slate-800">確認刪除</h3>
-                </div>
-                <p className="text-slate-600 mb-6">
-                  您確定要刪除這筆資料嗎？此操作無法復原。
-                </p>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={() => {
-                      deleteRecord(deleteItem);
-                      setShowDeleteModal(false);
-                      setDeleteItem(null);
-                    }}
-                    className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors"
-                  >
-                    確認刪除
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowDeleteModal(false);
-                      setDeleteItem(null);
-                    }}
-                    className="flex-1 bg-slate-300 text-slate-700 py-2 px-4 rounded-lg hover:bg-slate-400 transition-colors"
-                  >
-                    取消
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* 新增資料彈出視窗 */}
-          {showAddModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-hidden">
-                <h3 className="text-lg font-bold mb-4 text-slate-800">新增資料</h3>
-                <div className="overflow-y-auto max-h-[calc(90vh-150px)]">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(fieldLabels).map(([field, label]) => (
-                      <div key={field}>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-                        <input
-                          type="text"
-                          value={newItem?.[field] || ''}
-                          onChange={(e) => setNewItem({...newItem, [field]: e.target.value})}
-                          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder={`請輸入${label}`}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex space-x-3 mt-6 pt-4 border-t">
-                  <button
-                    onClick={() => {
-                      addRecord(newItem);
-                    }}
-                    className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    新增
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowAddModal(false);
-                      setNewItem({});
-                    }}
-                    className="flex-1 bg-slate-300 text-slate-700 py-2 px-4 rounded-lg hover:bg-slate-400 transition-colors"
-                  >
-                    取消
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       );
     }
@@ -1425,28 +1618,69 @@ const BusinessSustainabilityAssessment = () => {
         <div className="flex-1 overflow-y-auto">
           <div className="p-2 space-y-1">
             {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setCurrentPage(item.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 group relative ${
-                  currentPage === item.id 
-                    ? 'warm-gradient-card text-slate-800 shadow-lg' 
-                    : 'text-slate-600 hover:warm-gradient-card hover:text-slate-800'
-                }`}
-              >
-                <div className={currentPage === item.id ? 'text-slate-800' : 'text-slate-500 group-hover:text-slate-800'}>
-                  {item.icon}
-                </div>
-                <span className="font-medium">{item.label}</span>
-                {item.badge && (
-                  <div className="ml-auto bg-gradient-to-r from-slate-200 to-slate-300 text-slate-800 text-xs px-2 py-1 rounded-full shadow-lg">
-                    {item.badge}
+              <div key={item.id}>
+                {/* 主選單項目 */}
+                <button
+                  onClick={() => {
+                    if (item.expandable) {
+                      setDataManagementExpanded(!dataManagementExpanded);
+                    } else {
+                      setCurrentPage(item.id);
+                    }
+                  }}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 group relative ${
+                    (currentPage === item.id || (item.expandable && (currentPage === 'pl_income_basics' || currentPage === 'financial_basics')))
+                      ? 'warm-gradient-card text-slate-800 shadow-lg' 
+                      : 'text-slate-600 hover:warm-gradient-card hover:text-slate-800'
+                  }`}
+                >
+                  <div className={(currentPage === item.id || (item.expandable && (currentPage === 'pl_income_basics' || currentPage === 'financial_basics'))) ? 'text-slate-800' : 'text-slate-500 group-hover:text-slate-800'}>
+                    {item.icon}
+                  </div>
+                  <span className="font-medium flex-1 text-left">{item.label}</span>
+                  {item.expandable && (
+                    <div className="text-slate-500 group-hover:text-slate-800">
+                      {dataManagementExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    </div>
+                  )}
+                  {item.badge && (
+                    <div className="ml-auto bg-gradient-to-r from-slate-200 to-slate-300 text-slate-800 text-xs px-2 py-1 rounded-full shadow-lg">
+                      {item.badge}
+                    </div>
+                  )}
+                  {(currentPage === item.id || (item.expandable && (currentPage === 'pl_income_basics' || currentPage === 'financial_basics'))) && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-slate-600 to-slate-800 rounded-r shadow-lg"></div>
+                  )}
+                </button>
+
+                {/* 子選單項目 */}
+                {item.expandable && dataManagementExpanded && item.subItems && (
+                  <div className="ml-4 mt-2 space-y-1">
+                    {item.subItems.map((subItem) => (
+                      <button
+                        key={subItem.id}
+                        onClick={() => {
+                          setCurrentPage(subItem.id);
+                          setSelectedDataType(subItem.id);
+                        }}
+                        className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-300 group relative ${
+                          currentPage === subItem.id 
+                            ? 'warm-gradient-card text-slate-800 shadow-lg border-l-2 border-slate-600' 
+                            : 'text-slate-600 hover:warm-gradient-card hover:text-slate-800'
+                        }`}
+                      >
+                        <div className={currentPage === subItem.id ? 'text-slate-800' : 'text-slate-500 group-hover:text-slate-800'}>
+                          {subItem.icon}
+                        </div>
+                        <span className="font-medium text-sm">{subItem.label}</span>
+                        {currentPage === subItem.id && (
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-slate-600 to-slate-800 rounded-r shadow-lg"></div>
+                        )}
+                      </button>
+                    ))}
                   </div>
                 )}
-                {currentPage === item.id && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-slate-600 to-slate-800 rounded-r shadow-lg"></div>
-                )}
-              </button>
+              </div>
             ))}
           </div>
         </div>
@@ -1476,6 +1710,8 @@ const BusinessSustainabilityAssessment = () => {
                  currentPage === 'profile' ? '用戶資料' :
                  currentPage === 'companies' ? '基本面分析' :
                  currentPage === 'data-management' ? '資料管理' :
+                 currentPage === 'pl_income_basics' ? '損益基本數據' :
+                 currentPage === 'financial_basics' ? '財務基本數據' :
                  currentPage === 'reports' ? '報告中心' :
                  currentPage}
               </h2>
@@ -1496,6 +1732,138 @@ const BusinessSustainabilityAssessment = () => {
           {renderPageContent()}
         </div>
       </div>
+
+      {/* 全域彈窗 - 編輯彈出視窗 */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <h3 className="text-lg font-bold mb-4 text-slate-800">編輯資料</h3>
+            <div className="overflow-y-auto max-h-[calc(90vh-150px)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(currentPage === 'financial_basics' ? financialFieldLabels : fieldLabels).map(([field, label]) => (
+                  <div key={field}>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+                    <input
+                      type="text"
+                      value={editingItem?.[field] || ''}
+                      onChange={(e) => setEditingItem({...editingItem, [field]: e.target.value})}
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex space-x-3 mt-6 pt-4 border-t">
+              <button
+                onClick={() => {
+                  if (currentPage === 'financial_basics') {
+                    updateFinancialBasicsRecord(editingItem);
+                  } else {
+                    updateRecord(editingItem);
+                  }
+                  setShowEditModal(false);
+                }}
+                className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                更新
+              </button>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingItem(null);
+                }}
+                className="flex-1 bg-slate-300 text-slate-700 py-2 px-4 rounded-lg hover:bg-slate-400 transition-colors"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 全域彈窗 - 刪除確認對話框 */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96">
+            <div className="flex items-center space-x-3 mb-4">
+              <AlertTriangle className="w-6 h-6 text-red-500" />
+              <h3 className="text-lg font-bold text-slate-800">確認刪除</h3>
+            </div>
+            <p className="text-slate-600 mb-6">
+              您確定要刪除這筆資料嗎？此操作無法復原。
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  if (currentPage === 'financial_basics') {
+                    deleteFinancialBasicsRecord(deleteItem);
+                  } else {
+                    deleteRecord(deleteItem);
+                  }
+                  setShowDeleteModal(false);
+                  setDeleteItem(null);
+                }}
+                className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                確認刪除
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteItem(null);
+                }}
+                className="flex-1 bg-slate-300 text-slate-700 py-2 px-4 rounded-lg hover:bg-slate-400 transition-colors"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 全域彈窗 - 新增資料彈出視窗 */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <h3 className="text-lg font-bold mb-4 text-slate-800">新增資料</h3>
+            <div className="overflow-y-auto max-h-[calc(90vh-150px)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(currentPage === 'financial_basics' ? financialFieldLabels : fieldLabels).map(([field, label]) => (
+                  <div key={field}>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+                    <input
+                      type="text"
+                      value={newItem?.[field] || ''}
+                      onChange={(e) => setNewItem({...newItem, [field]: e.target.value})}
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder={`請輸入${label}`}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex space-x-3 mt-6 pt-4 border-t">
+              <button
+                onClick={() => {
+                  addRecord(newItem);
+                }}
+                className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                新增
+              </button>
+              <button
+                onClick={() => {
+                  setShowAddModal(false);
+                  setNewItem({});
+                }}
+                className="flex-1 bg-slate-300 text-slate-700 py-2 px-4 rounded-lg hover:bg-slate-400 transition-colors"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
