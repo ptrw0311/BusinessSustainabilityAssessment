@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/BusinessSustainabilityAssessment/', // 改成你的 GitHub Repo 名稱
+  base: process.env.NODE_ENV === 'production' ? '/BusinessSustainabilityAssessment/' : '/',
 })

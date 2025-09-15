@@ -18,9 +18,26 @@
       "WebSearch",
       "Bash(git rm:*)",
       "Bash(git checkout:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run deploy:*)",
+      "Bash(git worktree:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(cat:*)",
+      "WebFetch(domain:ptrw0311.github.io)",
+      "Bash(npm install:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "D:\\vscode\\gh-pages-deploy"
+    ]
   }
 }
