@@ -4,10 +4,37 @@ import React, { useState, useEffect } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { TrendingUp, Award, AlertTriangle, CheckCircle, BarChart3, Zap, Leaf, Lightbulb, User, Building, FileText, Settings, History, MessageSquare, Star, LogOut, Search, Activity, Target, Database, Plus, Edit, Trash2, Eye, Download, Filter, ChevronDown, ChevronRight, DollarSign, Calculator } from 'lucide-react';
 import { supabase } from './supabaseClient';
+// 新的服務層導入
+import { 
+  processCompanyMetrics, 
+  processComparisonData, 
+  formatComparisonRadarData,
+  generateCompanyReport 
+} from './services/calculationService.js';
+import { 
+  getCompanyAllMetrics,
+  getFinancialBasicsData,
+  getPLIncomeBasicsData,
+  updateFinancialBasicsRecord,
+  handleDataServiceError
+} from './services/dataService.js';
+import { 
+  COMPANIES,
+  DEFAULT_QUERY_PARAMS,
+  getScoreLevel,
+  SCORE_LEVELS
+} from './config/businessLogic.js';
 
 const BusinessSustainabilityAssessment = () => {
-  const [selectedCompany, setSelectedCompany] = useState('NVDA');
-  const [compareCompany, setCompareCompany] = useState('CHT');
+  // 使用新的公司代碼系統
+  const [selectedCompany, setSelectedCompany] = useState('FET'); // 遠傳電信
+  const [compareCompany, setCompareCompany] = useState('TSMC'); // 台積電
+  
+  // 新增動態資料狀態
+  const [companyMetrics, setCompanyMetrics] = useState({});
+  const [comparisonData, setComparisonData] = useState(null);
+  const [metricsLoading, setMetricsLoading] = useState(false);
+  const [metricsError, setMetricsError] = useState(null);
   const [hoveredMetric, setHoveredMetric] = useState(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [dataManagementExpanded, setDataManagementExpanded] = useState(false);
@@ -24,6 +51,53 @@ const BusinessSustainabilityAssessment = () => {
   const formatNumber = (num) => {
     if (num === null || num === undefined) return 'N/A';
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  // 財務數據格式化函數
+  const formatCurrency = (amount) => {
+    if (!amount || amount === '待確認') return '待確認';
+    if (amount === 'N/A') return 'N/A';
+    if (amount >= 1000000000000) { // 兆
+      return `${(amount / 1000000000000).toFixed(2)} 兆元`;
+    } else if (amount >= 100000000) { // 億
+      return `${(amount / 100000000).toFixed(0)} 億元`;
+    } else if (amount >= 10000) { // 萬
+      return `${(amount / 10000).toFixed(0)} 萬元`;
+    } else {
+      return `${amount.toLocaleString()} 元`;
+    }
+  };
+
+  // 獲取公司財務數據
+  const getCompanyFinancialData = (companyKey) => {
+    const company = COMPANIES[companyKey];
+    if (!company) return { revenue: 'N/A', netWorth: 'N/A', eps: 'N/A' };
+    
+    // 財務數據對應 (基於dataService.js中的real data)
+    const financialData = {
+      'FET': {
+        revenue: 104623000000, // 1046.23億元
+        netWorth: 43000000000, // 430億元
+        eps: 3.56
+      },
+      'TSMC': {
+        revenue: 2540000000000, // 2.54兆元
+        netWorth: 320000000000, // 3200億元
+        eps: 32.5
+      },
+      'TWM': {
+        revenue: 75000000000, // 750億元
+        netWorth: 35000000000, // 350億元
+        eps: 2.8
+      },
+      'FOXCONN': {
+        revenue: '待確認', 
+        netWorth: '待確認', 
+        eps: '待確認'
+      }
+    };
+
+    return financialData[companyKey] || { revenue: 'N/A', netWorth: 'N/A', eps: 'N/A' };
   };
 
   // 完整的欄位對應表 (基於資料庫結構)
@@ -291,6 +365,67 @@ const BusinessSustainabilityAssessment = () => {
     setShowDeleteModal(true);
   };
 
+  // 載入公司指標數據的函數
+  const loadCompanyMetrics = async (companyKey) => {
+    try {
+      setMetricsLoading(true);
+      setMetricsError(null);
+      
+      const company = COMPANIES[companyKey];
+      if (!company) {
+        throw new Error(`公司 ${companyKey} 不存在`);
+      }
+      
+      // 使用新的服務層獲取數據
+      const metrics = await processCompanyMetrics(company.taxId, DEFAULT_QUERY_PARAMS.fiscal_year);
+      
+      // 更新狀態
+      setCompanyMetrics(prev => ({
+        ...prev,
+        [companyKey]: metrics
+      }));
+      
+    } catch (error) {
+      console.error(`載入 ${companyKey} 指標數據錯誤:`, error);
+      setMetricsError(`載入 ${companyKey} 資料失敗: ${error.message}`);
+    } finally {
+      setMetricsLoading(false);
+    }
+  };
+
+  // 載入比較數據的函數
+  const loadComparisonData = async (primaryCompany, compareCompany) => {
+    try {
+      const primaryCompanyData = COMPANIES[primaryCompany];
+      const compareCompanyData = COMPANIES[compareCompany];
+      
+      if (!primaryCompanyData || !compareCompanyData) {
+        throw new Error('公司資料不完整');
+      }
+      
+      const comparisonData = await processComparisonData(
+        primaryCompanyData.taxId, 
+        compareCompanyData.taxId,
+        DEFAULT_QUERY_PARAMS.fiscal_year
+      );
+      
+      setComparisonData(comparisonData);
+      
+    } catch (error) {
+      console.error('載入比較數據錯誤:', error);
+      setMetricsError(`載入比較資料失敗: ${error.message}`);
+    }
+  };
+
+  // 當公司選擇改變時自動載入數據
+  useEffect(() => {
+    if (currentPage === 'dashboard') {
+      loadCompanyMetrics(selectedCompany);
+      loadCompanyMetrics(compareCompany);
+      loadComparisonData(selectedCompany, compareCompany);
+    }
+  }, [selectedCompany, compareCompany, currentPage]);
+
   // 當進入資料管理頁面時自動獲取資料
   useEffect(() => {
     if (currentPage === 'data-management' || currentPage === 'pl_income_basics' || currentPage === 'financial_basics') {
@@ -303,98 +438,142 @@ const BusinessSustainabilityAssessment = () => {
     }
   }, [currentPage, searchTerm, selectedDataType]);
 
-  // 示範數據 - 多家公司
+  // 動態公司資料 (從新的配置和服務獲取)
+  const getCompanyDisplayData = (companyKey) => {
+    const company = COMPANIES[companyKey];
+    const metrics = companyMetrics[companyKey];
+    
+    if (!company) return null;
+    
+    return {
+      name: company.name,
+      ticker: company.ticker,
+      taxId: company.taxId,
+      overallScore: metrics?.overall_score || 0,
+      scoreLevel: metrics?.score_level || getScoreLevel(0),
+      // 維度分數
+      metrics: metrics?.dimension_scores || {
+        營運能力: 0,
+        財務能力: 0,
+        未來力: 0,
+        AI數位力: 0,
+        ESG永續力: 0,
+        創新能力: 0
+      },
+      // 原始指標資料
+      rawMetrics: metrics,
+      // 載入狀態
+      loading: metricsLoading,
+      error: metricsError
+    };
+  };
+  
+  // 公司資料映射
   const companyData = {
-    NVDA: {
-      name: '輝達 Nvidia Corp',
-      ticker: 'NVDA',
-      overallScore: 85,
-      revenue: '1305億美元',
-      growth: '+114%',
-      marketCap: '40600億美元',
-      pe: '31.2',
-      eps: '28.12美元',
-      metrics: {
-        營運能力: 88,
-        財務能力: 92,
-        未來力: 95,
-        AI數位力: 98,
-        ESG永續力: 75,
-        創新能力: 90
-      }
-    },
-    FET: {
-      name: '遠傳電信 Far EasTone',
-      ticker: '4904',
-      overallScore: 72,
-      revenue: '1051.7億元',
-      growth: '+2.8%',
-      marketCap: '3036億元',
-      pe: '23.7',
-      eps: '2.15元',
-      metrics: {
-        營運能力: 75,
-        財務能力: 78,
-        未來力: 68,
-        AI數位力: 82,
-        ESG永續力: 85,
-        創新能力: 65
-      }
-    },
-    CHT: {
-      name: '台積電 TSMC',
-      ticker: 'TSM',
-      overallScore: 88,
-      revenue: '2096億新台幣',
-      growth: '+37.6%',
-      marketCap: '12800億美元',
-      pe: '20.7',
-      eps: '35.85新台幣',
-      metrics: {
-        營運能力: 90,
-        財務能力: 92,
-        未來力: 85,
-        AI數位力: 88,
-        ESG永續力: 85,
-        創新能力: 90
-      }
-    },
-    TWM: {
-      name: '台灣大哥大 Taiwan Mobile',
-      ticker: '3045',
-      overallScore: 70,
-      revenue: '1426億',
-      growth: '+1.8%',
-      marketCap: '3280億元',
-      pe: '16.8',
-      eps: '6.12新台幣',
-      metrics: {
-        營運能力: 78,
-        財務能力: 80,
-        未來力: 62,
-        AI數位力: 75,
-        ESG永續力: 82,
-        創新能力: 63
-      }
+    FET: getCompanyDisplayData('FET'),
+    TSMC: getCompanyDisplayData('TSMC'),
+    TWM: getCompanyDisplayData('TWM'),
+    FOXCONN: getCompanyDisplayData('FOXCONN'),
+    // 向後相容的別名
+    NVDA: getCompanyDisplayData('FET'), // 映射到遠傳
+    CHT: getCompanyDisplayData('TSMC') // 映射到台積電
+  };
+  
+  // 安全獲取公司資料的輔助函數
+  const safeGetCompanyData = (companyKey) => {
+    const data = companyData[companyKey];
+    if (!data) {
+      return {
+        name: '載入中...',
+        ticker: companyKey,
+        overallScore: 0,
+        metrics: {
+          營運能力: 0,
+          財務能力: 0,
+          未來力: 0,
+          AI數位力: 0,
+          ESG永續力: 0,
+          創新能力: 0
+        },
+        loading: true
+      };
     }
+    return data;
   };
 
   const companyOptions = [
-    { value: 'NVDA', label: '輝達 Nvidia Corp' },
-    { value: 'FET', label: '遠傳電信 Far EasTone' }
+    { value: 'FET', label: '遠傳電信 Far EasTone' },
+    { value: 'TSMC', label: '台積電 TSMC' },
+    { value: 'TWM', label: '台灣大哥大 Taiwan Mobile' },
+    { value: 'FOXCONN', label: '富鴻網 FOXCONN' }
   ];
 
   const compareOptions = [
-    { value: 'CHT', label: '台積電 TSMC' },
-    { value: 'TWM', label: '台灣大哥大 Taiwan Mobile' }
+    { value: 'TSMC', label: '台積電 TSMC' },
+    { value: 'TWM', label: '台灣大哥大 Taiwan Mobile' },
+    { value: 'FET', label: '遠傳電信 FET' },
+    { value: 'FOXCONN', label: '富鴻網 FOXCONN' }
   ];
 
-  const radarData = Object.entries(companyData[selectedCompany].metrics).map(([key, value]) => ({
-    dimension: key,
-    主要公司: value,
-    比較公司: companyData[compareCompany].metrics[key],
-    fullMark: 100
-  }));
+  // 獲取雷達圖資料
+  const getRadarData = () => {
+    const primaryData = getCompanyDisplayData(selectedCompany);
+    const compareData = getCompanyDisplayData(compareCompany);
+    
+    if (!primaryData || !compareData) {
+      // 預設空資料
+      return [
+        { dimension: '營運能力', 主要公司: 0, 比較公司: 0, fullMark: 100 },
+        { dimension: '財務能力', 主要公司: 0, 比較公司: 0, fullMark: 100 },
+        { dimension: '未來力', 主要公司: 0, 比較公司: 0, fullMark: 100 },
+        { dimension: 'AI數位力', 主要公司: 0, 比較公司: 0, fullMark: 100 },
+        { dimension: 'ESG永續力', 主要公司: 0, 比較公司: 0, fullMark: 100 },
+        { dimension: '創新能力', 主要公司: 0, 比較公司: 0, fullMark: 100 }
+      ];
+    }
+    
+    // 使用動態資料構建雷達圖
+    return [
+      { 
+        dimension: '營運能力', 
+        主要公司: Math.round(primaryData.metrics.營運能力 || 0), 
+        比較公司: Math.round(compareData.metrics.營運能力 || 0), 
+        fullMark: 100 
+      },
+      { 
+        dimension: '財務能力', 
+        主要公司: Math.round(primaryData.metrics.財務能力 || 0), 
+        比較公司: Math.round(compareData.metrics.財務能力 || 0), 
+        fullMark: 100 
+      },
+      { 
+        dimension: '未來力', 
+        主要公司: Math.round(primaryData.metrics.未來力 || 0), 
+        比較公司: Math.round(compareData.metrics.未來力 || 0), 
+        fullMark: 100 
+      },
+      { 
+        dimension: 'AI數位力', 
+        主要公司: Math.round(primaryData.metrics.AI數位力 || 0), 
+        比較公司: Math.round(compareData.metrics.AI數位力 || 0), 
+        fullMark: 100 
+      },
+      { 
+        dimension: 'ESG永續力', 
+        主要公司: Math.round(primaryData.metrics.ESG永續力 || 0), 
+        比較公司: Math.round(compareData.metrics.ESG永續力 || 0), 
+        fullMark: 100 
+      },
+      { 
+        dimension: '創新能力', 
+        主要公司: Math.round(primaryData.metrics.創新能力 || 0), 
+        比較公司: Math.round(compareData.metrics.創新能力 || 0), 
+        fullMark: 100 
+      }
+    ];
+  };
+
+  const radarData = getRadarData();
 
   const performanceColors = {
     優異: '#4CAF50',
@@ -1178,31 +1357,31 @@ const BusinessSustainabilityAssessment = () => {
           {/* 公司基本資訊卡片 */}
           <div className="liquid-glass-card rounded-xl p-6 text-white">
             <h3 className="text-xl font-bold mb-4 text-slate-800">
-              {companyData[selectedCompany].name} - 基本資訊
+              {safeGetCompanyData(selectedCompany).name} - 基本資訊
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="warm-gradient-card p-4 rounded-lg">
                 <div className="text-slate-600 text-sm">股票代號</div>
                 <div className="text-2xl font-bold text-slate-800">
-                  {companyData[selectedCompany].ticker}
+                  {safeGetCompanyData(selectedCompany).ticker}
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
                 <div className="text-slate-600 text-sm">淨值</div>
                 <div className="text-2xl font-bold text-slate-800">
-                  {companyData[selectedCompany].marketCap}
+                  市值: 待計算
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
                 <div className="text-slate-600 text-sm">本益比</div>
                 <div className="text-2xl font-bold text-slate-800">
-                  {companyData[selectedCompany].pe}
+                  P/E: 待計算
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
                 <div className="text-slate-600 text-sm">每股盈餘</div>
                 <div className="text-2xl font-bold text-slate-800">
-                  {companyData[selectedCompany].eps}
+                  EPS: 待計算
                 </div>
               </div>
             </div>
@@ -1241,6 +1420,46 @@ const BusinessSustainabilityAssessment = () => {
 
   // Dashboard內容
   const renderDashboard = () => {
+    // 顯示載入狀態
+    if (metricsLoading) {
+      return (
+        <div className="max-w-7xl mx-auto p-6 space-y-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-slate-600">載入企業指標資料中...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    // 顯示錯誤狀態
+    if (metricsError) {
+      return (
+        <div className="max-w-7xl mx-auto p-6 space-y-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <AlertTriangle className="w-5 h-5 text-red-500 mr-2" />
+              <h3 className="text-red-800 font-medium">資料載入失敗</h3>
+            </div>
+            <p className="text-red-700 mt-2">{metricsError}</p>
+            <button 
+              onClick={() => {
+                setMetricsError(null);
+                loadCompanyMetrics(selectedCompany);
+                loadCompanyMetrics(compareCompany);
+                loadComparisonData(selectedCompany, compareCompany);
+              }}
+              className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              重新載入
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* 公司選擇區 */}
@@ -1315,8 +1534,8 @@ const BusinessSustainabilityAssessment = () => {
                 <Award className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-slate-800">{companyData[selectedCompany].name}</h2>
-                <p className="text-slate-600">{companyData[selectedCompany].ticker}</p>
+                <h2 className="text-xl font-bold text-slate-800">{safeGetCompanyData(selectedCompany).name}</h2>
+                <p className="text-slate-600">{safeGetCompanyData(selectedCompany).ticker}</p>
               </div>
             </div>
 
@@ -1325,23 +1544,29 @@ const BusinessSustainabilityAssessment = () => {
               <div className="flex flex-col gap-4 flex-1">
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
                   <div className="text-slate-600 text-sm font-medium">營收</div>
-                  <div className="text-2xl font-bold text-slate-800">{companyData[selectedCompany].revenue}</div>
-                  <div className="text-slate-600 text-sm font-medium">{companyData[selectedCompany].growth}</div>
+                  <div className="text-2xl font-bold text-slate-800">
+                    {safeGetCompanyData(selectedCompany).loading ? '載入中...' : formatCurrency(getCompanyFinancialData(selectedCompany).revenue)}
+                  </div>
+                  <div className="text-slate-600 text-sm font-medium">
+                    {safeGetCompanyData(selectedCompany).loading ? '' : '2024年度營收'}
+                  </div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
                   <div className="text-slate-600 text-sm font-medium">淨值</div>
-                  <div className="text-xl font-bold text-slate-800">{companyData[selectedCompany].marketCap}</div>
+                  <div className="text-xl font-bold text-slate-800">{formatCurrency(getCompanyFinancialData(selectedCompany).netWorth)}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
                   <div className="text-slate-600 text-sm font-medium">每股盈餘</div>
-                  <div className="text-xl font-bold text-slate-800">{companyData[selectedCompany].eps}</div>
+                  <div className="text-xl font-bold text-slate-800">
+                    {getCompanyFinancialData(selectedCompany).eps === '待確認' ? '待確認' : `${getCompanyFinancialData(selectedCompany).eps} 元`}
+                  </div>
                 </div>
               </div>
               
               {/* 右側大圓形綜合評價 */}
               <div className="rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg"
                    style={{
-                     background: getPerformanceBackground(companyData[selectedCompany].overallScore),
+                     background: getPerformanceBackground(safeGetCompanyData(selectedCompany).overallScore),
                      backdropFilter: 'blur(16px)',
                      WebkitBackdropFilter: 'blur(16px)',
                      border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -1349,14 +1574,10 @@ const BusinessSustainabilityAssessment = () => {
                    }}>
                 <div className="text-white text-sm font-medium mb-2">綜合評價</div>
                 <div className="text-2xl mb-2">
-                  {companyData[selectedCompany].overallScore >= 90 && '🏆'}
-                  {companyData[selectedCompany].overallScore >= 75 && companyData[selectedCompany].overallScore < 90 && '👍'}
-                  {companyData[selectedCompany].overallScore >= 60 && companyData[selectedCompany].overallScore < 75 && '⚖️'}
-                  {companyData[selectedCompany].overallScore >= 40 && companyData[selectedCompany].overallScore < 60 && '⚠️'}
-                  {companyData[selectedCompany].overallScore < 40 && '🚨'}
+                  {safeGetCompanyData(selectedCompany).scoreLevel?.icon || '🚨'}
                 </div>
                 <div className="text-2xl font-bold text-white">
-                  {getPerformanceLevel(companyData[selectedCompany].overallScore)}
+                  {safeGetCompanyData(selectedCompany).scoreLevel?.level || '風險'}
                 </div>
               </div>
             </div>
@@ -1369,8 +1590,8 @@ const BusinessSustainabilityAssessment = () => {
                 <Award className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-slate-800">{companyData[compareCompany].name}</h2>
-                <p className="text-slate-600">{companyData[compareCompany].ticker}</p>
+                <h2 className="text-xl font-bold text-slate-800">{safeGetCompanyData(compareCompany).name}</h2>
+                <p className="text-slate-600">{safeGetCompanyData(compareCompany).ticker}</p>
               </div>
             </div>
 
@@ -1379,23 +1600,29 @@ const BusinessSustainabilityAssessment = () => {
               <div className="flex flex-col gap-4 flex-1">
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
                   <div className="text-slate-600 text-sm font-medium">營收</div>
-                  <div className="text-2xl font-bold text-slate-800">{companyData[compareCompany].revenue}</div>
-                  <div className="text-slate-600 text-sm font-medium">{companyData[compareCompany].growth}</div>
+                  <div className="text-2xl font-bold text-slate-800">
+                    {safeGetCompanyData(compareCompany).loading ? '載入中...' : formatCurrency(getCompanyFinancialData(compareCompany).revenue)}
+                  </div>
+                  <div className="text-slate-600 text-sm font-medium">
+                    {safeGetCompanyData(compareCompany).loading ? '' : '2024年度營收'}
+                  </div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
                   <div className="text-slate-600 text-sm font-medium">淨值</div>
-                  <div className="text-xl font-bold text-slate-800">{companyData[compareCompany].marketCap}</div>
+                  <div className="text-xl font-bold text-slate-800">{formatCurrency(getCompanyFinancialData(compareCompany).netWorth)}</div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
                   <div className="text-slate-600 text-sm font-medium">每股盈餘</div>
-                  <div className="text-xl font-bold text-slate-800">{companyData[compareCompany].eps}</div>
+                  <div className="text-xl font-bold text-slate-800">
+                    {getCompanyFinancialData(compareCompany).eps === '待確認' ? '待確認' : `${getCompanyFinancialData(compareCompany).eps} 元`}
+                  </div>
                 </div>
               </div>
               
               {/* 右側大圓形綜合評價 */}
               <div className="rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg"
                    style={{
-                     background: getPerformanceBackground(companyData[compareCompany].overallScore),
+                     background: getPerformanceBackground(safeGetCompanyData(compareCompany).overallScore),
                      backdropFilter: 'blur(16px)',
                      WebkitBackdropFilter: 'blur(16px)',
                      border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -1403,14 +1630,10 @@ const BusinessSustainabilityAssessment = () => {
                    }}>
                 <div className="text-white text-sm font-medium mb-2">綜合評價</div>
                 <div className="text-2xl mb-2">
-                  {companyData[compareCompany].overallScore >= 90 && '🏆'}
-                  {companyData[compareCompany].overallScore >= 75 && companyData[compareCompany].overallScore < 90 && '👍'}
-                  {companyData[compareCompany].overallScore >= 60 && companyData[compareCompany].overallScore < 75 && '⚖️'}
-                  {companyData[compareCompany].overallScore >= 40 && companyData[compareCompany].overallScore < 60 && '⚠️'}
-                  {companyData[compareCompany].overallScore < 40 && '🚨'}
+                  {safeGetCompanyData(compareCompany).scoreLevel?.icon || '🚨'}
                 </div>
                 <div className="text-2xl font-bold text-white">
-                  {getPerformanceLevel(companyData[compareCompany].overallScore)}
+                  {safeGetCompanyData(compareCompany).scoreLevel?.level || '風險'}
                 </div>
               </div>
             </div>
@@ -1444,7 +1667,7 @@ const BusinessSustainabilityAssessment = () => {
                   dot={{ fill: '#FFB84D', strokeWidth: 3, r: 5, fillOpacity: 1 }}
                 />
                 <Radar
-                  name={companyData[compareCompany].name}
+                  name={safeGetCompanyData(compareCompany).name}
                   dataKey="比較公司"
                   stroke="#4ECDC4"
                   fill="#4ECDC4"
@@ -1464,7 +1687,7 @@ const BusinessSustainabilityAssessment = () => {
           <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
             <h3 className="text-xl font-bold mb-6 text-slate-800">維度評分比較</h3>
             <div className="space-y-4">
-              {Object.entries(companyData[selectedCompany].metrics).map(([dimension, score]) => (
+              {Object.entries(safeGetCompanyData(selectedCompany).metrics).map(([dimension, score]) => (
                 <div key={dimension} 
                      className="p-4 warm-gradient-card rounded-lg hover:scale-105 transition-all duration-300">
                   <div className="flex items-center space-x-3 mb-3">
@@ -1478,20 +1701,20 @@ const BusinessSustainabilityAssessment = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#FFB84D'}}></div>
-                      <span className="text-sm text-slate-600">{companyData[selectedCompany].name}</span>
+                      <span className="text-sm text-slate-600">{safeGetCompanyData(selectedCompany).name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-20 liquid-glass rounded-full h-2">
                         <div 
                           className="h-2 rounded-full transition-all duration-1000 shadow-sm"
                           style={{ 
-                            width: `${score}%`, 
+                            width: `${score || 0}%`, 
                             backgroundColor: '#FFB84D'
                           }}
                         />
                       </div>
                       <span className="text-sm font-bold min-w-[3rem]" style={{color: '#FFB84D'}}>
-                        {score}
+                        {score || 0}
                       </span>
                     </div>
                   </div>
@@ -1500,20 +1723,20 @@ const BusinessSustainabilityAssessment = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#4ECDC4'}}></div>
-                      <span className="text-sm text-slate-600">{companyData[compareCompany].name}</span>
+                      <span className="text-sm text-slate-600">{safeGetCompanyData(compareCompany).name}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-20 liquid-glass rounded-full h-2">
                         <div 
                           className="h-2 rounded-full transition-all duration-1000 shadow-sm"
                           style={{ 
-                            width: `${companyData[compareCompany].metrics[dimension]}%`,
+                            width: `${safeGetCompanyData(compareCompany).metrics[dimension] || 0}%`,
                             backgroundColor: '#4ECDC4'
                           }}
                         />
                       </div>
                       <span className="text-sm font-bold min-w-[3rem]" style={{color: '#4ECDC4'}}>
-                        {companyData[compareCompany].metrics[dimension]}
+                        {safeGetCompanyData(compareCompany).metrics[dimension] || 0}
                       </span>
                     </div>
                   </div>
