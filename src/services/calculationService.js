@@ -17,6 +17,7 @@ import {
 import {
   getInventoryTurnoverData,
   getRoeData,
+  getRevenueGrowthData,
   getCompanyAllMetrics,
   getComparisonData
 } from './dataService.js';
@@ -91,6 +92,27 @@ export const calculateRoeScore = (roe) => {
 };
 
 /**
+ * 計算營收成長率分數
+ */
+export const calculateRevenueGrowthScore = (growthRate) => {
+  if (growthRate === null || growthRate === undefined) {
+    return 50; // 無法計算時給予中等分數
+  }
+  
+  // 依據規格文件的評分邏輯
+  if (growthRate < -0.2) {
+    // 成長率 < -20%：0分
+    return 0;
+  } else if (growthRate < 0) {
+    // -20% ≤ 成長率 < 0%：25-50分線性計分
+    return 25 + (growthRate * 1.25 * 100);
+  } else {
+    // 成長率 ≥ 0%：50-100分線性增長
+    return Math.min(100, 50 + (growthRate * 2.5 * 100));
+  }
+};
+
+/**
  * 處理單一公司的原始資料並計算分數
  */
 export const processCompanyMetrics = async (taxId, fiscalYear) => {
@@ -135,6 +157,21 @@ export const processCompanyMetrics = async (taxId, fiscalYear) => {
       };
     }
     
+    // 處理營收成長率數據 (未來力)
+    if (rawData.revenue_growth) {
+      const revenueGrowthValue = rawData.revenue_growth.revenue_growth_rate;
+      const radarScore = rawData.revenue_growth.radar_score;
+      
+      processedMetrics.未來力 = processedMetrics.未來力 || {};
+      processedMetrics.未來力.revenue_growth = {
+        name: '營收成長率',
+        value: revenueGrowthValue,
+        score: radarScore,
+        calculated_score: calculateRevenueGrowthScore(revenueGrowthValue), // 用於驗證
+        raw_data: rawData.revenue_growth
+      };
+    }
+    
     // 計算維度分數 (包含真實和虚擬數據)
     const companyKey = getCompanyKeyByTaxId(taxId);
     const mockScores = MOCK_DIMENSION_SCORES[companyKey] || MOCK_DIMENSION_SCORES.FET;
@@ -142,7 +179,7 @@ export const processCompanyMetrics = async (taxId, fiscalYear) => {
     processedMetrics.dimension_scores = {
       營運能力: calculateDimensionScore(processedMetrics.營運能力),
       財務能力: calculateDimensionScore(processedMetrics.財務能力),
-      未來力: mockScores.未來力,
+      未來力: processedMetrics.未來力?.revenue_growth?.score || mockScores.未來力,
       AI數位力: mockScores.AI數位力,
       ESG永續力: mockScores.ESG永續力,
       創新能力: mockScores.創新能力

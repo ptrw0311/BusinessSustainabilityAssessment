@@ -4,9 +4,9 @@
 
 本文件定義企業永續性評估平台的雷達圖指標計算邏輯，包含商業公式、PostgreSQL查詢語法及評分標準。
 
-**版本：** 1.0  
-**更新日期：** 2024-12-19  
-**適用範圍：** 雷達圖六大維度指標計算
+**版本：** 1.1  
+**更新日期：** 2025-09-18  
+**適用範圍：** 雷達圖六大維度指標計算及用戶體驗優化
 
 ---
 
@@ -181,6 +181,90 @@ WHERE
 
 ---
 
+## 🚀 雷達圖維度：未來力
+
+### 指標3：營收成長率
+
+**商業邏輯：**
+- **計算公式：** 營收成長率 = (本期營收 - 去年營收) ÷ 去年營收
+- **評分邏輯：** 分段評分制
+  - 成長率 < -20%：0分 (嚴重衰退)
+  - -20% ≤ 成長率 < 0%：25-50分 (輕微衰退，線性計分)
+  - 成長率 ≥ 0%：50-100分 (正成長，線性增長至上限)
+- **分數範圍：** 0-100分
+- **維度權重：** 佔未來力 35%
+
+**資料來源：**
+- 本期營收：`pl_income_basics.operating_revenue_total` (當年度)
+- 去年營收：`pl_income_basics.operating_revenue_total` (前一年度)
+
+**PostgreSQL查詢語法：**
+```sql
+SELECT 
+    '未來力' AS core_competence,
+    '營收成長率' AS indicator_name,
+    pl_current.fiscal_year,
+    pl_current.company_name,
+    pl_current.operating_revenue_total AS current_operating_revenue_total,
+    pl_previous.operating_revenue_total AS previous_operating_revenue_total,
+
+    -- 營收成長率計算
+    CASE 
+        WHEN COALESCE(pl_previous.operating_revenue_total, 0) > 0 
+        THEN (pl_current.operating_revenue_total - pl_previous.operating_revenue_total)::NUMERIC / pl_previous.operating_revenue_total
+        ELSE NULL 
+    END AS revenue_growth_rate,
+
+    -- 雷達圖分數計算
+    CASE 
+        WHEN COALESCE(pl_previous.operating_revenue_total, 0) <= 0 THEN NULL
+        ELSE 
+            CASE 
+                -- 成長率 < -20%：0分
+                WHEN (pl_current.operating_revenue_total - pl_previous.operating_revenue_total)::NUMERIC / pl_previous.operating_revenue_total < -0.2 THEN 
+                    0
+                -- -20% ≤ 成長率 < 0%：25-50分線性計分
+                WHEN (pl_current.operating_revenue_total - pl_previous.operating_revenue_total)::NUMERIC / pl_previous.operating_revenue_total < 0 THEN 
+                    25 + ((pl_current.operating_revenue_total - pl_previous.operating_revenue_total)::NUMERIC / pl_previous.operating_revenue_total) * 1.25 * 100
+                -- 成長率 ≥ 0%：50-100分線性增長
+                ELSE 
+                    LEAST(100, 50 + ((pl_current.operating_revenue_total - pl_previous.operating_revenue_total)::NUMERIC / pl_previous.operating_revenue_total) * 2.5 * 100)
+            END
+    END AS radar_score
+
+FROM public.pl_income_basics pl_current
+LEFT JOIN public.pl_income_basics pl_previous 
+    ON pl_current.tax_id = pl_previous.tax_id 
+    AND pl_previous.fiscal_year = (pl_current.fiscal_year::INTEGER - 1)
+WHERE pl_current.fiscal_year = :fiscal_year 
+    AND pl_current.tax_id = :tax_id;
+```
+
+**查詢參數：**
+- `:fiscal_year` - 會計年度 (例：'2024')
+- `:tax_id` - 統一編號 (例：'24566673' 富鴻網)
+
+**預期結果欄位：**
+- `revenue_growth_rate` - 營收成長率數值 (小數，如0.15代表15%成長)
+- `radar_score` - 雷達圖標準化分數 (0-100)
+
+**評分標準詳解：**
+- **基準線：** 0%成長給50分
+- **正成長獎勵：** 每1%成長加2.5分，最高100分
+- **衰退懲罰：** 輕微衰退(-20%~0%)給25-50分線性遞減
+- **嚴重衰退：** 超過-20%衰退直接給0分
+- **特殊處理：** 去年營收為0或負值時回傳NULL
+
+**評分範例：**
+- 成長率 +20%：50 + (20 × 2.5) = 100分
+- 成長率 +10%：50 + (10 × 2.5) = 75分
+- 成長率 0%：50分
+- 成長率 -10%：25 + (-10 × 1.25) = 37.5分
+- 成長率 -20%：25 + (-20 × 1.25) = 0分
+- 成長率 -30%：0分
+
+---
+
 ## 📊 整體配置
 
 ### 維度權重分配
@@ -266,6 +350,84 @@ WHERE
 - 評分分布合理 (避免過度集中)
 - SQL查詢效能可接受 (<2秒)
 - 錯誤處理完善
+
+---
+
+## 🔧 系統性能優化 (v1.1 新增)
+
+### 用戶體驗改進
+
+#### 問題描述
+原始系統在下拉選單變更時會觸發整頁重新載入，顯示「載入企業指標中...」覆蓋畫面，影響用戶體驗。
+
+#### 解決方案
+**1. 移除全局Loading狀態**
+- 刪除 `metricsLoading` 全頁覆蓋檢查
+- 改採局部Loading指示器機制
+
+**2. 智能數據快取**
+```javascript
+// 新增快取機制
+const [companyDataCache, setCompanyDataCache] = useState({});
+const [loadingStates, setLoadingStates] = useState({
+  selectedCompany: false,
+  compareCompany: false
+});
+```
+
+**3. 優化載入邏輯**
+```javascript
+// 支援快取的loadCompanyMetrics函數
+const loadCompanyMetrics = async (companyKey, isSelectedCompany = true) => {
+  // 檢查快取
+  if (companyDataCache[companyKey]) {
+    console.log(`使用快取數據 for ${companyKey}`);
+    setCompanyMetrics(prev => ({
+      ...prev,
+      [companyKey]: companyDataCache[companyKey]
+    }));
+    return;
+  }
+  // 載入新數據並更新快取...
+};
+```
+
+**4. 分離useEffect依賴**
+```javascript
+// 頁面初始載入
+useEffect(() => {
+  if (currentPage === 'dashboard') {
+    loadCompanyMetrics(selectedCompany, true);
+    loadCompanyMetrics(compareCompany, false);
+  }
+}, [currentPage]);
+
+// 主要公司變更
+useEffect(() => {
+  if (currentPage === 'dashboard') {
+    loadCompanyMetrics(selectedCompany, true);
+  }
+}, [selectedCompany]);
+
+// 比較公司變更
+useEffect(() => {
+  if (currentPage === 'dashboard') {
+    loadCompanyMetrics(compareCompany, false);
+  }
+}, [compareCompany]);
+```
+
+#### 技術優勢
+- **即時響應：** 已載入公司數據立即顯示
+- **減少API請求：** 智能快取避免重複查詢
+- **穩定UI：** 頁面保持穩定，不再重新渲染
+- **AJAX效果：** 各數據區塊獨立更新
+
+#### 測試驗證
+- 下拉選單變更時頁面保持穩定
+- 快取命中時數據立即顯示
+- 新公司載入時僅顯示局部loading
+- 控制台顯示快取使用情況
 
 ---
 

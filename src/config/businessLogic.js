@@ -99,29 +99,66 @@ export const DIMENSION_WEIGHTS = {
 };
 
 /**
+ * 未來力指標配置
+ */
+export const FUTURE_METRICS = {
+  revenue_growth: {
+    name: '營收成長率',
+    weight: 0.35, // 在未來力中的權重
+    calculation: {
+      formula: '(current_revenue - previous_revenue) / previous_revenue',
+      tables: ['pl_income_basics'],
+      fields: {
+        current_revenue: 'pl_current.operating_revenue_total',
+        previous_revenue: 'pl_previous.operating_revenue_total'
+      }
+    },
+    scoring: {
+      method: 'segmented_scoring',
+      segments: [
+        {
+          condition: 'growth_rate < -0.2',
+          scoreRange: { min: 0, max: 0 },
+          formula: '0'
+        },
+        {
+          condition: '-0.2 <= growth_rate < 0',
+          scoreRange: { min: 25, max: 50 },
+          formula: '25 + (growth_rate * 1.25 * 100)'
+        },
+        {
+          condition: 'growth_rate >= 0',
+          scoreRange: { min: 50, max: 100 },
+          formula: 'MIN(100, 50 + (growth_rate * 2.5 * 100))'
+        }
+      ],
+      specialRules: [
+        'if previous_revenue <= 0 then score = NULL'
+      ]
+    }
+  }
+};
+
+/**
  * 虚擬維度分數 (未來實作的維度使用固定分數)
  */
 export const MOCK_DIMENSION_SCORES = {
   FET: {
-    未來力: 68,
     AI數位力: 82,
     ESG永續力: 75,
     創新能力: 65
   },
   TSMC: {
-    未來力: 85,
     AI數位力: 88,
     ESG永續力: 85,
     創新能力: 90
   },
   TWM: {
-    未來力: 62,
     AI數位力: 75,
     ESG永續力: 82,
     創新能力: 63
   },
   FOXCONN: {
-    未來力: 78,
     AI數位力: 85,
     ESG永續力: 70,
     創新能力: 82
@@ -180,6 +217,7 @@ export const getMetricConfig = (dimension, metricKey) => {
   const dimensionMetrics = {
     營運能力: OPERATIONAL_METRICS,
     財務能力: FINANCIAL_METRICS,
+    未來力: FUTURE_METRICS,
     // 可擴展其他維度...
   };
   
@@ -193,6 +231,7 @@ export const getDimensionMetrics = (dimension) => {
   const dimensionMetrics = {
     營運能力: OPERATIONAL_METRICS,
     財務能力: FINANCIAL_METRICS,
+    未來力: FUTURE_METRICS,
     // 可擴展其他維度...
   };
   

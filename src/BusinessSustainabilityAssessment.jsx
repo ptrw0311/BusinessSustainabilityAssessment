@@ -36,6 +36,13 @@ const BusinessSustainabilityAssessment = () => {
   const [metricsLoading, setMetricsLoading] = useState(false);
   const [metricsError, setMetricsError] = useState(null);
   const [hoveredMetric, setHoveredMetric] = useState(null);
+  
+  // 新增公司數據快取機制
+  const [companyDataCache, setCompanyDataCache] = useState({});
+  const [loadingStates, setLoadingStates] = useState({
+    selectedCompany: false,
+    compareCompany: false
+  });
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [dataManagementExpanded, setDataManagementExpanded] = useState(false);
   const [selectedDataType, setSelectedDataType] = useState('pl_income_basics');
@@ -365,10 +372,22 @@ const BusinessSustainabilityAssessment = () => {
     setShowDeleteModal(true);
   };
 
-  // 載入公司指標數據的函數
-  const loadCompanyMetrics = async (companyKey) => {
+  // 載入公司指標數據的函數 - 支援快取機制
+  const loadCompanyMetrics = async (companyKey, isSelectedCompany = true) => {
     try {
-      setMetricsLoading(true);
+      // 檢查快取是否存在
+      if (companyDataCache[companyKey]) {
+        console.log(`使用快取數據 for ${companyKey}`);
+        setCompanyMetrics(prev => ({
+          ...prev,
+          [companyKey]: companyDataCache[companyKey]
+        }));
+        return;
+      }
+
+      // 設置局部loading狀態
+      const loadingType = isSelectedCompany ? 'selectedCompany' : 'compareCompany';
+      setLoadingStates(prev => ({ ...prev, [loadingType]: true }));
       setMetricsError(null);
       
       const company = COMPANIES[companyKey];
@@ -378,6 +397,12 @@ const BusinessSustainabilityAssessment = () => {
       
       // 使用新的服務層獲取數據
       const metrics = await processCompanyMetrics(company.taxId, DEFAULT_QUERY_PARAMS.fiscal_year);
+      
+      // 更新快取
+      setCompanyDataCache(prev => ({
+        ...prev,
+        [companyKey]: metrics
+      }));
       
       // 更新狀態
       setCompanyMetrics(prev => ({
@@ -389,7 +414,9 @@ const BusinessSustainabilityAssessment = () => {
       console.error(`載入 ${companyKey} 指標數據錯誤:`, error);
       setMetricsError(`載入 ${companyKey} 資料失敗: ${error.message}`);
     } finally {
-      setMetricsLoading(false);
+      // 重置局部loading狀態
+      const loadingType = isSelectedCompany ? 'selectedCompany' : 'compareCompany';
+      setLoadingStates(prev => ({ ...prev, [loadingType]: false }));
     }
   };
 
@@ -417,14 +444,53 @@ const BusinessSustainabilityAssessment = () => {
     }
   };
 
-  // 當公司選擇改變時自動載入數據
+  // 測試Supabase連線的函數
+  const testSupabaseConnection = async () => {
+    try {
+      console.log('🔍 測試Supabase連線...');
+      const { getRoeData } = await import('./services/dataService.js');
+      
+      console.log('📊 查詢富鴻網ROE數據...');
+      const result = await getRoeData({ tax_id: '24566673', fiscal_year: '2024' });
+      
+      console.log('✅ 查詢結果:', result);
+      console.log('📈 富鴻網ROE分數:', result[0]?.radar_score);
+      
+      return result;
+    } catch (error) {
+      console.error('❌ Supabase測試失敗:', error);
+      return null;
+    }
+  };
+
+  // 當進入dashboard頁面時初始載入數據
   useEffect(() => {
     if (currentPage === 'dashboard') {
-      loadCompanyMetrics(selectedCompany);
-      loadCompanyMetrics(compareCompany);
+      // 測試Supabase連線
+      testSupabaseConnection();
+      
+      // 初始載入時才載入數據
+      loadCompanyMetrics(selectedCompany, true);
+      loadCompanyMetrics(compareCompany, false);
       loadComparisonData(selectedCompany, compareCompany);
     }
-  }, [selectedCompany, compareCompany, currentPage]);
+  }, [currentPage]);
+
+  // 當選擇的主要公司改變時載入數據
+  useEffect(() => {
+    if (currentPage === 'dashboard') {
+      loadCompanyMetrics(selectedCompany, true);
+      loadComparisonData(selectedCompany, compareCompany);
+    }
+  }, [selectedCompany]);
+
+  // 當比較公司改變時載入數據  
+  useEffect(() => {
+    if (currentPage === 'dashboard') {
+      loadCompanyMetrics(compareCompany, false);
+      loadComparisonData(selectedCompany, compareCompany);
+    }
+  }, [compareCompany]);
 
   // 當進入資料管理頁面時自動獲取資料
   useEffect(() => {
@@ -1420,19 +1486,7 @@ const BusinessSustainabilityAssessment = () => {
 
   // Dashboard內容
   const renderDashboard = () => {
-    // 顯示載入狀態
-    if (metricsLoading) {
-      return (
-        <div className="max-w-7xl mx-auto p-6 space-y-6">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-slate-600">載入企業指標資料中...</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
+    // 移除全局loading狀態檢查，改為局部loading指示器
     
     // 顯示錯誤狀態
     if (metricsError) {
@@ -1464,7 +1518,8 @@ const BusinessSustainabilityAssessment = () => {
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* 公司選擇區 */}
         <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 mb-6 text-slate-800">
-          <div className="flex flex-row gap-8 items-center justify-center">
+          <div className="flex flex-row justify-between items-center">
+            {/* 主要分析公司 - 左對齊 */}
             <div className="flex items-center space-x-3">
               <label className="text-slate-600 font-medium">主要分析公司:</label>
               <select 
@@ -1480,6 +1535,7 @@ const BusinessSustainabilityAssessment = () => {
               </select>
             </div>
             
+            {/* 比較公司 - 右對齊 */}
             <div className="flex items-center space-x-3">
               <label className="text-slate-600 font-medium">比較公司:</label>
               <select 
@@ -1498,12 +1554,12 @@ const BusinessSustainabilityAssessment = () => {
         </div>
 
         {/* 評分標準 */}
-        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-orange-500/30">
-          <h3 className="text-xl font-bold mb-6 text-slate-800">評分標準</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="liquid-glass-card rounded-xl p-4 shadow-lg border border-orange-500/30">
+          <h3 className="text-lg font-bold mb-3 text-slate-800">評分標準</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {Object.entries(performanceColors).map(([level, color]) => (
-              <div key={level} className="flex items-center space-x-2 p-3 warm-gradient-card rounded-lg transition-all duration-300 hover:scale-105">
-                <div className="text-lg">
+              <div key={level} className="flex items-center space-x-2 p-2 warm-gradient-card rounded-lg transition-all duration-300 hover:scale-105">
+                <div className="text-base">
                   {level === '優異' && '🏆'}
                   {level === '良好' && '👍'}
                   {level === '一般' && '⚖️'}
@@ -1644,12 +1700,12 @@ const BusinessSustainabilityAssessment = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
             <h3 className="text-xl font-bold mb-6 text-center text-slate-800">六大核心能力比較雷達圖</h3>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={410}>
               <RadarChart data={radarData}>
                 <PolarGrid gridType="polygon" stroke="#64748b" strokeOpacity={0.4} />
                 <PolarAngleAxis 
                   dataKey="dimension" 
-                  tick={{ fontSize: 14, fill: '#1e293b' }}
+                  tick={{ fontSize: 16, fill: '#1e293b' }}
                   className="text-sm"
                 />
                 <PolarRadiusAxis 
@@ -1714,7 +1770,7 @@ const BusinessSustainabilityAssessment = () => {
                         />
                       </div>
                       <span className="text-sm font-bold min-w-[3rem]" style={{color: '#FFB84D'}}>
-                        {score || 0}
+                        {(score || 0).toFixed(1)}
                       </span>
                     </div>
                   </div>
@@ -1736,7 +1792,7 @@ const BusinessSustainabilityAssessment = () => {
                         />
                       </div>
                       <span className="text-sm font-bold min-w-[3rem]" style={{color: '#4ECDC4'}}>
-                        {safeGetCompanyData(compareCompany).metrics[dimension] || 0}
+                        {(safeGetCompanyData(compareCompany).metrics[dimension] || 0).toFixed(1)}
                       </span>
                     </div>
                   </div>

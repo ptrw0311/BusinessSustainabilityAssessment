@@ -216,7 +216,125 @@ ESG永續力: 75 vs 70 (固定)
 
 ---
 
+---
+
+## 🚀 2025年9月18日用戶體驗優化 (v1.1)
+
+### 核心問題解決
+解決了下拉選單變更時整頁重新載入的問題，實現真正的AJAX非同步體驗。
+
+#### 問題分析
+- **原始行為：** 下拉選單變更 → 全頁loading覆蓋 → 顯示「載入企業指標中...」
+- **影響體驗：** 用戶感受到頁面重新刷新，不符合現代Web應用標準
+
+#### 技術改進
+
+**1. 移除全局Loading覆蓋**
+```javascript
+// 移除前：整頁被loading畫面覆蓋
+if (metricsLoading) {
+  return <LoadingScreen />;
+}
+
+// 移除後：頁面保持穩定，改用局部loading
+// 刪除全頁覆蓋檢查(第1446-1457行)
+```
+
+**2. 智能數據快取系統**
+```javascript
+// 新增快取機制
+const [companyDataCache, setCompanyDataCache] = useState({});
+const [loadingStates, setLoadingStates] = useState({
+  selectedCompany: false,
+  compareCompany: false
+});
+
+// 快取命中時立即顯示數據
+if (companyDataCache[companyKey]) {
+  console.log(`使用快取數據 for ${companyKey}`);
+  setCompanyMetrics(prev => ({
+    ...prev,
+    [companyKey]: companyDataCache[companyKey]
+  }));
+  return;
+}
+```
+
+**3. useEffect依賴分離優化**
+```javascript
+// 原始：統一useEffect導致過度重載
+useEffect(() => {
+  // 每次選單變更都觸發完整重載
+}, [selectedCompany, compareCompany, currentPage]);
+
+// 優化後：分離不同觸發條件
+useEffect(() => {
+  // 僅頁面初始載入
+}, [currentPage]);
+
+useEffect(() => {
+  // 僅主要公司變更
+}, [selectedCompany]);
+
+useEffect(() => {
+  // 僅比較公司變更
+}, [compareCompany]);
+```
+
+**4. 載入函數智能化改進**
+```javascript
+// 支援快取檢查和局部loading狀態
+const loadCompanyMetrics = async (companyKey, isSelectedCompany = true) => {
+  // 1. 快取檢查
+  if (companyDataCache[companyKey]) {
+    // 立即返回快取數據
+    return;
+  }
+  
+  // 2. 設置局部loading
+  const loadingType = isSelectedCompany ? 'selectedCompany' : 'compareCompany';
+  setLoadingStates(prev => ({ ...prev, [loadingType]: true }));
+  
+  // 3. 載入數據並更新快取
+  // 4. 重置局部loading
+};
+```
+
+#### 用戶體驗提升
+
+**改進前 vs 改進後**
+| 操作 | 改進前 | 改進後 |
+|------|-------|-------|
+| 下拉選單變更 | 整頁重新載入 | 頁面保持穩定 |
+| 切換已載入公司 | 重新API請求 | 立即從快取顯示 |
+| 數據更新方式 | 全頁覆蓋loading | 局部區塊更新 |
+| 用戶感受 | 頁面重新刷新感 | 流暢AJAX體驗 |
+
+#### 技術優勢
+- ✅ **即時響應：** 已載入公司數據立即顯示
+- ✅ **減少API請求：** 智能快取避免重複查詢  
+- ✅ **穩定UI：** 頁面保持穩定，不再重新渲染
+- ✅ **AJAX效果：** 各數據區塊獨立更新
+- ✅ **性能提升：** 快取機制減少伺服器負載
+
+#### 測試驗證
+- ✅ 下拉選單變更時頁面完全穩定
+- ✅ 快取命中時數據立即顯示（0延遲）
+- ✅ 新公司載入時僅顯示局部loading
+- ✅ 控制台正確顯示快取使用情況
+- ✅ 符合現代Web應用體驗標準
+
+### 關鍵文件修改
+- **主要組件：** `src/BusinessSustainabilityAssessment.jsx`
+  - 新增快取機制和局部loading狀態
+  - 移除全局loading覆蓋檢查
+  - 重構loadCompanyMetrics函數支援快取
+  - 分離useEffect依賴提升性能
+
+---
+
 **實作完成日期：** 2024-12-19  
 **修正更新日期：** 2024-12-19  
+**用戶體驗優化日期：** 2025-09-18  
 **開發伺服器：** http://localhost:5174  
-**測試狀態：** 全部修正完成 ✅
+**測試狀態：** 全部優化完成 ✅
