@@ -148,10 +148,10 @@ export const MOCK_DIMENSION_SCORES = {
     ESG永續力: 75,
     創新能力: 65
   },
-  TSMC: {
-    AI數位力: 88,
-    ESG永續力: 85,
-    創新能力: 90
+  CHT: {
+    AI數位力: 85,
+    ESG永續力: 80,
+    創新能力: 72
   },
   TWM: {
     AI數位力: 75,
@@ -185,10 +185,10 @@ export const COMPANIES = {
     taxId: '97179430',
     ticker: 'FET'
   },
-  TSMC: {
-    name: '台積電 TSMC',
-    taxId: '03540099',
-    ticker: 'TSM'
+  CHT: {
+    name: '中華電信股份有限公司',
+    taxId: '96979933',
+    ticker: 'CHT'
   },
   TWM: {
     name: '台灣大哥大',

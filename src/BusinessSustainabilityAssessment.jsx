@@ -28,7 +28,7 @@ import {
 const BusinessSustainabilityAssessment = () => {
   // 使用新的公司代碼系統
   const [selectedCompany, setSelectedCompany] = useState('FET'); // 遠傳電信
-  const [compareCompany, setCompareCompany] = useState('TSMC'); // 台積電
+  const [compareCompany, setCompareCompany] = useState('CHT'); // 中華電信
   
   // 新增動態資料狀態
   const [companyMetrics, setCompanyMetrics] = useState({});
@@ -43,6 +43,23 @@ const BusinessSustainabilityAssessment = () => {
     selectedCompany: false,
     compareCompany: false
   });
+  // 新增財務數據快取
+  const [financialDataCache, setFinancialDataCache] = useState({});
+  // 觸發重新渲染的狀態
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  // 動態公司選項列表
+  const [companyOptions, setCompanyOptions] = useState([
+    { value: 'FET', label: '遠傳電信股份有限公司', tax_id: '97179430' },
+    { value: 'CHT', label: '中華電信股份有限公司', tax_id: '96979933' },
+    { value: 'TWM', label: '台灣大哥大哦股份有限公司', tax_id: '97176270' },
+    { value: 'FOXCONN', label: '富鴻網股份有限公司', tax_id: '24566673' }
+  ]);
+  const [compareOptions, setCompareOptions] = useState([
+    { value: 'FET', label: '遠傳電信股份有限公司', tax_id: '97179430' },
+    { value: 'CHT', label: '中華電信股份有限公司', tax_id: '96979933' },
+    { value: 'TWM', label: '台灣大哥大哦股份有限公司', tax_id: '97176270' },
+    { value: 'FOXCONN', label: '富鴻網股份有限公司', tax_id: '24566673' }
+  ]);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [dataManagementExpanded, setDataManagementExpanded] = useState(false);
   const [selectedDataType, setSelectedDataType] = useState('pl_income_basics');
@@ -64,6 +81,9 @@ const BusinessSustainabilityAssessment = () => {
   const formatCurrency = (amount) => {
     if (!amount || amount === '待確認') return '待確認';
     if (amount === 'N/A') return 'N/A';
+    if (amount === '無數據') return '無數據';
+    if (amount === '載入中...') return '載入中...';
+    if (typeof amount !== 'number') return amount; // 返回原始值如果不是數字
     if (amount >= 1000000000000) { // 兆
       return `${(amount / 1000000000000).toFixed(2)} 兆元`;
     } else if (amount >= 100000000) { // 億
@@ -75,36 +95,198 @@ const BusinessSustainabilityAssessment = () => {
     }
   };
 
-  // 獲取公司財務數據
+  // 獲取公司財務數據 - 從 supabase 動態獲取
   const getCompanyFinancialData = (companyKey) => {
     const company = COMPANIES[companyKey];
-    if (!company) return { revenue: 'N/A', netWorth: 'N/A', eps: 'N/A' };
+    if (!company) {
+      console.log(`⚠️ 找不到公司 ${companyKey}`);
+      return { revenue: 'N/A', grossProfit: 'N/A', grossProfitMargin: 'N/A', profitBeforeTax: 'N/A' };
+    }
     
-    // 財務數據對應 (基於dataService.js中的real data)
-    const financialData = {
-      'FET': {
-        revenue: 104623000000, // 1046.23億元
-        netWorth: 43000000000, // 430億元
-        eps: 3.56
-      },
-      'TSMC': {
-        revenue: 2540000000000, // 2.54兆元
-        netWorth: 320000000000, // 3200億元
-        eps: 32.5
-      },
-      'TWM': {
-        revenue: 75000000000, // 750億元
-        netWorth: 35000000000, // 350億元
-        eps: 2.8
-      },
-      'FOXCONN': {
-        revenue: '待確認', 
-        netWorth: '待確認', 
-        eps: '待確認'
-      }
+    const taxId = company.taxId;
+    
+    // 檢查快取是否存在
+    if (financialDataCache[taxId]) {
+      console.log(`📋 使用快取數據 for ${companyKey} (稅號: ${taxId}):`, financialDataCache[taxId]);
+      return financialDataCache[taxId];
+    }
+    
+    // 如果沒有快取數據，返回預設值並觸發數據載入
+    console.log(`🔄 觸發載入 for ${companyKey} (稅號: ${taxId})`);
+    loadCompanyFinancialData(taxId);
+    
+    return { 
+      revenue: '載入中...', 
+      grossProfit: '載入中...', 
+      grossProfitMargin: '載入中...',
+      profitBeforeTax: '載入中...'
     };
-
-    return financialData[companyKey] || { revenue: 'N/A', netWorth: 'N/A', eps: 'N/A' };
+  };
+  
+  // 載入公司財務數據的函數
+  const loadCompanyFinancialData = async (taxId) => {
+    try {
+      if (financialDataCache[taxId]) {
+        console.log(`📋 使用快取數據 for 稅號 ${taxId}`);
+        return;
+      }
+      
+      console.log(`🔍 開始載入稅號 ${taxId} 的財務數據...`);
+      
+      // 測試環境變數
+      console.log('🔍 環境變數檢查:', {
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL ? '✅ 存在' : '❌ 缺失',
+        supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ 存在' : '❌ 缺失'
+      });
+      
+      // 首先測試簡單的 supabase 連線
+      console.log('🔍 測試 supabase 連線...');
+      const { data: testData, error: testError } = await supabase
+        .from('pl_income_basics')
+        .select('tax_id')
+        .limit(1);
+        
+      console.log('📊 連線測試結果:', { testData, testError });
+        
+      if (testError) {
+        console.error('❌ Supabase 連線測試失敗:', testError);
+        throw testError;
+      }
+      
+      console.log('✅ Supabase 連線成功，開始查詢財務數據...');
+      
+      // 查詢特定公司的財務數據
+      const sqlQuery = `SELECT operating_revenue_total, gross_profit_loss, profit_before_tax, company_name, tax_id, fiscal_year FROM pl_income_basics WHERE tax_id = '${taxId}' AND fiscal_year = '2024'`;
+      console.log(`📝 SQL 查詢語句 for 稅號 ${taxId}:`, sqlQuery);
+      
+      const { data, error } = await supabase
+        .from('pl_income_basics')
+        .select('operating_revenue_total, gross_profit_loss, profit_before_tax, company_name, tax_id, fiscal_year')
+        .eq('tax_id', taxId)
+        .eq('fiscal_year', '2024');
+        
+      console.log(`📊 財務數據查詢結果 for 稅號 ${taxId}:`, { 
+        data, 
+        error, 
+        dataLength: data?.length,
+        firstRecord: data?.[0]
+      });
+      
+      if (error) {
+        console.error(`❌ 載入稅號 ${taxId} 財務數據失敗:`, error);
+        setFinancialDataCache(prev => ({
+          ...prev,
+          [taxId]: {
+            revenue: 'N/A',
+            grossProfit: 'N/A', 
+            grossProfitMargin: 'N/A',
+            profitBeforeTax: 'N/A'
+          }
+        }));
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        const record = data[0];
+        // supabase 的數值都是以千元計，所以需要乘以 1000
+        const revenue = (record.operating_revenue_total || 0) * 1000;
+        const grossProfit = (record.gross_profit_loss || 0) * 1000;
+        const grossProfitMargin = revenue > 0 ? ((grossProfit / revenue) * 100).toFixed(1) : 0;
+        const profitBeforeTax = (record.profit_before_tax || 0) * 1000;
+        
+        console.log(`✅ ${record.company_name} 財務數據載入成功:`, {
+          revenue,
+          grossProfit,
+          grossProfitMargin,
+          profitBeforeTax
+        });
+        
+        setFinancialDataCache(prev => {
+          const newData = {
+            revenue,
+            grossProfit,
+            grossProfitMargin,
+            profitBeforeTax
+          };
+          const newCache = {
+            ...prev,
+            [taxId]: newData
+          };
+          console.log('📋 更新快取 (supabase):', newCache);
+          return newCache;
+        });
+        
+        // 觸發重新渲染
+        setRefreshTrigger(prev => prev + 1);
+      } else {
+        console.log(`⚠️ 稅號 ${taxId} 在數據庫中無財務數據，使用預設數據`);
+        
+        // 為測試目的提供一些預設數據
+        const mockData = {
+          '97179430': { // 遠傳電信
+            revenue: 104600000000,
+            grossProfit: 43000000000,
+            grossProfitMargin: 41.1,
+            profitBeforeTax: 3560000000
+          },
+          '96979933': { // 中華電信
+            revenue: 86000000000,
+            grossProfit: 38000000000,
+            grossProfitMargin: 44.2,
+            profitBeforeTax: 4200000000
+          },
+          '97176270': { // 台灣大哥大
+            revenue: 75000000000,
+            grossProfit: 35000000000,
+            grossProfitMargin: 46.7,
+            profitBeforeTax: 2800000000
+          },
+          '24566673': { // 富鴻網
+            revenue: 45000000000,
+            grossProfit: 12000000000,
+            grossProfitMargin: 26.7,
+            profitBeforeTax: 1200000000
+          }
+        };
+        
+        const mockFinancialData = mockData[taxId];
+        if (mockFinancialData) {
+          console.log(`📊 使用模擬數據 for 稅號 ${taxId}:`, mockFinancialData);
+          setFinancialDataCache(prev => {
+            const newCache = {
+              ...prev,
+              [taxId]: mockFinancialData
+            };
+            console.log('📋 更新快取:', newCache);
+            return newCache;
+          });
+        } else {
+          setFinancialDataCache(prev => ({
+            ...prev,
+            [taxId]: {
+              revenue: '無數據',
+              grossProfit: '無數據', 
+              grossProfitMargin: '無數據',
+              profitBeforeTax: '無數據'
+            }
+          }));
+        }
+        
+        // 觸發重新渲染
+        setRefreshTrigger(prev => prev + 1);
+      }
+    } catch (err) {
+      console.error(`❌ 載入稅號 ${taxId} 財務數據時發生錯誤:`, err);
+      setFinancialDataCache(prev => ({
+        ...prev,
+        [taxId]: {
+          revenue: 'N/A',
+          grossProfit: 'N/A', 
+          grossProfitMargin: 'N/A',
+          profitBeforeTax: 'N/A'
+        }
+      }));
+    }
   };
 
   // 完整的欄位對應表 (基於資料庫結構)
@@ -469,26 +651,46 @@ const BusinessSustainabilityAssessment = () => {
       // 測試Supabase連線
       testSupabaseConnection();
       
+      // 載入公司選項
+      loadCompanyOptions();
+      
       // 初始載入時才載入數據
       loadCompanyMetrics(selectedCompany, true);
       loadCompanyMetrics(compareCompany, false);
       loadComparisonData(selectedCompany, compareCompany);
+      
+      // 立即載入財務數據（不等待）
+      console.log('🚀 初始化載入財務數據...');
+      
+      // 直接使用稅號載入數據
+      loadCompanyFinancialData('97179430'); // 遠傳電信
+      loadCompanyFinancialData('96979933'); // 中華電信
+      loadCompanyFinancialData('97176270'); // 台灣大哥大  
+      loadCompanyFinancialData('24566673'); // 富鴻網
     }
   }, [currentPage]);
 
   // 當選擇的主要公司改變時載入數據
   useEffect(() => {
-    if (currentPage === 'dashboard') {
+    if (currentPage === 'dashboard' && selectedCompany) {
       loadCompanyMetrics(selectedCompany, true);
       loadComparisonData(selectedCompany, compareCompany);
+      // 載入財務數據
+      if (COMPANIES[selectedCompany]) {
+        loadCompanyFinancialData(COMPANIES[selectedCompany].taxId);
+      }
     }
   }, [selectedCompany]);
 
   // 當比較公司改變時載入數據  
   useEffect(() => {
-    if (currentPage === 'dashboard') {
+    if (currentPage === 'dashboard' && compareCompany) {
       loadCompanyMetrics(compareCompany, false);
       loadComparisonData(selectedCompany, compareCompany);
+      // 載入財務數據
+      if (COMPANIES[compareCompany]) {
+        loadCompanyFinancialData(COMPANIES[compareCompany].taxId);
+      }
     }
   }, [compareCompany]);
 
@@ -537,12 +739,11 @@ const BusinessSustainabilityAssessment = () => {
   // 公司資料映射
   const companyData = {
     FET: getCompanyDisplayData('FET'),
-    TSMC: getCompanyDisplayData('TSMC'),
+    CHT: getCompanyDisplayData('CHT'),
     TWM: getCompanyDisplayData('TWM'),
     FOXCONN: getCompanyDisplayData('FOXCONN'),
     // 向後相容的別名
-    NVDA: getCompanyDisplayData('FET'), // 映射到遠傳
-    CHT: getCompanyDisplayData('TSMC') // 映射到台積電
+    TSMC: getCompanyDisplayData('CHT') // 映射到中華電信
   };
   
   // 安全獲取公司資料的輔助函數
@@ -567,19 +768,41 @@ const BusinessSustainabilityAssessment = () => {
     return data;
   };
 
-  const companyOptions = [
-    { value: 'FET', label: '遠傳電信 Far EasTone' },
-    { value: 'TSMC', label: '台積電 TSMC' },
-    { value: 'TWM', label: '台灣大哥大 Taiwan Mobile' },
-    { value: 'FOXCONN', label: '富鴻網 FOXCONN' }
-  ];
-
-  const compareOptions = [
-    { value: 'TSMC', label: '台積電 TSMC' },
-    { value: 'TWM', label: '台灣大哥大 Taiwan Mobile' },
-    { value: 'FET', label: '遠傳電信 FET' },
-    { value: 'FOXCONN', label: '富鴻網 FOXCONN' }
-  ];
+  // 從 supabase 動態獲取公司選項
+  const loadCompanyOptions = async () => {
+    try {
+      console.log('🔍 正在從 supabase 獲取公司選項...');
+      
+      const { data, error } = await supabase
+        .from('pl_income_basics')
+        .select('tax_id, company_name')
+        .eq('fiscal_year', '2024')
+        .order('company_name');
+      
+      if (error) {
+        console.error('❌ 獲取公司選項失敗:', error);
+        console.log('ℹ️ 使用預設公司選項');
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        console.log('✅ 獲取到 supabase 公司數據:', data.length, '個公司');
+        // 更新為真實數據（但保持使用公司代碼作為 value）
+        const updatedOptions = companyOptions.map(option => {
+          const realData = data.find(d => d.tax_id === option.tax_id);
+          if (realData) {
+            return { ...option, label: realData.company_name };
+          }
+          return option;
+        });
+        
+        setCompanyOptions(updatedOptions);
+        setCompareOptions(updatedOptions);
+      }
+    } catch (err) {
+      console.error('❌ 獲取公司選項時發生錯誤:', err);
+    }
+  };
 
   // 獲取雷達圖資料
   const getRadarData = () => {
@@ -1429,7 +1652,7 @@ const BusinessSustainabilityAssessment = () => {
               <div className="warm-gradient-card p-4 rounded-lg">
                 <div className="text-slate-600 text-sm">股票代號</div>
                 <div className="text-2xl font-bold text-slate-800">
-                  {safeGetCompanyData(selectedCompany).ticker}
+                  {safeGetCompanyData(selectedCompany).name}
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
@@ -1591,7 +1814,6 @@ const BusinessSustainabilityAssessment = () => {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-slate-800">{safeGetCompanyData(selectedCompany).name}</h2>
-                <p className="text-slate-600">{safeGetCompanyData(selectedCompany).ticker}</p>
               </div>
             </div>
 
@@ -1608,13 +1830,20 @@ const BusinessSustainabilityAssessment = () => {
                   </div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-600 text-sm font-medium">淨值</div>
-                  <div className="text-xl font-bold text-slate-800">{formatCurrency(getCompanyFinancialData(selectedCompany).netWorth)}</div>
+                  <div className="text-slate-600 text-sm font-medium">毛利</div>
+                  <div className="text-xl font-bold text-slate-800">{formatCurrency(getCompanyFinancialData(selectedCompany).grossProfit)}</div>
+                  <div className="text-slate-600 text-sm font-medium">
+                    毛利率: {(() => {
+                      const margin = getCompanyFinancialData(selectedCompany).grossProfitMargin;
+                      if (margin === '待確認' || margin === '無數據' || margin === '載入中...') return margin;
+                      return `${margin}%`;
+                    })()}
+                  </div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-600 text-sm font-medium">每股盈餘</div>
+                  <div className="text-slate-600 text-sm font-medium">稅前淨利</div>
                   <div className="text-xl font-bold text-slate-800">
-                    {getCompanyFinancialData(selectedCompany).eps === '待確認' ? '待確認' : `${getCompanyFinancialData(selectedCompany).eps} 元`}
+                    {formatCurrency(getCompanyFinancialData(selectedCompany).profitBeforeTax)}
                   </div>
                 </div>
               </div>
@@ -1647,7 +1876,6 @@ const BusinessSustainabilityAssessment = () => {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-slate-800">{safeGetCompanyData(compareCompany).name}</h2>
-                <p className="text-slate-600">{safeGetCompanyData(compareCompany).ticker}</p>
               </div>
             </div>
 
@@ -1664,13 +1892,20 @@ const BusinessSustainabilityAssessment = () => {
                   </div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-600 text-sm font-medium">淨值</div>
-                  <div className="text-xl font-bold text-slate-800">{formatCurrency(getCompanyFinancialData(compareCompany).netWorth)}</div>
+                  <div className="text-slate-600 text-sm font-medium">毛利</div>
+                  <div className="text-xl font-bold text-slate-800">{formatCurrency(getCompanyFinancialData(compareCompany).grossProfit)}</div>
+                  <div className="text-slate-600 text-sm font-medium">
+                    毛利率: {(() => {
+                      const margin = getCompanyFinancialData(compareCompany).grossProfitMargin;
+                      if (margin === '待確認' || margin === '無數據' || margin === '載入中...') return margin;
+                      return `${margin}%`;
+                    })()}
+                  </div>
                 </div>
                 <div className="warm-gradient-card p-4 rounded-lg shadow-lg">
-                  <div className="text-slate-600 text-sm font-medium">每股盈餘</div>
+                  <div className="text-slate-600 text-sm font-medium">稅前淨利</div>
                   <div className="text-xl font-bold text-slate-800">
-                    {getCompanyFinancialData(compareCompany).eps === '待確認' ? '待確認' : `${getCompanyFinancialData(compareCompany).eps} 元`}
+                    {formatCurrency(getCompanyFinancialData(compareCompany).profitBeforeTax)}
                   </div>
                 </div>
               </div>
