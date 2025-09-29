@@ -18,12 +18,13 @@ import {
   updateFinancialBasicsRecord,
   handleDataServiceError
 } from './services/dataService.js';
-import { 
+import {
   COMPANIES,
   DEFAULT_QUERY_PARAMS,
   getScoreLevel,
   SCORE_LEVELS
 } from './config/businessLogic.js';
+import DimensionComparisonTable from './components/DimensionComparisonTable.jsx';
 
 const BusinessSustainabilityAssessment = () => {
   // 使用新的公司代碼系統
@@ -1683,67 +1684,11 @@ const BusinessSustainabilityAssessment = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* 維度評分詳情 - 比較模式 */}
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
-            <h3 className="text-xl font-bold mb-6 text-slate-800">維度評分比較</h3>
-            <div className="space-y-4">
-              {Object.entries(safeGetCompanyData(selectedCompany).metrics).map(([dimension, score]) => (
-                <div key={dimension} 
-                     className="p-4 warm-gradient-card rounded-lg hover:scale-105 transition-all duration-300">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="text-slate-600">
-                      {dimensionIcons[dimension]}
-                    </div>
-                    <span className="font-medium text-lg text-slate-800">{dimension}</span>
-                  </div>
-                  
-                  {/* 主要公司 */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#FFB84D'}}></div>
-                      <span className="text-sm text-slate-600">{safeGetCompanyData(selectedCompany).name}</span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-20 liquid-glass rounded-full h-2">
-                        <div 
-                          className="h-2 rounded-full transition-all duration-1000 shadow-sm"
-                          style={{ 
-                            width: `${score || 0}%`, 
-                            backgroundColor: '#FFB84D'
-                          }}
-                        />
-                      </div>
-                      <span className="text-sm font-bold min-w-[3rem]" style={{color: '#FFB84D'}}>
-                        {score || 0}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {/* 比較公司 */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: '#4ECDC4'}}></div>
-                      <span className="text-sm text-slate-600">{safeGetCompanyData(compareCompany).name}</span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-20 liquid-glass rounded-full h-2">
-                        <div 
-                          className="h-2 rounded-full transition-all duration-1000 shadow-sm"
-                          style={{ 
-                            width: `${safeGetCompanyData(compareCompany).metrics[dimension] || 0}%`,
-                            backgroundColor: '#4ECDC4'
-                          }}
-                        />
-                      </div>
-                      <span className="text-sm font-bold min-w-[3rem]" style={{color: '#4ECDC4'}}>
-                        {safeGetCompanyData(compareCompany).metrics[dimension] || 0}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* 維度評分詳情 - 比較模式 - Image #1 格式 */}
+          <DimensionComparisonTable
+            primaryCompany={safeGetCompanyData(selectedCompany)}
+            compareCompany={safeGetCompanyData(compareCompany)}
+          />
         </div>
 
         {/* 趨勢分析 */}
