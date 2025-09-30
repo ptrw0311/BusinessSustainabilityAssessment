@@ -17,6 +17,7 @@ import {
 import {
   getInventoryTurnoverData,
   getRoeData,
+  getReceivablesTurnoverData,
   getCompanyAllMetrics,
   getComparisonData
 } from './dataService.js';
@@ -48,6 +49,23 @@ export const calculateInventoryTurnoverScore = (turnoverRatio) => {
   const score = (turnoverRatio / config.benchmark) * config.maxScore;
   
   // 應用邊界限制
+  return Math.max(0, Math.min(100, score));
+};
+
+/**
+ * 計算應收帳款週轉率分數
+ */
+export const calculateReceivablesTurnoverScore = (turnoverRatio) => {
+  const config = OPERATIONAL_METRICS.receivables_turnover;
+  
+  if (turnoverRatio === null || turnoverRatio === undefined) {
+    return 0;
+  }
+  
+  // 基於基準值計算分數
+  const score = (turnoverRatio / config.benchmark) * config.maxScore;
+  
+  // 限制在 0-100 範圍內
   return Math.max(0, Math.min(100, score));
 };
 
@@ -118,6 +136,20 @@ export const processCompanyMetrics = async (taxId, fiscalYear) => {
         score: radarScore,
         calculated_score: calculateInventoryTurnoverScore(turnoverRatio), // 用於驗證
         raw_data: rawData.inventory_turnover
+      };
+    }
+    
+    // 處理應收帳款週轉率
+    if (rawData.receivables_turnover) {
+      const turnoverRatio = rawData.receivables_turnover.receivables_turnover_ratio;
+      const radarScore = rawData.receivables_turnover.radar_score; // 使用SQL計算的分數
+      
+      processedMetrics.營運能力.receivables_turnover = {
+        name: '應收帳款週轉率',
+        value: turnoverRatio,
+        score: radarScore,
+        calculated_score: calculateReceivablesTurnoverScore(turnoverRatio), // 用於驗證
+        raw_data: rawData.receivables_turnover
       };
     }
     

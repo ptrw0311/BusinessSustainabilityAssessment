@@ -85,7 +85,7 @@ const DimensionComparisonTable = ({ primaryCompany, compareCompany }) => {
   const primaryDimensionScores = comparisonData.primary.dimension_scores || {};
   const compareDimensionScores = comparisonData.compare.dimension_scores || {};
 
-  // 營運能力的詳細指標數據
+  // 營運能力的詳細指標數據 - 使用 radar_score 欄位
   const operationalMetrics = {
     存貨週轉率: {
       primary: comparisonData.primary.營運能力?.inventory_turnover?.score || 0,
