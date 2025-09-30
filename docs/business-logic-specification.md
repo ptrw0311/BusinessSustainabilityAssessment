@@ -98,9 +98,110 @@ WHERE
 
 ---
 
+### 指標2：應收帳款週轉率
+
+**商業邏輯：**
+- **計算公式：** 應收帳款週轉率 = 營業收入合計 ÷ 平均應收帳款
+- **平均應收帳款：** (當年度應收帳款 + 前一年度應收帳款) ÷ 2
+- **應收帳款組成：** 應收票據淨額 + 應收帳款淨額 + 應收帳款-關係人淨額
+- **評分邏輯：** (週轉率 ÷ 基準值12) × 85分
+- **分數範圍：** 0-100分
+- **維度權重：** 佔營運能力 25%
+
+**資料來源：**
+- 營業收入合計：`pl_income_basics.operating_revenue_total`
+- 應收票據淨額：`financial_basics.notes_receivable_net`
+- 應收帳款淨額：`financial_basics.ar_net`
+- 應收帳款-關係人淨額：`financial_basics.ar_related_net`
+
+**PostgreSQL查詢語法：**
+```sql
+SELECT
+    -- 年度
+    pl.fiscal_year,
+    -- 公司名稱
+    pl.company_name,
+    -- 統一編號
+    pl.tax_id,
+
+    -- 當年度營業收入合計
+    pl.operating_revenue_total,
+
+    -- 當年度 應收帳款
+    COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0) as current_ar,
+
+    -- 前一年度 應收帳款 (可能為 NULL，因此稍後會用 COALESCE 處理)
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0) as previous_year_ar,
+
+    -- 平均 應收帳款 = (當年度應收帳款 + 前一年應收帳款) / 2
+    -- 若前一年為 NULL，則以 0 代替，避免錯誤
+    (COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0 as avg_ar,
+
+    -- 應收帳款週轉率 = 營業收入合計 ÷ 平均應收帳款
+    -- 當分母為 0 時，回傳 NULL 避免錯誤
+    CASE 
+        WHEN COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0) > 0 
+        THEN pl.operating_revenue_total::NUMERIC / ((COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0)
+        ELSE NULL 
+    END AS ar_turnover_ratio,
+
+    -- 雷達圖分數轉換（標準化）
+    -- 應收帳款週轉率 ÷ 12（基準標準）× 85，加權為 85 分
+    -- 若結果 > 100，回傳 100；若 < 0，回傳 0；否則回傳結果
+    CASE 
+        WHEN (COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0)) = 0 THEN 0  -- 分母為 0，直接設 0 分
+        WHEN (pl.operating_revenue_total::NUMERIC / ((COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0)) / 12 * 85 > 100 THEN 100
+        WHEN (pl.operating_revenue_total::NUMERIC / ((COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0)) / 12 * 85 < 0 THEN 0
+        ELSE (pl.operating_revenue_total::NUMERIC / ((COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0)) / 12 * 85
+    END AS radar_score
+
+-- 🔗 主表：損益表 (營業收入來自這裡)
+FROM public.pl_income_basics pl
+-- 內聯接當年度資產負債表（抓當年度應收帳款）
+INNER JOIN public.financial_basics f_current 
+    ON pl.tax_id = f_current.tax_id 
+    AND pl.fiscal_year = f_current.fiscal_year
+
+-- 左聯接前一年度資產負債表（抓前一年應收帳款）
+LEFT JOIN public.financial_basics f_previous 
+    ON pl.tax_id = f_previous.tax_id 
+    AND f_previous.fiscal_year = (pl.fiscal_year::INTEGER - 1)::TEXT
+
+-- 篩選條件：僅查詢指定年度和公司資料
+WHERE
+    pl.fiscal_year = :fiscal_year
+    AND pl.tax_id = :tax_id;
+```
+
+**查詢參數：**
+- `:fiscal_year` - 會計年度 (例：'2024')
+- `:tax_id` - 統一編號 (例：'97179430' 遠傳電信)
+
+**預期結果欄位：**
+- `ar_turnover_ratio` - 應收帳款週轉率數值
+- `radar_score` - 雷達圖標準化分數 (0-100)
+
+**評分標準：**
+- **基準值：** 12 (週轉12次視為標準)
+- **最高分：** 85分
+- **特殊處理：** 應收帳款為0時給0分，分數上限100分、下限0分
+
+**實際測試數據：**
+- **富鴻網 (24566673)：** radar_score = 69.52
+- **遠傳電信 (97179430)：** radar_score = 61.33
+
+---
+
 ## 💰 雷達圖維度：財務能力
 
-### 指標2：股東權益報酬率 (ROE)
+### 指標3：股東權益報酬率 (ROE)
 
 **商業邏輯：**
 - **計算公式：** ROE = 本期淨利(淨損) ÷ 平均權益總額
@@ -320,9 +421,9 @@ WHERE pl_current.fiscal_year = :fiscal_year
 ### 未來可新增的指標
 
 #### 營運能力維度
-- **應收帳款週轉率：** 營業收入 ÷ 平均應收帳款
 - **總資產週轉率：** 營業收入 ÷ 平均總資產
 - **營業利益率：** 營業利益 ÷ 營業收入
+- **固定資產週轉率：** 營業收入 ÷ 平均固定資產
 
 #### 財務能力維度
 - **流動比率：** 流動資產 ÷ 流動負債

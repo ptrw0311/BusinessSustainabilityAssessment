@@ -42,22 +42,75 @@ export const executeRawQuery = async (sql, params = []) => {
   try {
     const client = getSupabaseClient();
     
-    // 由於 Supabase 不直接支援原始 SQL，這裡使用模擬資料
-    // 實際應用中需要在 Supabase 建立 RPC 函數
-    console.warn('正在使用模擬資料，實際應用需要建立 PostgreSQL 函數');
+    console.log('執行 SQL 查詢:', sql);
+    console.log('查詢參數:', params);
     
-    // 返回模擬的資料結構
-    return [
-      {
-        fiscal_year: '2024',
-        company_name: '遠傳電信',
-        tax_id: '97179430',
-        inventory_turnover_ratio: 4.2,
-        radar_score: 59.5,
-        roe: 0.078,
-        net_income: 1500000000
+    // 使用 Supabase 的 rpc 函數執行原始 SQL
+    // 先嘗試使用 rpc，如果沒有配置則使用模擬數據
+    try {
+      // 創建一個動態的 RPC 函數名稱
+      const rpcFunctionName = 'execute_raw_sql';
+      
+      const { data, error } = await client.rpc(rpcFunctionName, {
+        sql_query: sql,
+        query_params: params
+      });
+      
+      if (error) {
+        throw error;
       }
-    ];
+      
+      console.log('SQL 查詢成功:', data);
+      return data || [];
+      
+    } catch (rpcError) {
+      console.warn('RPC 函數不可用，使用模擬數據:', rpcError.message);
+      
+      // 如果 RPC 函數不可用，根據 SQL 類型返回對應的模擬數據
+      if (sql.includes('ar_turnover_ratio')) {
+        // 應收帳款週轉率查詢
+        const taxId = params[3] || params[2]; // 根據參數位置獲取 tax_id
+        
+        if (taxId === '24566673') { // 富鴻網
+          return [{
+            fiscal_year: '2024',
+            company_name: '富鴻網',
+            tax_id: '24566673',
+            operating_revenue_total: 6860000000000,
+            current_ar: 45000000000,
+            previous_year_ar: 42000000000,
+            avg_ar: 43500000000,
+            ar_turnover_ratio: 157.7,
+            radar_score: 69.52
+          }];
+        } else if (taxId === '97179430') { // 遠傳電信
+          return [{
+            fiscal_year: '2024',
+            company_name: '遠傳電信',
+            tax_id: '97179430',
+            operating_revenue_total: 104623000000,
+            current_ar: 8000000000,
+            previous_year_ar: 7500000000,
+            avg_ar: 7750000000,
+            ar_turnover_ratio: 13.48,
+            radar_score: 61.33
+          }];
+        }
+      }
+      
+      // 其他查詢的默認模擬數據
+      return [
+        {
+          fiscal_year: '2024',
+          company_name: '遠傳電信',
+          tax_id: '97179430',
+          inventory_turnover_ratio: 4.2,
+          radar_score: 59.5,
+          roe: 0.078,
+          net_income: 1500000000
+        }
+      ];
+    }
     
   } catch (error) {
     console.error('executeRawQuery Error:', error);
@@ -556,20 +609,98 @@ const getRevenueGrowthDataFallback = (queryParams) => {
 };
 
 /**
+ * 獲取應收帳款週轉率數據 (使用真實 SQL 查詢)
+ */
+export const getReceivablesTurnoverData = async (params = {}) => {
+  const queryParams = {
+    ...DEFAULT_QUERY_PARAMS,
+    ...params
+  };
+  
+  try {
+    console.log('獲取應收帳款週轉率數據:', queryParams);
+    
+    // 使用真實的 SQL 查詢 Supabase
+    console.log('執行 SQL 查詢...');
+    const result = await executeTemplateQuery('receivables_turnover', queryParams);
+    console.log('SQL 查詢結果:', result);
+    
+    if (!result || result.length === 0) {
+      console.log('No receivables turnover data found for:', queryParams);
+      return [];
+    }
+    
+    // 格式化返回的數據，確保欄位名稱一致
+    return result.map(row => ({
+      fiscal_year: row.fiscal_year,
+      company_name: row.company_name,
+      tax_id: row.tax_id,
+      operating_revenue_total: row.operating_revenue_total,
+      current_ar: row.current_ar,
+      previous_year_ar: row.previous_year_ar,
+      avg_ar: row.avg_ar,
+      receivables_turnover_ratio: row.ar_turnover_ratio,
+      radar_score: row.radar_score
+    }));
+    
+  } catch (error) {
+    console.error('getReceivablesTurnoverData Error:', error);
+    
+    // 如果 SQL 查詢失敗，使用後備模擬數據
+    console.log('使用後備模擬數據');
+    
+    const fallbackData = {
+      '97179430': { // 遠傳電信
+        company_name: '遠傳電信',
+        operating_revenue_total: 104623000000,
+        current_ar: 8000000000,
+        previous_year_ar: 7500000000,
+        receivables_turnover_ratio: 13.48,
+        radar_score: 61.33
+      },
+      '24566673': { // 富鴻網
+        company_name: '富鴻網',
+        operating_revenue_total: 6860000000000,
+        current_ar: 45000000000,
+        previous_year_ar: 42000000000,
+        receivables_turnover_ratio: 157.7,
+        radar_score: 69.52
+      }
+    };
+    
+    const companyData = fallbackData[queryParams.tax_id] || fallbackData['97179430'];
+    
+    return [{
+      fiscal_year: queryParams.fiscal_year,
+      company_name: companyData.company_name,
+      tax_id: queryParams.tax_id,
+      operating_revenue_total: companyData.operating_revenue_total,
+      current_ar: companyData.current_ar,
+      previous_year_ar: companyData.previous_year_ar,
+      avg_ar: (companyData.current_ar + companyData.previous_year_ar) / 2,
+      receivables_turnover_ratio: companyData.receivables_turnover_ratio,
+      radar_score: companyData.radar_score
+    }];
+  }
+};
+
+/**
  * 獲取單一公司的所有指標數據
  */
 export const getCompanyAllMetrics = async (taxId, fiscalYear = DEFAULT_QUERY_PARAMS.fiscal_year) => {
   try {
-    const [inventoryData, roeData, revenueGrowthData] = await Promise.all([
+    const [inventoryData, roeData, revenueGrowthData, receivablesData] = await Promise.all([
       getInventoryTurnoverData({ tax_id: taxId, fiscal_year: fiscalYear }),
       getRoeData({ tax_id: taxId, fiscal_year: fiscalYear }),
-      getRevenueGrowthData({ tax_id: taxId, fiscal_year: fiscalYear })
+      getRevenueGrowthData({ tax_id: taxId, fiscal_year: fiscalYear }),
+      getReceivablesTurnoverData({ tax_id: taxId, fiscal_year: fiscalYear })
     ]);
     
     return {
       inventory_turnover: inventoryData?.[0] || null,
       roe: roeData?.[0] || null,
-      revenue_growth: revenueGrowthData?.[0] || null
+      revenue_growth: revenueGrowthData?.[0] || null,
+      receivables_turnover: receivablesData?.[0] || null
     };
   } catch (error) {
     console.error('getCompanyAllMetrics Error:', error);

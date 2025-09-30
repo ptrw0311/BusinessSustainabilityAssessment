@@ -115,6 +115,74 @@ WHERE
 `;
 
 /**
+ * 應收帳款週轉率查詢模板
+ */
+export const RECEIVABLES_TURNOVER_QUERY = `
+SELECT
+    -- 年度
+    pl.fiscal_year,
+    -- 公司名稱
+    pl.company_name,
+    -- 統一編號
+    pl.tax_id,
+
+    -- 當年度營業收入合計
+    pl.operating_revenue_total,
+
+    -- 當年度 應收帳款
+    COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0) as current_ar,
+
+    -- 前一年度 應收帳款 (可能為 NULL，因此稍後會用 COALESCE 處理)
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0) as previous_year_ar,
+
+    -- 平均 應收帳款 = (當年度應收帳款 + 前一年應收帳款) / 2
+    -- 若前一年為 NULL，則以 0 代替，避免錯誤
+    (COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0 as avg_ar,
+
+    -- 應收帳款週轉率 = 營業收入合計 ÷ 平均應收帳款
+    -- 當分母為 0 時，回傳 NULL 避免錯誤
+    CASE 
+        WHEN COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0) > 0 
+        THEN pl.operating_revenue_total::NUMERIC / ((COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0)
+        ELSE NULL 
+    END AS ar_turnover_ratio,
+
+    -- 雷達圖分數轉換（標準化）
+    -- 應收帳款週轉率 ÷ 12（假設標準）× 85，加權為 85 分
+    -- 若結果 > 100，回傳 100；若 < 0，回傳 0；否則回傳結果
+    CASE 
+        WHEN (COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0)) = 0 THEN 0  -- 分母為 0，直接設 0 分
+        WHEN (pl.operating_revenue_total::NUMERIC / ((COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0)) / $1 * $2 > 100 THEN 100
+        WHEN (pl.operating_revenue_total::NUMERIC / ((COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0)) / $1 * $2 < 0 THEN 0
+        ELSE (pl.operating_revenue_total::NUMERIC / ((COALESCE(f_current.notes_receivable_net,0) + COALESCE(f_current.ar_net,0) + COALESCE(f_current.ar_related_net,0)+
+    COALESCE(f_previous.notes_receivable_net,0) + COALESCE(f_previous.ar_net,0) + COALESCE(f_previous.ar_related_net,0))::NUMERIC/2.0)) / $1 * $2
+    END AS radar_score
+
+-- 🔗 主表：損益表 (營業收入來自這裡)
+FROM public.pl_income_basics pl
+-- 內聯接當年度資產負債表（抓當年度應收帳款）
+INNER JOIN public.financial_basics f_current 
+    ON pl.tax_id = f_current.tax_id 
+    AND pl.fiscal_year = f_current.fiscal_year
+
+-- 左聯接前一年度資產負債表（抓前一年應收帳款）
+LEFT JOIN public.financial_basics f_previous 
+    ON pl.tax_id = f_previous.tax_id 
+    AND f_previous.fiscal_year = (pl.fiscal_year::INTEGER - 1)::TEXT
+
+-- 篩選條件：僅查詢指定年度和公司資料
+WHERE
+    pl.fiscal_year = $3
+    AND pl.tax_id = $4;
+`;
+
+/**
  * 多公司多指標查詢模板 (未來擴展用)
  */
 export const MULTI_COMPANY_METRICS_QUERY = `
@@ -185,6 +253,7 @@ ORDER BY tax_id, metric_name;
 export const SQL_TEMPLATES = {
   inventory_turnover: INVENTORY_TURNOVER_QUERY,
   roe: ROE_QUERY,
+  receivables_turnover: RECEIVABLES_TURNOVER_QUERY,
   multi_company_metrics: MULTI_COMPANY_METRICS_QUERY
 };
 
@@ -216,6 +285,14 @@ export const formatSqlParams = (templateName, params) => {
         params.fiscal_year,         // $1 - 會計年度
         params.tax_id              // $2 - 統一編號
       ];
+    
+    case 'receivables_turnover':
+      return [
+        params.benchmark || 12,     // $1 - 基準值
+        params.maxScore || 85,      // $2 - 最高分數
+        params.fiscal_year,         // $3 - 會計年度
+        params.tax_id              // $4 - 統一編號
+      ];
       
     case 'multi_company_metrics':
       return [
@@ -237,6 +314,7 @@ export const validateSqlParams = (templateName, params) => {
   switch (templateName) {
     case 'inventory_turnover':
     case 'roe':
+    case 'receivables_turnover':
       if (!params.fiscal_year) {
         errors.push('fiscal_year is required');
       }

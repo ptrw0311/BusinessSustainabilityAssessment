@@ -41,6 +41,31 @@ export const OPERATIONAL_METRICS = {
         'if score < 0 then score = 0'
       ]
     }
+  },
+  receivables_turnover: {
+    name: '應收帳款週轉率',
+    weight: 0.25, // 在營運能力中的權重
+    benchmark: 12, // 行業標準值
+    maxScore: 85, // 最高分數
+    calculation: {
+      formula: 'revenue / avg_accounts_receivable',
+      tables: ['pl_income_basics', 'financial_basics'],
+      fields: {
+        revenue: 'pl_income_basics.revenue',
+        current_receivables: 'f_current.accounts_receivable',
+        previous_receivables: 'f_previous.accounts_receivable'
+      }
+    },
+    scoring: {
+      method: 'ratio_benchmark',
+      formula: '(value / benchmark) * maxScore',
+      bounds: { min: 0, max: 100 },
+      specialRules: [
+        'if avg_accounts_receivable = 0 then score = 0',
+        'if score > 100 then score = 100',
+        'if score < 0 then score = 0'
+      ]
+    }
   }
 };
 

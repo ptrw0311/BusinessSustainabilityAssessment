@@ -32,7 +32,8 @@
       "Bash(cat:*)",
       "WebFetch(domain:ptrw0311.github.io)",
       "Bash(npm install:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": [],
