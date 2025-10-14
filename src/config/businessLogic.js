@@ -75,7 +75,7 @@ export const OPERATIONAL_METRICS = {
 export const FINANCIAL_METRICS = {
   roe: {
     name: '股東權益報酬率(ROE)',
-    weight: 0.3, // 在財務能力中的權重
+    weight: 0.5, // 在財務能力中的權重 (與流動比率平分)
     calculation: {
       formula: 'net_income / avg_total_equity',
       tables: ['pl_income_basics', 'financial_basics'],
@@ -106,6 +106,26 @@ export const FINANCIAL_METRICS = {
       ],
       specialRules: [
         'if avg_total_equity <= 0 then score = NULL'
+      ]
+    }
+  },
+  current_ratio: {
+    name: '流動比率',
+    weight: 0.5, // 在財務能力中的權重 (與ROE平分)
+    calculation: {
+      formula: 'total_current_assets / total_current_liabilities',
+      tables: ['financial_basics'],
+      fields: {
+        total_current_assets: 'calculated_field',
+        total_current_liabilities: 'calculated_field'
+      }
+    },
+    scoring: {
+      method: 'linear_scoring',
+      benchmark: 2.0, // 以2.0為基準
+      formula: 'MIN(100, MAX(0, (current_ratio / 2.0) * 100))',
+      specialRules: [
+        'if total_current_liabilities = 0 then score = 0'
       ]
     }
   }

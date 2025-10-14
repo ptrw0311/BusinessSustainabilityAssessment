@@ -4,8 +4,8 @@
 
 本文件定義企業永續性評估平台的雷達圖指標計算邏輯，包含商業公式、PostgreSQL查詢語法及評分標準。
 
-**版本：** 1.1  
-**更新日期：** 2025-09-18  
+**版本：** 1.2
+**更新日期：** 2025-10-14
 **適用範圍：** 雷達圖六大維度指標計算及用戶體驗優化
 
 ---
@@ -282,6 +282,128 @@ WHERE
 
 ---
 
+### 指標4：流動比率
+
+**商業邏輯：**
+- **計算公式：** 流動比率 = 流動資產合計 ÷ 流動負債合計
+- **流動資產組成：** 現金及約當現金 + 透過損益按公允價值衡量之金融資產-流動 + 透過其他綜合損益按公允價值衡量之金融資產-流動 + 按攤銷後成本衡量之金融資產-流動 + 避險之金融資產-流動 + 合約資產-流動 + 應收票據淨額 + 應收帳款淨額 + 應收帳款-關係人淨額 + 其他應收款淨額 + 存貨
+- **流動負債組成：** 其他非流動資產 + 非流動資產合計 + 資產總額 + 預付設備款 + 存出保證金 + 短期借款 + 應付短期票券 + 避險之金融負債-流動 + 合約負債-流動 + 應付票據 + 應付帳款
+- **評分邏輯：** 以2.0為基準，線性計算0-100分
+  - 計算公式：MIN(100, MAX(0, (流動比率 / 2.0) × 100))
+- **分數範圍：** 0-100分
+- **維度權重：** 佔財務能力權重待定
+- **指標意義：** 流動比率衡量企業短期償債能力，比率越高代表短期償債能力越強
+
+**資料來源：**
+- 所有流動資產科目：`financial_basics` 表相關欄位
+- 所有流動負債科目：`financial_basics` 表相關欄位
+
+**PostgreSQL查詢語法：**
+```sql
+-- 流動比率查詢
+-- 流動比率 = 流動資產合計 / 流動負債合計
+-- 雷達圖分數轉換（標準化）= MIN(100, MAX(0, (結果值/2)*100))
+-- 說明：以2.0為基準，線性計算0-100分
+
+WITH f AS (
+    SELECT
+        f_current.fiscal_year,
+        f_current.tax_id,
+        f_current.company_name,
+
+        -- 流動資產合計
+        (
+            COALESCE(f_current.cash_equivalents, 0) +
+            COALESCE(f_current.fvtpl_assets_current, 0) +
+            COALESCE(f_current.fvoci_assets_current, 0) +
+            COALESCE(f_current.amortized_assets_current, 0) +
+            COALESCE(f_current.hedging_assets_current, 0) +
+            COALESCE(f_current.contract_assets_current, 0) +
+            COALESCE(f_current.notes_receivable_net, 0) +
+            COALESCE(f_current.ar_net, 0) +
+            COALESCE(f_current.ar_related_net, 0) +
+            COALESCE(f_current.other_receivables_net, 0) +
+            COALESCE(f_current.inventory, 0)
+        ) AS total_current_assets,
+
+        -- 流動負債合計
+        (
+            COALESCE(f_current.other_noncurrent_assets, 0) +
+            COALESCE(f_current.total_noncurrent_assets, 0) +
+            COALESCE(f_current.total_assets, 0) +
+            COALESCE(f_current.prepayments_for_equip, 0) +
+            COALESCE(f_current.guarantee_deposits_out, 0) +
+            COALESCE(f_current.short_term_borrowings, 0) +
+            COALESCE(f_current.short_term_notes_payable, 0) +
+            COALESCE(f_current.hedging_liabilities_current, 0) +
+            COALESCE(f_current.contract_liabilities_current, 0) +
+            COALESCE(f_current.notes_payable, 0) +
+            COALESCE(f_current.ap, 0)
+        ) AS total_current_liabilities
+
+    FROM public.financial_basics f_current
+)
+
+SELECT
+    '財務能力' AS core_competence,
+    '流動比率' AS indicator_name,
+    fiscal_year,
+    tax_id,
+    company_name,
+    total_current_assets,
+    total_current_liabilities,
+
+    -- 流動比率計算
+    CASE
+        WHEN total_current_liabilities = 0 THEN 0
+        ELSE (total_current_assets / total_current_liabilities)::NUMERIC
+    END AS current_ratio,
+
+    -- 雷達圖分數轉換（標準化）
+    -- MIN(100, MAX(0, (結果值/2)*100))
+    -- 說明：以2.0為基準，線性計算0-100分
+    CASE
+        WHEN total_current_liabilities = 0 THEN 0
+        ELSE LEAST(100, GREATEST(0, (total_current_assets / total_current_liabilities)::NUMERIC / 2 * 100))
+    END AS radar_score
+
+FROM f
+WHERE fiscal_year = :fiscal_year
+    AND tax_id = :tax_id;
+```
+
+**查詢參數：**
+- `:fiscal_year` - 會計年度 (例：'2024')
+- `:tax_id` - 統一編號 (例：'97179430' 遠傳電信)
+
+**預期結果欄位：**
+- `current_ratio` - 流動比率數值 (如 2.5 代表流動資產是流動負債的2.5倍)
+- `radar_score` - 雷達圖標準化分數 (0-100)
+- `total_current_assets` - 流動資產合計
+- `total_current_liabilities` - 流動負債合計
+
+**評分標準：**
+- **理想基準：** 流動比率 = 2.0 (給100分)
+- **及格基準：** 流動比率 = 1.0 (給50分)
+- **評分公式：** (流動比率 / 2.0) × 100，上限100分，下限0分
+- **特殊處理：** 流動負債為0時給0分
+
+**評分範例：**
+- 流動比率 = 2.5：(2.5 / 2.0) × 100 = 125 → 100分 (取上限)
+- 流動比率 = 2.0：(2.0 / 2.0) × 100 = 100分
+- 流動比率 = 1.5：(1.5 / 2.0) × 100 = 75分
+- 流動比率 = 1.0：(1.0 / 2.0) × 100 = 50分
+- 流動比率 = 0.5：(0.5 / 2.0) × 100 = 25分
+- 流動比率 = 0.0：0分
+
+**實作整合說明：**
+- 此指標應整合至現有的財務能力維度數據載入流程
+- 查詢參數 (`:fiscal_year`, `:tax_id`) 應與下拉選單連動
+- 數據載入應使用與ROE相同的快取機制
+- 雷達圖應同步更新顯示此新指標
+
+---
+
 ## 🚀 雷達圖維度：未來力
 
 ### 指標3：營收成長率
@@ -529,6 +651,30 @@ useEffect(() => {
 - 快取命中時數據立即顯示
 - 新公司載入時僅顯示局部loading
 - 控制台顯示快取使用情況
+
+---
+
+## 📝 版本變更歷史
+
+### v1.2 (2025-10-14)
+**新增功能：**
+- 新增「財務能力」維度指標：流動比率 (Current Ratio)
+  - 計算公式：流動資產合計 ÷ 流動負債合計
+  - 評分標準：以2.0為基準，線性計算0-100分
+  - 整合說明：支援下拉選單參數傳遞與快取機制
+
+### v1.1 (2025-09-18)
+**優化功能：**
+- 新增系統性能優化章節
+- 實作智能數據快取機制
+- 移除全局Loading狀態
+- 優化用戶體驗，避免整頁重新載入
+
+### v1.0 (初始版本)
+**建立指標：**
+- 營運能力：存貨週轉率、應收帳款週轉率
+- 財務能力：ROE股東權益報酬率
+- 未來力：營收成長率
 
 ---
 

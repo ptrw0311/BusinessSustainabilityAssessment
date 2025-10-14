@@ -251,6 +251,17 @@ const getInventoryTurnoverDataFallback = (queryParams) => {
       net_worth: 43000000000,
       eps: 3.56
     },
+    '96979933': { // 中華電信
+      company_name: '中華電信股份有限公司',
+      operating_costs_total: 42000000000,
+      current_inventory: 1500000000,
+      previous_year_inventory: 1400000000,
+      inventory_turnover_ratio: 28.97,
+      radar_score: 90.5,
+      revenue: 86000000000,
+      net_worth: 38000000000,
+      eps: 4.12
+    },
     '03540099': { // 台積電
       company_name: '台積電 TSMC',
       operating_costs_total: 890000000000,
@@ -408,6 +419,14 @@ const getRoeDataFallback = (queryParams) => {
       current_total_equity: 43000000000,
       previous_year_total_equity: 41000000000
     },
+    '96979933': { // 中華電信
+      name: '中華電信股份有限公司', 
+      roe: 0.098,
+      score: 73.5,
+      net_income: 3780000000,
+      current_total_equity: 39500000000,
+      previous_year_total_equity: 37000000000
+    },
     '03540099': { // 台積電
       name: '台積電 TSMC', 
       roe: 0.18, 
@@ -559,6 +578,13 @@ const getRevenueGrowthDataFallback = (queryParams) => {
       revenue_growth_rate: 0.101, // 10.1%成長
       radar_score: 75.3, // 50 + (10.1 * 2.5) = 75.25
     },
+    '96979933': { // 中華電信
+      company_name: '中華電信股份有限公司',
+      current_operating_revenue_total: 86000000000, // 860億
+      previous_operating_revenue_total: 82000000000, // 820億(估算)
+      revenue_growth_rate: 0.049, // 4.9%成長
+      radar_score: 62.2, // 50 + (4.9 * 2.5) = 62.25
+    },
     '03540099': { // 台積電
       company_name: '台積電 TSMC',
       current_operating_revenue_total: 2260000000000, // 2.26兆
@@ -605,6 +631,175 @@ const getRevenueGrowthDataFallback = (queryParams) => {
     previous_operating_revenue_total: data.previous_operating_revenue_total,
     revenue_growth_rate: data.revenue_growth_rate,
     radar_score: data.radar_score
+  }];
+};
+
+/**
+ * 獲取流動比率數據 (真實Supabase查詢版本)
+ */
+export const getCurrentRatioData = async (params = {}) => {
+  const queryParams = {
+    ...DEFAULT_QUERY_PARAMS,
+    ...params
+  };
+  
+  try {
+    console.log('獲取流動比率數據 (真實Supabase查詢):', queryParams);
+    
+    const client = getSupabaseClient();
+    
+    // 查詢財務基本數據獲取流動資產和流動負債所需的欄位
+    const { data: financialData, error: financialError } = await client
+      .from('financial_basics')
+      .select(`
+        company_name, 
+        tax_id, 
+        fiscal_year,
+        cash_equivalents,
+        fvtpl_assets_current,
+        fvoci_assets_current,
+        amortized_assets_current,
+        hedging_assets_current,
+        contract_assets_current,
+        notes_receivable_net,
+        ar_net,
+        ar_related_net,
+        other_receivables_net,
+        inventory,
+        other_noncurrent_assets,
+        total_noncurrent_assets,
+        total_assets,
+        prepayments_for_equip,
+        guarantee_deposits_out,
+        short_term_borrowings,
+        short_term_notes_payable,
+        hedging_liabilities_current,
+        contract_liabilities_current,
+        notes_payable,
+        ap
+      `)
+      .eq('tax_id', queryParams.tax_id)
+      .eq('fiscal_year', queryParams.fiscal_year)
+      .single();
+    
+    if (financialError) {
+      console.warn('Financial data query error:', financialError);
+      return getCurrentRatioDataFallback(queryParams);
+    }
+    
+    // 計算流動資產合計
+    const totalCurrentAssets = (
+      (financialData.cash_equivalents || 0) +
+      (financialData.fvtpl_assets_current || 0) +
+      (financialData.fvoci_assets_current || 0) +
+      (financialData.amortized_assets_current || 0) +
+      (financialData.hedging_assets_current || 0) +
+      (financialData.contract_assets_current || 0) +
+      (financialData.notes_receivable_net || 0) +
+      (financialData.ar_net || 0) +
+      (financialData.ar_related_net || 0) +
+      (financialData.other_receivables_net || 0) +
+      (financialData.inventory || 0)
+    );
+    
+    // 計算流動負債合計
+    const totalCurrentLiabilities = (
+      (financialData.other_noncurrent_assets || 0) +
+      (financialData.total_noncurrent_assets || 0) +
+      (financialData.total_assets || 0) +
+      (financialData.prepayments_for_equip || 0) +
+      (financialData.guarantee_deposits_out || 0) +
+      (financialData.short_term_borrowings || 0) +
+      (financialData.short_term_notes_payable || 0) +
+      (financialData.hedging_liabilities_current || 0) +
+      (financialData.contract_liabilities_current || 0) +
+      (financialData.notes_payable || 0) +
+      (financialData.ap || 0)
+    );
+    
+    // 計算流動比率
+    const currentRatio = totalCurrentLiabilities > 0 ? totalCurrentAssets / totalCurrentLiabilities : 0;
+    
+    // 計算雷達分數 (以2.0為基準，線性計算0-100分)
+    const radarScore = totalCurrentLiabilities === 0 ? 0 : 
+      Math.min(100, Math.max(0, (currentRatio / 2.0) * 100));
+    
+    console.log(`🔍 流動比率計算結果: current_assets=${totalCurrentAssets}, current_liabilities=${totalCurrentLiabilities}, ratio=${currentRatio}, score=${radarScore}`);
+    
+    return [{
+      core_competence: '財務能力',
+      indicator_name: '流動比率',
+      fiscal_year: queryParams.fiscal_year,
+      company_name: financialData.company_name,
+      tax_id: queryParams.tax_id,
+      total_current_assets: totalCurrentAssets,
+      total_current_liabilities: totalCurrentLiabilities,
+      current_ratio: Math.round(currentRatio * 100) / 100, // 保留兩位小數
+      radar_score: Math.round(radarScore * 100) / 100 // 保留兩位小數
+    }];
+    
+  } catch (error) {
+    console.error('getCurrentRatioData Error:', error);
+    return getCurrentRatioDataFallback(queryParams);
+  }
+};
+
+/**
+ * 流動比率數據回退函數 (當Supabase查詢失敗時使用)
+ */
+const getCurrentRatioDataFallback = (queryParams) => {
+  console.warn('使用流動比率回退數據');
+  
+  const companyCurrentRatioData = {
+    '97179430': { // 遠傳電信
+      company_name: '遠傳電信',
+      total_current_assets: 30000000000,
+      total_current_liabilities: 25000000000,
+      current_ratio: 1.2,
+      radar_score: 60.0
+    },
+    '96979933': { // 中華電信
+      company_name: '中華電信股份有限公司',
+      total_current_assets: 28000000000,
+      total_current_liabilities: 21000000000,
+      current_ratio: 1.33,
+      radar_score: 66.5
+    },
+    '03540099': { // 台積電
+      company_name: '台積電 TSMC',
+      total_current_assets: 180000000000,
+      total_current_liabilities: 120000000000,
+      current_ratio: 1.5,
+      radar_score: 75.0
+    },
+    '97176270': { // 台灣大哥大
+      company_name: '台灣大哥大',
+      total_current_assets: 22000000000,
+      total_current_liabilities: 18000000000,
+      current_ratio: 1.22,
+      radar_score: 61.0
+    },
+    '24566673': { // 富鴻網
+      company_name: '富鴻網',
+      total_current_assets: 85000000000,
+      total_current_liabilities: 35000000000,
+      current_ratio: 2.43,
+      radar_score: 100.0
+    }
+  };
+  
+  const companyData = companyCurrentRatioData[queryParams.tax_id] || companyCurrentRatioData['97179430'];
+  
+  return [{
+    core_competence: '財務能力',
+    indicator_name: '流動比率',
+    fiscal_year: queryParams.fiscal_year,
+    company_name: companyData.company_name,
+    tax_id: queryParams.tax_id,
+    total_current_assets: companyData.total_current_assets,
+    total_current_liabilities: companyData.total_current_liabilities,
+    current_ratio: companyData.current_ratio,
+    radar_score: companyData.radar_score
   }];
 };
 
@@ -658,6 +853,22 @@ export const getReceivablesTurnoverData = async (params = {}) => {
         receivables_turnover_ratio: 13.48,
         radar_score: 61.33
       },
+      '96979933': { // 中華電信
+        company_name: '中華電信股份有限公司',
+        operating_revenue_total: 86000000000,
+        current_ar: 6500000000,
+        previous_year_ar: 6200000000,
+        receivables_turnover_ratio: 13.65,
+        radar_score: 62.1
+      },
+      '97176270': { // 台灣大哥大
+        company_name: '台灣大哥大',
+        operating_revenue_total: 70000000000,
+        current_ar: 5200000000,
+        previous_year_ar: 5000000000,
+        receivables_turnover_ratio: 13.73,
+        radar_score: 62.8
+      },
       '24566673': { // 富鴻網
         company_name: '富鴻網',
         operating_revenue_total: 6860000000000,
@@ -689,18 +900,20 @@ export const getReceivablesTurnoverData = async (params = {}) => {
  */
 export const getCompanyAllMetrics = async (taxId, fiscalYear = DEFAULT_QUERY_PARAMS.fiscal_year) => {
   try {
-    const [inventoryData, roeData, revenueGrowthData, receivablesData] = await Promise.all([
+    const [inventoryData, roeData, revenueGrowthData, receivablesData, currentRatioData] = await Promise.all([
       getInventoryTurnoverData({ tax_id: taxId, fiscal_year: fiscalYear }),
       getRoeData({ tax_id: taxId, fiscal_year: fiscalYear }),
       getRevenueGrowthData({ tax_id: taxId, fiscal_year: fiscalYear }),
-      getReceivablesTurnoverData({ tax_id: taxId, fiscal_year: fiscalYear })
+      getReceivablesTurnoverData({ tax_id: taxId, fiscal_year: fiscalYear }),
+      getCurrentRatioData({ tax_id: taxId, fiscal_year: fiscalYear })
     ]);
     
     return {
       inventory_turnover: inventoryData?.[0] || null,
       roe: roeData?.[0] || null,
       revenue_growth: revenueGrowthData?.[0] || null,
-      receivables_turnover: receivablesData?.[0] || null
+      receivables_turnover: receivablesData?.[0] || null,
+      current_ratio: currentRatioData?.[0] || null
     };
   } catch (error) {
     console.error('getCompanyAllMetrics Error:', error);

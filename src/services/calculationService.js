@@ -19,6 +19,7 @@ import {
   getRoeData,
   getRevenueGrowthData,
   getReceivablesTurnoverData,
+  getCurrentRatioData,
   getCompanyAllMetrics,
   getComparisonData
 } from './dataService.js';
@@ -131,6 +132,21 @@ export const calculateRevenueGrowthScore = (growthRate) => {
 };
 
 /**
+ * 計算流動比率分數
+ */
+export const calculateCurrentRatioScore = (currentRatio) => {
+  if (currentRatio === null || currentRatio === undefined) {
+    return 0;
+  }
+  
+  // 依據規格文件：以2.0為基準，線性計算0-100分
+  // 計算公式：MIN(100, MAX(0, (流動比率 / 2.0) × 100))
+  const score = Math.min(100, Math.max(0, (currentRatio / 2.0) * 100));
+  
+  return Math.round(score * 100) / 100; // 保留兩位小數
+};
+
+/**
  * 處理單一公司的原始資料並計算分數
  */
 export const processCompanyMetrics = async (taxId, fiscalYear) => {
@@ -186,6 +202,20 @@ export const processCompanyMetrics = async (taxId, fiscalYear) => {
         score: radarScore,
         calculated_score: calculateRoeScore(roeValue), // 用於驗證
         raw_data: rawData.roe
+      };
+    }
+    
+    // 處理流動比率
+    if (rawData.current_ratio) {
+      const currentRatioValue = rawData.current_ratio.current_ratio;
+      const radarScore = rawData.current_ratio.radar_score; // 使用SQL計算的分數
+      
+      processedMetrics.財務能力.current_ratio = {
+        name: '流動比率',
+        value: currentRatioValue,
+        score: radarScore,
+        calculated_score: calculateCurrentRatioScore(currentRatioValue), // 用於驗證
+        raw_data: rawData.current_ratio
       };
     }
     
