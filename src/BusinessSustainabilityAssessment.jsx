@@ -826,38 +826,38 @@ const BusinessSustainabilityAssessment = () => {
     return [
       { 
         dimension: '營運能力', 
-        主要公司: Math.round(primaryData.metrics.營運能力 || 0), 
-        比較公司: Math.round(compareData.metrics.營運能力 || 0), 
+        主要公司: primaryData.metrics.營運能力 || 0, 
+        比較公司: compareData.metrics.營運能力 || 0, 
         fullMark: 100 
       },
       { 
         dimension: '財務能力', 
-        主要公司: Math.round(primaryData.metrics.財務能力 || 0), 
-        比較公司: Math.round(compareData.metrics.財務能力 || 0), 
+        主要公司: primaryData.metrics.財務能力 || 0, 
+        比較公司: compareData.metrics.財務能力 || 0, 
         fullMark: 100 
       },
       { 
         dimension: '未來力', 
-        主要公司: Math.round(primaryData.metrics.未來力 || 0), 
-        比較公司: Math.round(compareData.metrics.未來力 || 0), 
+        主要公司: primaryData.metrics.未來力 || 0, 
+        比較公司: compareData.metrics.未來力 || 0, 
         fullMark: 100 
       },
       { 
         dimension: 'AI數位力', 
-        主要公司: Math.round(primaryData.metrics.AI數位力 || 0), 
-        比較公司: Math.round(compareData.metrics.AI數位力 || 0), 
+        主要公司: primaryData.metrics.AI數位力 || 0, 
+        比較公司: compareData.metrics.AI數位力 || 0, 
         fullMark: 100 
       },
       { 
         dimension: 'ESG永續力', 
-        主要公司: Math.round(primaryData.metrics.ESG永續力 || 0), 
-        比較公司: Math.round(compareData.metrics.ESG永續力 || 0), 
+        主要公司: primaryData.metrics.ESG永續力 || 0, 
+        比較公司: compareData.metrics.ESG永續力 || 0, 
         fullMark: 100 
       },
       { 
         dimension: '創新能力', 
-        主要公司: Math.round(primaryData.metrics.創新能力 || 0), 
-        比較公司: Math.round(compareData.metrics.創新能力 || 0), 
+        主要公司: primaryData.metrics.創新能力 || 0, 
+        比較公司: compareData.metrics.創新能力 || 0, 
         fullMark: 100 
       }
     ];
@@ -1948,6 +1948,34 @@ const BusinessSustainabilityAssessment = () => {
                   angle={90} 
                   domain={[0, 100]} 
                   tick={{ fontSize: 10, fill: '#1e293b' }}
+                />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+                          <p className="font-semibold text-gray-800 mb-2">{label}</p>
+                          {payload.map((entry, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full" 
+                                style={{ backgroundColor: entry.color }}
+                              ></div>
+                              <span className="text-gray-700">
+                                {entry.name}: <span className="font-bold">
+                                  {Number(entry.value) % 1 === 0 ? 
+                                    Number(entry.value).toString() : 
+                                    Number(entry.value).toFixed(2)
+                                  }
+                                </span>
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                 />
                 <Radar
                   name={companyData[selectedCompany].name}
