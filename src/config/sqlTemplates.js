@@ -248,13 +248,86 @@ ORDER BY tax_id, metric_name;
 `;
 
 /**
+ * 營收複合年均成長率查詢模板
+ */
+export const REVENUE_CAGR_QUERY = `
+-- 營收複合年均成長率 (Revenue CAGR)
+-- 計算公式：CAGR = (ending_value / beginning_value)^(1/n_years) - 1
+-- 雷達圖分數轉換：線性映射到 0~100，區間 [-10%, 20%]
+
+WITH revenue_cte AS (
+    SELECT
+        tax_id,
+        company_name,
+        fiscal_year,
+        operating_revenue_total::numeric AS revenue
+    FROM public.pl_income_basics
+    WHERE tax_id = $1
+),
+revenue_combinations AS (
+    SELECT
+        r1.tax_id,
+        r1.company_name,
+        r1.fiscal_year AS start_year,
+        r2.fiscal_year AS end_year,
+        r1.revenue AS beginning_value,
+        r2.revenue AS ending_value,
+        r2.fiscal_year - r1.fiscal_year AS n_years
+    FROM revenue_cte r1
+    JOIN revenue_cte r2
+        ON r1.tax_id = r2.tax_id
+       AND r1.fiscal_year < r2.fiscal_year
+),
+cagr_calculated AS (
+    SELECT
+        tax_id,
+        company_name,
+        start_year,
+        end_year,
+        n_years,
+        beginning_value,
+        ending_value,
+        
+        -- CAGR 計算：(結束值/開始值)^(1/年數) - 1
+        ROUND(
+            (POWER(ending_value / NULLIF(beginning_value, 0), 1.0 / n_years) - 1) * 100,
+            2
+        ) AS cagr_percent
+    FROM revenue_combinations
+    WHERE beginning_value > 0  -- 避免除零錯誤
+)
+SELECT
+    '未來力' AS core_competence,
+    '營收複合年均成長率' AS indicator_name,
+    tax_id,
+    company_name,
+    start_year,
+    end_year,
+    n_years,
+    beginning_value,
+    ending_value,
+    cagr_percent,
+    
+    -- 雷達分數轉換邏輯：線性映射到 0~100，區間 [-10%, 20%]
+    -- 計算公式：((CAGR% - (-10%)) / (20% - (-10%))) * 100
+    ROUND(
+        GREATEST(0, LEAST(100, ((cagr_percent / 100.0 - (-0.1)) / (0.2 - (-0.1)) * 100))),
+        2
+    ) AS radar_score
+
+FROM cagr_calculated
+WHERE end_year = $2;
+`;
+
+/**
  * SQL查詢模板映射
  */
 export const SQL_TEMPLATES = {
   inventory_turnover: INVENTORY_TURNOVER_QUERY,
   roe: ROE_QUERY,
   receivables_turnover: RECEIVABLES_TURNOVER_QUERY,
-  multi_company_metrics: MULTI_COMPANY_METRICS_QUERY
+  multi_company_metrics: MULTI_COMPANY_METRICS_QUERY,
+  revenue_cagr: REVENUE_CAGR_QUERY
 };
 
 /**
@@ -300,6 +373,12 @@ export const formatSqlParams = (templateName, params) => {
         params.fiscal_year         // $2 - 會計年度
       ];
       
+    case 'revenue_cagr':
+      return [
+        params.tax_id,             // $1 - 統一編號
+        params.fiscal_year         // $2 - 結束會計年度
+      ];
+      
     default:
       return [];
   }
@@ -315,6 +394,7 @@ export const validateSqlParams = (templateName, params) => {
     case 'inventory_turnover':
     case 'roe':
     case 'receivables_turnover':
+    case 'revenue_cagr':
       if (!params.fiscal_year) {
         errors.push('fiscal_year is required');
       }

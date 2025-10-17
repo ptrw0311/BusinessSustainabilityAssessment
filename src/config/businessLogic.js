@@ -149,7 +149,7 @@ export const DIMENSION_WEIGHTS = {
 export const FUTURE_METRICS = {
   revenue_growth: {
     name: '營收成長率',
-    weight: 0.35, // 在未來力中的權重
+    weight: 0.5, // 在未來力中的權重 (與CAGR平分)
     calculation: {
       formula: '(current_revenue - previous_revenue) / previous_revenue',
       tables: ['pl_income_basics'],
@@ -179,6 +179,28 @@ export const FUTURE_METRICS = {
       ],
       specialRules: [
         'if previous_revenue <= 0 then score = NULL'
+      ]
+    }
+  },
+  revenue_cagr: {
+    name: '營收複合年均成長率',
+    weight: 0.5, // 在未來力中的權重 (與營收成長率平分)
+    calculation: {
+      formula: 'POWER(ending_value / NULLIF(beginning_value, 0), 1.0 / n_years) - 1',
+      tables: ['pl_income_basics'],
+      fields: {
+        beginning_value: 'revenue_start.operating_revenue_total',
+        ending_value: 'revenue_end.operating_revenue_total',
+        n_years: 'calculated_field'
+      }
+    },
+    scoring: {
+      method: 'linear_mapping',
+      range: { min: -0.1, max: 0.2 }, // -10% 到 20%
+      formula: 'GREATEST(0, LEAST(100, ((cagr_percent / 100.0 - (-0.1)) / (0.2 - (-0.1)) * 100)))',
+      specialRules: [
+        'if beginning_value <= 0 then score = NULL',
+        'filter out invalid year combinations'
       ]
     }
   }

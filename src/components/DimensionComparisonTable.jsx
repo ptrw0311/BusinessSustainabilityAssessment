@@ -109,6 +109,18 @@ const DimensionComparisonTable = ({ primaryCompany, compareCompany }) => {
     }
   };
 
+  // 未來力的詳細指標數據 - 使用 radar_score 欄位
+  const futureMetrics = {
+    營收成長率: {
+      primary: comparisonData.primary.未來力?.revenue_growth?.score || 0,
+      compare: comparisonData.compare.未來力?.revenue_growth?.score || 0
+    },
+    營收複合年均成長率: {
+      primary: comparisonData.primary.未來力?.revenue_cagr?.score || 0,
+      compare: comparisonData.compare.未來力?.revenue_cagr?.score || 0
+    }
+  };
+
   // 定義維度順序，按照 Image #1 的順序
   const dimensionOrder = ['營運能力', '財務能力', '未來力', 'AI數位力', 'ESG永續力', '創新能力'];
 
@@ -293,6 +305,77 @@ const DimensionComparisonTable = ({ primaryCompany, compareCompany }) => {
                             <div
                               className="h-2 bg-teal-400 rounded-full transition-all duration-1000"
                               style={{ width: `${Math.min(financialMetrics.流動比率.compare, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 未來力詳細指標 */}
+                {dimension === '未來力' && (
+                  <div className="ml-8 space-y-3">
+                    {/* 營收成長率 */}
+                    <div className="flex items-center py-2">
+                      <div className="flex-1">
+                        <div className="text-gray-700 font-medium">營收成長率</div>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <div className="flex flex-col items-center space-y-1">
+                          <div className="text-lg font-bold text-orange-400">
+                            {Math.round(futureMetrics.營收成長率.primary * 100) / 100}
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="h-2 bg-orange-400 rounded-full transition-all duration-1000"
+                              style={{ width: `${Math.min(futureMetrics.營收成長率.primary, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <div className="flex flex-col items-center space-y-1">
+                          <div className="text-lg font-bold text-teal-400">
+                            {Math.round(futureMetrics.營收成長率.compare * 100) / 100}
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="h-2 bg-teal-400 rounded-full transition-all duration-1000"
+                              style={{ width: `${Math.min(futureMetrics.營收成長率.compare, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 營收複合年均成長率 */}
+                    <div className="flex items-center py-2">
+                      <div className="flex-1">
+                        <div className="text-gray-700 font-medium">營收複合年均成長率</div>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <div className="flex flex-col items-center space-y-1">
+                          <div className="text-lg font-bold text-orange-400">
+                            {Math.round(futureMetrics.營收複合年均成長率.primary * 100) / 100}
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="h-2 bg-orange-400 rounded-full transition-all duration-1000"
+                              style={{ width: `${Math.min(futureMetrics.營收複合年均成長率.primary, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <div className="flex flex-col items-center space-y-1">
+                          <div className="text-lg font-bold text-teal-400">
+                            {Math.round(futureMetrics.營收複合年均成長率.compare * 100) / 100}
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="h-2 bg-teal-400 rounded-full transition-all duration-1000"
+                              style={{ width: `${Math.min(futureMetrics.營收複合年均成長率.compare, 100)}%` }}
                             />
                           </div>
                         </div>

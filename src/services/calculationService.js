@@ -20,6 +20,7 @@ import {
   getRevenueGrowthData,
   getReceivablesTurnoverData,
   getCurrentRatioData,
+  getRevenueCagrData,
   getCompanyAllMetrics,
   getComparisonData
 } from './dataService.js';
@@ -132,6 +133,52 @@ export const calculateRevenueGrowthScore = (growthRate) => {
 };
 
 /**
+ * 計算營收複合年均成長率分數 (線性映射)
+ */
+export const calculateRevenueCagrScore = (cagrPercent) => {
+  if (cagrPercent === null || cagrPercent === undefined) {
+    return null;
+  }
+  
+  // 線性映射：區間 [-10%, 20%] 映射到 [0, 100]
+  // 公式：((CAGR% - (-10%)) / (20% - (-10%))) * 100
+  const cagrDecimal = cagrPercent / 100.0; // 轉換為小數
+  const minRange = -0.1; // -10%
+  const maxRange = 0.2;  // 20%
+  
+  const score = ((cagrDecimal - minRange) / (maxRange - minRange)) * 100;
+  
+  // 限制在 0-100 範圍內
+  return Math.max(0, Math.min(100, score));
+};
+
+/**
+ * 計算未來力維度分數 (營收成長率 + 營收複合年均成長率的平均)
+ */
+export const calculateFutureCapabilityScore = (futureMetrics) => {
+  const revenueGrowthScore = futureMetrics.revenue_growth?.score;
+  const revenueCagrScore = futureMetrics.revenue_cagr?.score;
+  
+  // 如果兩個指標都有分數，取平均值
+  if (revenueGrowthScore !== null && revenueGrowthScore !== undefined && 
+      revenueCagrScore !== null && revenueCagrScore !== undefined) {
+    return (revenueGrowthScore + revenueCagrScore) / 2;
+  }
+  
+  // 如果只有其中一個指標，使用該指標的分數
+  if (revenueGrowthScore !== null && revenueGrowthScore !== undefined) {
+    return revenueGrowthScore;
+  }
+  
+  if (revenueCagrScore !== null && revenueCagrScore !== undefined) {
+    return revenueCagrScore;
+  }
+  
+  // 如果都沒有，返回null
+  return null;
+};
+
+/**
  * 計算流動比率分數
  */
 export const calculateCurrentRatioScore = (currentRatio) => {
@@ -219,12 +266,14 @@ export const processCompanyMetrics = async (taxId, fiscalYear) => {
       };
     }
     
+    // 初始化未來力維度
+    processedMetrics.未來力 = {};
+    
     // 處理營收成長率數據 (未來力)
     if (rawData.revenue_growth) {
       const revenueGrowthValue = rawData.revenue_growth.revenue_growth_rate;
       const radarScore = rawData.revenue_growth.radar_score;
       
-      processedMetrics.未來力 = processedMetrics.未來力 || {};
       processedMetrics.未來力.revenue_growth = {
         name: '營收成長率',
         value: revenueGrowthValue,
@@ -234,14 +283,31 @@ export const processCompanyMetrics = async (taxId, fiscalYear) => {
       };
     }
     
+    // 處理營收複合年均成長率數據 (未來力)
+    if (rawData.revenue_cagr) {
+      const revenueCagrValue = rawData.revenue_cagr.cagr_percent;
+      const radarScore = rawData.revenue_cagr.radar_score;
+      
+      processedMetrics.未來力.revenue_cagr = {
+        name: '營收複合年均成長率',
+        value: revenueCagrValue,
+        score: radarScore,
+        calculated_score: calculateRevenueCagrScore(revenueCagrValue), // 用於驗證
+        raw_data: rawData.revenue_cagr
+      };
+    }
+    
     // 計算維度分數 (包含真實和虚擬數據)
     const companyKey = getCompanyKeyByTaxId(taxId);
     const mockScores = MOCK_DIMENSION_SCORES[companyKey] || MOCK_DIMENSION_SCORES.FET;
     
+    // 計算未來力分數 (營收成長率 + 營收複合年均成長率的平均)
+    const futureCapabilityScore = calculateFutureCapabilityScore(processedMetrics.未來力);
+    
     processedMetrics.dimension_scores = {
       營運能力: calculateDimensionScore(processedMetrics.營運能力),
       財務能力: calculateDimensionScore(processedMetrics.財務能力),
-      未來力: processedMetrics.未來力?.revenue_growth?.score || mockScores.未來力,
+      未來力: futureCapabilityScore !== null ? futureCapabilityScore : mockScores.未來力,
       AI數位力: mockScores.AI數位力,
       ESG永續力: mockScores.ESG永續力,
       創新能力: mockScores.創新能力
