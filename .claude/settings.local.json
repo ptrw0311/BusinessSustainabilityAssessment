@@ -33,12 +33,15 @@
       "WebFetch(domain:ptrw0311.github.io)",
       "Bash(npm install:*)",
       "Bash(node:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
-      "D:\\vscode\\gh-pages-deploy"
+      "D:\\vscode\\gh-pages-deploy",
+      "D:\\d\\vscode",
+      "D:\\"
     ]
   }
 }
