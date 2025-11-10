@@ -96,6 +96,35 @@ export const executeRawQuery = async (sql, params = []) => {
             radar_score: 61.33
           }];
         }
+      } else if (sql.includes('total_assets_turnover_ratio')) {
+        // 總資產週轉率查詢
+        const taxId = params[3] || params[2]; // 根據參數位置獲取 tax_id
+        
+        if (taxId === '24566673') { // 富鴻網
+          return [{
+            fiscal_year: '2024',
+            company_name: '富鴻網',
+            tax_id: '24566673',
+            operating_revenue_total: 6860000000000,
+            current_total_assets: 1800000000000,
+            previous_year_total_assets: 1650000000000,
+            avg_total_assets: 1725000000000,
+            total_assets_turnover_ratio: 3.98,
+            radar_score: 100
+          }];
+        } else if (taxId === '97179430') { // 遠傳電信
+          return [{
+            fiscal_year: '2024',
+            company_name: '遠傳電信',
+            tax_id: '97179430',
+            operating_revenue_total: 104623000000,
+            current_total_assets: 98000000000,
+            previous_year_total_assets: 95000000000,
+            avg_total_assets: 96500000000,
+            total_assets_turnover_ratio: 1.08,
+            radar_score: 61.33
+          }];
+        }
       }
       
       // 其他查詢的默認模擬數據
@@ -308,6 +337,202 @@ const getInventoryTurnoverDataFallback = (queryParams) => {
     previous_year_inventory: companyData.previous_year_inventory,
     avg_inventory: (companyData.current_inventory + companyData.previous_year_inventory) / 2,
     inventory_turnover_ratio: companyData.inventory_turnover_ratio,
+    radar_score: companyData.radar_score
+  }];
+};
+
+/**
+ * 獲取總資產週轉率數據 (真實Supabase查詢版本)
+ */
+export const getTotalAssetsTurnoverData = async (params = {}) => {
+  const queryParams = {
+    ...DEFAULT_QUERY_PARAMS,
+    ...params
+  };
+  
+  try {
+    console.log('獲取總資產週轉率數據 (真實Supabase查詢):', queryParams);
+    
+    const client = getSupabaseClient();
+    
+    // 查詢損益基本數據獲取營業收入
+    const { data: plData, error: plError } = await client
+      .from('pl_income_basics')
+      .select('company_name, tax_id, operating_revenue_total')
+      .eq('tax_id', queryParams.tax_id)
+      .eq('fiscal_year', queryParams.fiscal_year)
+      .single();
+    
+    if (plError) {
+      console.warn('PL data query error:', plError);
+      return getTotalAssetsTurnoverDataFallback(queryParams);
+    }
+    
+    // 查詢當年度財務基本數據獲取總資產相關欄位
+    const { data: financialData, error: financialError } = await client
+      .from('financial_basics')
+      .select(`
+        cash_equivalents, fvtpl_assets_current, fvoci_assets_current,
+        amortized_assets_current, hedging_assets_current, contract_assets_current,
+        notes_receivable_net, ar_net, ar_related_net, other_receivables_net,
+        inventory, prepayments, assets_held_for_sale_net, other_fin_assets_current,
+        other_current_assets, total_current_assets, fvtpl_assets_noncurrent,
+        fvoci_assets_noncurrent, amortized_assets_noncurrent, contract_assets_noncurrent,
+        equity_method_investments, ppe, right_of_use_assets, investment_properties_net,
+        intangible_assets, deferred_tax_assets
+      `)
+      .eq('tax_id', queryParams.tax_id)
+      .eq('fiscal_year', queryParams.fiscal_year)
+      .single();
+    
+    if (financialError) {
+      console.warn('Financial data query error:', financialError);
+      return getTotalAssetsTurnoverDataFallback(queryParams);
+    }
+    
+    // 查詢前一年的財務數據
+    const prevYear = (parseInt(queryParams.fiscal_year) - 1).toString();
+    const { data: prevFinancialData, error: prevError } = await client
+      .from('financial_basics')
+      .select(`
+        cash_equivalents, fvtpl_assets_current, fvoci_assets_current,
+        amortized_assets_current, hedging_assets_current, contract_assets_current,
+        notes_receivable_net, ar_net, ar_related_net, other_receivables_net,
+        inventory, prepayments, assets_held_for_sale_net, other_fin_assets_current,
+        other_current_assets, total_current_assets, fvtpl_assets_noncurrent,
+        fvoci_assets_noncurrent, amortized_assets_noncurrent, contract_assets_noncurrent,
+        equity_method_investments, ppe, right_of_use_assets, investment_properties_net,
+        intangible_assets, deferred_tax_assets
+      `)
+      .eq('tax_id', queryParams.tax_id)
+      .eq('fiscal_year', prevYear)
+      .single();
+    
+    // 計算總資產
+    const calculateTotalAssets = (data) => {
+      return (data?.cash_equivalents || 0) +
+             (data?.fvtpl_assets_current || 0) +
+             (data?.fvoci_assets_current || 0) +
+             (data?.amortized_assets_current || 0) +
+             (data?.hedging_assets_current || 0) +
+             (data?.contract_assets_current || 0) +
+             (data?.notes_receivable_net || 0) +
+             (data?.ar_net || 0) +
+             (data?.ar_related_net || 0) +
+             (data?.other_receivables_net || 0) +
+             (data?.inventory || 0) +
+             (data?.prepayments || 0) +
+             (data?.assets_held_for_sale_net || 0) +
+             (data?.other_fin_assets_current || 0) +
+             (data?.other_current_assets || 0) +
+             (data?.total_current_assets || 0) +
+             (data?.fvtpl_assets_noncurrent || 0) +
+             (data?.fvoci_assets_noncurrent || 0) +
+             (data?.amortized_assets_noncurrent || 0) +
+             (data?.contract_assets_noncurrent || 0) +
+             (data?.equity_method_investments || 0) +
+             (data?.ppe || 0) +
+             (data?.right_of_use_assets || 0) +
+             (data?.investment_properties_net || 0) +
+             (data?.intangible_assets || 0) +
+             (data?.deferred_tax_assets || 0);
+    };
+    
+    const currentTotalAssets = calculateTotalAssets(financialData);
+    const previousTotalAssets = prevFinancialData ? calculateTotalAssets(prevFinancialData) : currentTotalAssets;
+    const avgTotalAssets = (currentTotalAssets + previousTotalAssets) / 2;
+    
+    const operatingRevenueTotal = plData.operating_revenue_total || 0;
+    const totalAssetsTurnoverRatio = avgTotalAssets > 0 ? operatingRevenueTotal / avgTotalAssets : 0;
+    
+    // 計算雷達分數 (基準值1.5，最高分85)
+    const benchmark = 1.5;
+    const maxScore = 85;
+    let radarScore = (totalAssetsTurnoverRatio / benchmark) * maxScore;
+    
+    // 應用邊界限制
+    radarScore = Math.max(0, Math.min(100, radarScore));
+    
+    console.log(`🔍 總資產週轉率計算結果: operating_revenue=${operatingRevenueTotal}, avg_total_assets=${avgTotalAssets}, ratio=${totalAssetsTurnoverRatio}, score=${radarScore}`);
+    
+    return [{
+      fiscal_year: queryParams.fiscal_year,
+      company_name: plData.company_name,
+      tax_id: queryParams.tax_id,
+      operating_revenue_total: operatingRevenueTotal,
+      current_total_assets: currentTotalAssets,
+      previous_year_total_assets: previousTotalAssets,
+      avg_total_assets: avgTotalAssets,
+      total_assets_turnover_ratio: Math.round(totalAssetsTurnoverRatio * 100) / 100, // 保留兩位小數
+      radar_score: Math.round(radarScore * 100) / 100 // 保留兩位小數
+    }];
+    
+  } catch (error) {
+    console.error('getTotalAssetsTurnoverData Error:', error);
+    return getTotalAssetsTurnoverDataFallback(queryParams);
+  }
+};
+
+/**
+ * 總資產週轉率數據回退函數 (當Supabase查詢失敗時使用)
+ */
+const getTotalAssetsTurnoverDataFallback = (queryParams) => {
+  console.warn('使用總資產週轉率回退數據');
+  
+  const companyTotalAssetsData = {
+    '97179430': { // 遠傳電信
+      company_name: '遠傳電信',
+      operating_revenue_total: 104623000000,
+      current_total_assets: 98000000000,
+      previous_year_total_assets: 95000000000,
+      total_assets_turnover_ratio: 1.08,
+      radar_score: 61.33
+    },
+    '96979933': { // 中華電信
+      company_name: '中華電信股份有限公司',
+      operating_revenue_total: 86000000000,
+      current_total_assets: 85000000000,
+      previous_year_total_assets: 82000000000,
+      total_assets_turnover_ratio: 1.03,
+      radar_score: 58.4
+    },
+    '03540099': { // 台積電
+      company_name: '台積電 TSMC',
+      operating_revenue_total: 2540000000000,
+      current_total_assets: 4200000000000,
+      previous_year_total_assets: 4000000000000,
+      total_assets_turnover_ratio: 0.62,
+      radar_score: 35.1
+    },
+    '97176270': { // 台灣大哥大
+      company_name: '台灣大哥大',
+      operating_revenue_total: 75000000000,
+      current_total_assets: 82000000000,
+      previous_year_total_assets: 80000000000,
+      total_assets_turnover_ratio: 0.93,
+      radar_score: 52.7
+    },
+    '24566673': { // 富鴻網
+      company_name: '富鴻網',
+      operating_revenue_total: 6860000000000,
+      current_total_assets: 1800000000000,
+      previous_year_total_assets: 1650000000000,
+      total_assets_turnover_ratio: 3.98,
+      radar_score: 100
+    }
+  };
+  
+  const companyData = companyTotalAssetsData[queryParams.tax_id] || companyTotalAssetsData['97179430'];
+  
+  return [{
+    fiscal_year: queryParams.fiscal_year,
+    company_name: companyData.company_name,
+    tax_id: queryParams.tax_id,
+    operating_revenue_total: companyData.operating_revenue_total,
+    current_total_assets: companyData.current_total_assets,
+    previous_year_total_assets: companyData.previous_year_total_assets,
+    avg_total_assets: (companyData.current_total_assets + companyData.previous_year_total_assets) / 2,
+    total_assets_turnover_ratio: companyData.total_assets_turnover_ratio,
     radar_score: companyData.radar_score
   }];
 };
@@ -1032,13 +1257,14 @@ export const getReceivablesTurnoverData = async (params = {}) => {
  */
 export const getCompanyAllMetrics = async (taxId, fiscalYear = DEFAULT_QUERY_PARAMS.fiscal_year) => {
   try {
-    const [inventoryData, roeData, revenueGrowthData, receivablesData, currentRatioData, revenueCagrData] = await Promise.all([
+    const [inventoryData, roeData, revenueGrowthData, receivablesData, currentRatioData, revenueCagrData, totalAssetsData] = await Promise.all([
       getInventoryTurnoverData({ tax_id: taxId, fiscal_year: fiscalYear }),
       getRoeData({ tax_id: taxId, fiscal_year: fiscalYear }),
       getRevenueGrowthData({ tax_id: taxId, fiscal_year: fiscalYear }),
       getReceivablesTurnoverData({ tax_id: taxId, fiscal_year: fiscalYear }),
       getCurrentRatioData({ tax_id: taxId, fiscal_year: fiscalYear }),
-      getRevenueCagrData({ tax_id: taxId, fiscal_year: fiscalYear })
+      getRevenueCagrData({ tax_id: taxId, fiscal_year: fiscalYear }),
+      getTotalAssetsTurnoverData({ tax_id: taxId, fiscal_year: fiscalYear })
     ]);
     
     return {
@@ -1047,7 +1273,8 @@ export const getCompanyAllMetrics = async (taxId, fiscalYear = DEFAULT_QUERY_PAR
       revenue_growth: revenueGrowthData?.[0] || null,
       receivables_turnover: receivablesData?.[0] || null,
       current_ratio: currentRatioData?.[0] || null,
-      revenue_cagr: revenueCagrData?.[0] || null
+      revenue_cagr: revenueCagrData?.[0] || null,
+      total_assets_turnover: totalAssetsData?.[0] || null
     };
   } catch (error) {
     console.error('getCompanyAllMetrics Error:', error);

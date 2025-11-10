@@ -19,7 +19,7 @@ export const RADAR_DIMENSIONS = {
 export const OPERATIONAL_METRICS = {
   inventory_turnover: {
     name: '存貨週轉率',
-    weight: 0.25, // 在營運能力中的權重
+    weight: 0.3333, // 在營運能力中的權重 (33.33%)
     benchmark: 6, // 行業標準值
     maxScore: 85, // 最高分數
     calculation: {
@@ -44,7 +44,7 @@ export const OPERATIONAL_METRICS = {
   },
   receivables_turnover: {
     name: '應收帳款週轉率',
-    weight: 0.25, // 在營運能力中的權重
+    weight: 0.3333, // 在營運能力中的權重 (33.33%)
     benchmark: 12, // 行業標準值
     maxScore: 85, // 最高分數
     calculation: {
@@ -62,6 +62,39 @@ export const OPERATIONAL_METRICS = {
       bounds: { min: 0, max: 100 },
       specialRules: [
         'if avg_accounts_receivable = 0 then score = 0',
+        'if score > 100 then score = 100',
+        'if score < 0 then score = 0'
+      ]
+    }
+  },
+  total_assets_turnover: {
+    name: '總資產週轉率',
+    weight: 0.3334, // 在營運能力中的權重 (33.34%)
+    benchmark: 1.5, // 行業標準值
+    maxScore: 85, // 最高分數
+    calculation: {
+      formula: 'operating_revenue_total / avg_total_assets',
+      tables: ['pl_income_basics', 'financial_basics'],
+      fields: {
+        operating_revenue_total: 'pl_income_basics.operating_revenue_total',
+        current_total_assets: 'calculated from multiple asset components',
+        previous_total_assets: 'calculated from multiple asset components'
+      },
+      asset_components: [
+        'cash_and_equivalents', 'short_term_investments', 'notes_receivable',
+        'accounts_receivable', 'other_receivables', 'inventory',
+        'current_tax_assets', 'other_current_assets', 'non_current_assets_held_for_sale',
+        'investments', 'property_plant_equipment', 'investment_property',
+        'intangible_assets', 'deferred_tax_assets', 'other_non_current_assets',
+        'goodwill'
+      ]
+    },
+    scoring: {
+      method: 'ratio_benchmark',
+      formula: '(value / benchmark) * maxScore',
+      bounds: { min: 0, max: 100 },
+      specialRules: [
+        'if avg_total_assets = 0 then score = 0',
         'if score > 100 then score = 100',
         'if score < 0 then score = 0'
       ]
@@ -335,8 +368,10 @@ export const calculateDimensionScore = (metrics) => {
   let totalWeight = 0;
   
   for (const [metricKey, metricValue] of Object.entries(metrics)) {
-    const config = getMetricConfig('營運能力', metricKey) || getMetricConfig('財務能力', metricKey);
-    if (config && metricValue.score !== null) {
+    const config = getMetricConfig('營運能力', metricKey) || 
+                   getMetricConfig('財務能力', metricKey) || 
+                   getMetricConfig('未來力', metricKey);
+    if (config && metricValue.score !== null && metricValue.score !== undefined) {
       totalScore += metricValue.score * config.weight;
       totalWeight += config.weight;
     }

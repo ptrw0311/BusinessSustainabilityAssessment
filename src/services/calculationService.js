@@ -21,6 +21,7 @@ import {
   getReceivablesTurnoverData,
   getCurrentRatioData,
   getRevenueCagrData,
+  getTotalAssetsTurnoverData,
   getCompanyAllMetrics,
   getComparisonData
 } from './dataService.js';
@@ -60,6 +61,23 @@ export const calculateInventoryTurnoverScore = (turnoverRatio) => {
  */
 export const calculateReceivablesTurnoverScore = (turnoverRatio) => {
   const config = OPERATIONAL_METRICS.receivables_turnover;
+  
+  if (turnoverRatio === null || turnoverRatio === undefined) {
+    return 0;
+  }
+  
+  // 基於基準值計算分數
+  const score = (turnoverRatio / config.benchmark) * config.maxScore;
+  
+  // 限制在 0-100 範圍內
+  return Math.max(0, Math.min(100, score));
+};
+
+/**
+ * 計算總資產週轉率分數
+ */
+export const calculateTotalAssetsTurnoverScore = (turnoverRatio) => {
+  const config = OPERATIONAL_METRICS.total_assets_turnover;
   
   if (turnoverRatio === null || turnoverRatio === undefined) {
     return 0;
@@ -235,6 +253,20 @@ export const processCompanyMetrics = async (taxId, fiscalYear) => {
         score: radarScore,
         calculated_score: calculateReceivablesTurnoverScore(turnoverRatio), // 用於驗證
         raw_data: rawData.receivables_turnover
+      };
+    }
+    
+    // 處理總資產週轉率
+    if (rawData.total_assets_turnover) {
+      const turnoverRatio = rawData.total_assets_turnover.total_assets_turnover_ratio;
+      const radarScore = rawData.total_assets_turnover.radar_score; // 使用SQL計算的分數
+      
+      processedMetrics.營運能力.total_assets_turnover = {
+        name: '總資產週轉率',
+        value: turnoverRatio,
+        score: radarScore,
+        calculated_score: calculateTotalAssetsTurnoverScore(turnoverRatio), // 用於驗證
+        raw_data: rawData.total_assets_turnover
       };
     }
     

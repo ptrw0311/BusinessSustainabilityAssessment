@@ -19,7 +19,7 @@
 - **平均存貨：** (當年度存貨 + 前一年度存貨) ÷ 2
 - **評分邏輯：** (週轉率 ÷ 基準值6) × 85分
 - **分數範圍：** 0-100分
-- **維度權重：** 佔營運能力 25%
+- **維度權重：** 佔營運能力 33.33%
 
 **資料來源：**
 - 營業成本合計：`pl_income_basics.operating_costs_total`
@@ -98,6 +98,534 @@ WHERE
 
 ---
 
+### 指標3：總資產週轉率
+
+**商業邏輯：**
+- **計算公式：** 總資產週轉率 = 營業收入合計 ÷ 平均總資產
+- **平均總資產：** (當年度總資產 + 前一年度總資產) ÷ 2
+- **總資產組成：** 現金及約當現金 + 透過損益按公允價值衡量之金融資產-流動 + 透過其他綜合損益按公允價值衡量之金融資產-流動 + 按攤銷後成本衡量之金融資產-流動 + 避險之金融資產-流動 + 合約資產-流動 + 應收票據淨額 + 應收帳款淨額 + 應收帳款-關係人淨額 + 其他應收款淨額 + 存貨 + 預付款項 + 持有待出售資產淨額 + 其他金融資產-流動 + 其他流動資產 + 流動資產合計 + 透過損益按公允價值衡量之金融資產-非流動 + 透過其他綜合損益按公允價值衡量之金融資產-非流動 + 按攤銷後成本衡量之金融資產-非流動 + 合約資產-非流動 + 採用權益法之投資 + 不動產、廠房及設備 + 使用權資產 + 投資性不動產淨額 + 無形資產 + 遞延稅項資產
+- **評分邏輯：** (週轉率 ÷ 基準值1.5) × 85分
+- **分數範圍：** 0-100分
+- **維度權重：** 佔營運能力 33.33%
+
+**資料來源：**
+- 營業收入合計：`pl_income_basics.operating_revenue_total`
+- 當年度總資產：`financial_basics` 表中所有資產科目總和
+- 前一年度總資產：`financial_basics` 表中所有資產科目總和 (前一年度)
+
+**PostgreSQL查詢語法：**
+```sql
+SELECT
+    -- 年度
+    pl.fiscal_year,
+    -- 公司名稱
+    pl.company_name,
+
+    -- 當年度營業收入合計
+    pl.operating_revenue_total,
+
+    -- 當年度 總資產
+    (
+        COALESCE(f_current.cash_equivalents, 0) + 
+        COALESCE(f_current.fvtpl_assets_current, 0) + 
+        COALESCE(f_current.fvoci_assets_current, 0) + 
+        COALESCE(f_current.amortized_assets_current, 0) + 
+        COALESCE(f_current.hedging_assets_current, 0) + 
+        COALESCE(f_current.contract_assets_current, 0) + 
+        COALESCE(f_current.notes_receivable_net, 0) + 
+        COALESCE(f_current.ar_net, 0) + 
+        COALESCE(f_current.ar_related_net, 0) + 
+        COALESCE(f_current.other_receivables_net, 0) + 
+        COALESCE(f_current.inventory, 0) + 
+        COALESCE(f_current.prepayments, 0) + 
+        COALESCE(f_current.assets_held_for_sale_net, 0) + 
+        COALESCE(f_current.other_fin_assets_current, 0) + 
+        COALESCE(f_current.other_current_assets, 0) + 
+        COALESCE(f_current.total_current_assets, 0) + 
+        COALESCE(f_current.fvtpl_assets_noncurrent, 0) + 
+        COALESCE(f_current.fvoci_assets_noncurrent, 0) + 
+        COALESCE(f_current.amortized_assets_noncurrent, 0) + 
+        COALESCE(f_current.contract_assets_noncurrent, 0) + 
+        COALESCE(f_current.equity_method_investments, 0) + 
+        COALESCE(f_current.ppe, 0) + 
+        COALESCE(f_current.right_of_use_assets, 0) + 
+        COALESCE(f_current.investment_properties_net, 0) + 
+        COALESCE(f_current.intangible_assets, 0) + 
+        COALESCE(f_current.deferred_tax_assets, 0)
+    ) AS current_total_assets,
+
+    -- 前一年度 總資產
+    (
+        COALESCE(f_previous.cash_equivalents, 0) + 
+        COALESCE(f_previous.fvtpl_assets_current, 0) + 
+        COALESCE(f_previous.fvoci_assets_current, 0) + 
+        COALESCE(f_previous.amortized_assets_current, 0) + 
+        COALESCE(f_previous.hedging_assets_current, 0) + 
+        COALESCE(f_previous.contract_assets_current, 0) + 
+        COALESCE(f_previous.notes_receivable_net, 0) + 
+        COALESCE(f_previous.ar_net, 0) + 
+        COALESCE(f_previous.ar_related_net, 0) + 
+        COALESCE(f_previous.other_receivables_net, 0) + 
+        COALESCE(f_previous.inventory, 0) + 
+        COALESCE(f_previous.prepayments, 0) + 
+        COALESCE(f_previous.assets_held_for_sale_net, 0) + 
+        COALESCE(f_previous.other_fin_assets_current, 0) + 
+        COALESCE(f_previous.other_current_assets, 0) + 
+        COALESCE(f_previous.total_current_assets, 0) + 
+        COALESCE(f_previous.fvtpl_assets_noncurrent, 0) + 
+        COALESCE(f_previous.fvoci_assets_noncurrent, 0) + 
+        COALESCE(f_previous.amortized_assets_noncurrent, 0) + 
+        COALESCE(f_previous.contract_assets_noncurrent, 0) + 
+        COALESCE(f_previous.equity_method_investments, 0) + 
+        COALESCE(f_previous.ppe, 0) + 
+        COALESCE(f_previous.right_of_use_assets, 0) + 
+        COALESCE(f_previous.investment_properties_net, 0) + 
+        COALESCE(f_previous.intangible_assets, 0) + 
+        COALESCE(f_previous.deferred_tax_assets, 0)
+    ) AS previous_year_total_assets,
+
+    -- 平均 總資產 = (當年度 + 前一年) / 2
+    (
+        (
+            COALESCE(f_current.cash_equivalents, 0) + 
+            COALESCE(f_current.fvtpl_assets_current, 0) + 
+            COALESCE(f_current.fvoci_assets_current, 0) + 
+            COALESCE(f_current.amortized_assets_current, 0) + 
+            COALESCE(f_current.hedging_assets_current, 0) + 
+            COALESCE(f_current.contract_assets_current, 0) + 
+            COALESCE(f_current.notes_receivable_net, 0) + 
+            COALESCE(f_current.ar_net, 0) + 
+            COALESCE(f_current.ar_related_net, 0) + 
+            COALESCE(f_current.other_receivables_net, 0) + 
+            COALESCE(f_current.inventory, 0) + 
+            COALESCE(f_current.prepayments, 0) + 
+            COALESCE(f_current.assets_held_for_sale_net, 0) + 
+            COALESCE(f_current.other_fin_assets_current, 0) + 
+            COALESCE(f_current.other_current_assets, 0) + 
+            COALESCE(f_current.total_current_assets, 0) + 
+            COALESCE(f_current.fvtpl_assets_noncurrent, 0) + 
+            COALESCE(f_current.fvoci_assets_noncurrent, 0) + 
+            COALESCE(f_current.amortized_assets_noncurrent, 0) + 
+            COALESCE(f_current.contract_assets_noncurrent, 0) + 
+            COALESCE(f_current.equity_method_investments, 0) + 
+            COALESCE(f_current.ppe, 0) + 
+            COALESCE(f_current.right_of_use_assets, 0) + 
+            COALESCE(f_current.investment_properties_net, 0) + 
+            COALESCE(f_current.intangible_assets, 0) + 
+            COALESCE(f_current.deferred_tax_assets, 0) +
+            COALESCE(f_previous.cash_equivalents, 0) + 
+            COALESCE(f_previous.fvtpl_assets_current, 0) + 
+            COALESCE(f_previous.fvoci_assets_current, 0) + 
+            COALESCE(f_previous.amortized_assets_current, 0) + 
+            COALESCE(f_previous.hedging_assets_current, 0) + 
+            COALESCE(f_previous.contract_assets_current, 0) + 
+            COALESCE(f_previous.notes_receivable_net, 0) + 
+            COALESCE(f_previous.ar_net, 0) + 
+            COALESCE(f_previous.ar_related_net, 0) + 
+            COALESCE(f_previous.other_receivables_net, 0) + 
+            COALESCE(f_previous.inventory, 0) + 
+            COALESCE(f_previous.prepayments, 0) + 
+            COALESCE(f_previous.assets_held_for_sale_net, 0) + 
+            COALESCE(f_previous.other_fin_assets_current, 0) + 
+            COALESCE(f_previous.other_current_assets, 0) + 
+            COALESCE(f_previous.total_current_assets, 0) + 
+            COALESCE(f_previous.fvtpl_assets_noncurrent, 0) + 
+            COALESCE(f_previous.fvoci_assets_noncurrent, 0) + 
+            COALESCE(f_previous.amortized_assets_noncurrent, 0) + 
+            COALESCE(f_previous.contract_assets_noncurrent, 0) + 
+            COALESCE(f_previous.equity_method_investments, 0) + 
+            COALESCE(f_previous.ppe, 0) + 
+            COALESCE(f_previous.right_of_use_assets, 0) + 
+            COALESCE(f_previous.investment_properties_net, 0) + 
+            COALESCE(f_previous.intangible_assets, 0) + 
+            COALESCE(f_previous.deferred_tax_assets, 0)
+        )::NUMERIC / 2.0
+    ) AS avg_total_assets,
+
+    -- 總資產週轉率
+    CASE 
+        WHEN (
+            (
+                COALESCE(f_current.cash_equivalents, 0) + 
+                COALESCE(f_current.fvtpl_assets_current, 0) + 
+                COALESCE(f_current.fvoci_assets_current, 0) + 
+                COALESCE(f_current.amortized_assets_current, 0) + 
+                COALESCE(f_current.hedging_assets_current, 0) + 
+                COALESCE(f_current.contract_assets_current, 0) + 
+                COALESCE(f_current.notes_receivable_net, 0) + 
+                COALESCE(f_current.ar_net, 0) + 
+                COALESCE(f_current.ar_related_net, 0) + 
+                COALESCE(f_current.other_receivables_net, 0) + 
+                COALESCE(f_current.inventory, 0) + 
+                COALESCE(f_current.prepayments, 0) + 
+                COALESCE(f_current.assets_held_for_sale_net, 0) + 
+                COALESCE(f_current.other_fin_assets_current, 0) + 
+                COALESCE(f_current.other_current_assets, 0) + 
+                COALESCE(f_current.total_current_assets, 0) + 
+                COALESCE(f_current.fvtpl_assets_noncurrent, 0) + 
+                COALESCE(f_current.fvoci_assets_noncurrent, 0) + 
+                COALESCE(f_current.amortized_assets_noncurrent, 0) + 
+                COALESCE(f_current.contract_assets_noncurrent, 0) + 
+                COALESCE(f_current.equity_method_investments, 0) + 
+                COALESCE(f_current.ppe, 0) + 
+                COALESCE(f_current.right_of_use_assets, 0) + 
+                COALESCE(f_current.investment_properties_net, 0) + 
+                COALESCE(f_current.intangible_assets, 0) + 
+                COALESCE(f_current.deferred_tax_assets, 0) +
+                COALESCE(f_previous.cash_equivalents, 0) + 
+                COALESCE(f_previous.fvtpl_assets_current, 0) + 
+                COALESCE(f_previous.fvoci_assets_current, 0) + 
+                COALESCE(f_previous.amortized_assets_current, 0) + 
+                COALESCE(f_previous.hedging_assets_current, 0) + 
+                COALESCE(f_previous.contract_assets_current, 0) + 
+                COALESCE(f_previous.notes_receivable_net, 0) + 
+                COALESCE(f_previous.ar_net, 0) + 
+                COALESCE(f_previous.ar_related_net, 0) + 
+                COALESCE(f_previous.other_receivables_net, 0) + 
+                COALESCE(f_previous.inventory, 0) + 
+                COALESCE(f_previous.prepayments, 0) + 
+                COALESCE(f_previous.assets_held_for_sale_net, 0) + 
+                COALESCE(f_previous.other_fin_assets_current, 0) + 
+                COALESCE(f_previous.other_current_assets, 0) + 
+                COALESCE(f_previous.total_current_assets, 0) + 
+                COALESCE(f_previous.fvtpl_assets_noncurrent, 0) + 
+                COALESCE(f_previous.fvoci_assets_noncurrent, 0) + 
+                COALESCE(f_previous.amortized_assets_noncurrent, 0) + 
+                COALESCE(f_previous.contract_assets_noncurrent, 0) + 
+                COALESCE(f_previous.equity_method_investments, 0) + 
+                COALESCE(f_previous.ppe, 0) + 
+                COALESCE(f_previous.right_of_use_assets, 0) + 
+                COALESCE(f_previous.investment_properties_net, 0) + 
+                COALESCE(f_previous.intangible_assets, 0) + 
+                COALESCE(f_previous.deferred_tax_assets, 0)
+            ) > 0
+        )
+        THEN pl.operating_revenue_total::NUMERIC /
+            (
+                (
+                    COALESCE(f_current.cash_equivalents, 0) + 
+                    COALESCE(f_current.fvtpl_assets_current, 0) + 
+                    COALESCE(f_current.fvoci_assets_current, 0) + 
+                    COALESCE(f_current.amortized_assets_current, 0) + 
+                    COALESCE(f_current.hedging_assets_current, 0) + 
+                    COALESCE(f_current.contract_assets_current, 0) + 
+                    COALESCE(f_current.notes_receivable_net, 0) + 
+                    COALESCE(f_current.ar_net, 0) + 
+                    COALESCE(f_current.ar_related_net, 0) + 
+                    COALESCE(f_current.other_receivables_net, 0) + 
+                    COALESCE(f_current.inventory, 0) + 
+                    COALESCE(f_current.prepayments, 0) + 
+                    COALESCE(f_current.assets_held_for_sale_net, 0) + 
+                    COALESCE(f_current.other_fin_assets_current, 0) + 
+                    COALESCE(f_current.other_current_assets, 0) + 
+                    COALESCE(f_current.total_current_assets, 0) + 
+                    COALESCE(f_current.fvtpl_assets_noncurrent, 0) + 
+                    COALESCE(f_current.fvoci_assets_noncurrent, 0) + 
+                    COALESCE(f_current.amortized_assets_noncurrent, 0) + 
+                    COALESCE(f_current.contract_assets_noncurrent, 0) + 
+                    COALESCE(f_current.equity_method_investments, 0) + 
+                    COALESCE(f_current.ppe, 0) + 
+                    COALESCE(f_current.right_of_use_assets, 0) + 
+                    COALESCE(f_current.investment_properties_net, 0) + 
+                    COALESCE(f_current.intangible_assets, 0) + 
+                    COALESCE(f_current.deferred_tax_assets, 0) +
+                    COALESCE(f_previous.cash_equivalents, 0) + 
+                    COALESCE(f_previous.fvtpl_assets_current, 0) + 
+                    COALESCE(f_previous.fvoci_assets_current, 0) + 
+                    COALESCE(f_previous.amortized_assets_current, 0) + 
+                    COALESCE(f_previous.hedging_assets_current, 0) + 
+                    COALESCE(f_previous.contract_assets_current, 0) + 
+                    COALESCE(f_previous.notes_receivable_net, 0) + 
+                    COALESCE(f_previous.ar_net, 0) + 
+                    COALESCE(f_previous.ar_related_net, 0) + 
+                    COALESCE(f_previous.other_receivables_net, 0) + 
+                    COALESCE(f_previous.inventory, 0) + 
+                    COALESCE(f_previous.prepayments, 0) + 
+                    COALESCE(f_previous.assets_held_for_sale_net, 0) + 
+                    COALESCE(f_previous.other_fin_assets_current, 0) + 
+                    COALESCE(f_previous.other_current_assets, 0) + 
+                    COALESCE(f_previous.total_current_assets, 0) + 
+                    COALESCE(f_previous.fvtpl_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.fvoci_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.amortized_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.contract_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.equity_method_investments, 0) + 
+                    COALESCE(f_previous.ppe, 0) + 
+                    COALESCE(f_previous.right_of_use_assets, 0) + 
+                    COALESCE(f_previous.investment_properties_net, 0) + 
+                    COALESCE(f_previous.intangible_assets, 0) + 
+                    COALESCE(f_previous.deferred_tax_assets, 0)
+                )::NUMERIC / 2.0
+            )
+        ELSE NULL
+    END AS total_assets_turnover_ratio,
+
+    -- 雷達圖分數轉換（標準化）-- 總資產週轉率 ÷ 1.5（基準標準）✖️ 85，加權為 85 分 
+    -- 若結果 > 100，回傳 100；若 < 0，回傳 0；否則回傳結果 
+    CASE 
+        WHEN (
+            COALESCE(f_current.cash_equivalents, 0) + 
+            COALESCE(f_current.fvtpl_assets_current, 0) + 
+            COALESCE(f_current.fvoci_assets_current, 0) + 
+            COALESCE(f_current.amortized_assets_current, 0) + 
+            COALESCE(f_current.hedging_assets_current, 0) + 
+            COALESCE(f_current.contract_assets_current, 0) + 
+            COALESCE(f_current.notes_receivable_net, 0) + 
+            COALESCE(f_current.ar_net, 0) + 
+            COALESCE(f_current.ar_related_net, 0) + 
+            COALESCE(f_current.other_receivables_net, 0) + 
+            COALESCE(f_current.inventory, 0) + 
+            COALESCE(f_current.prepayments, 0) + 
+            COALESCE(f_current.assets_held_for_sale_net, 0) + 
+            COALESCE(f_current.other_fin_assets_current, 0) + 
+            COALESCE(f_current.other_current_assets, 0) + 
+            COALESCE(f_current.total_current_assets, 0) + 
+            COALESCE(f_current.fvtpl_assets_noncurrent, 0) + 
+            COALESCE(f_current.fvoci_assets_noncurrent, 0) + 
+            COALESCE(f_current.amortized_assets_noncurrent, 0) + 
+            COALESCE(f_current.contract_assets_noncurrent, 0) + 
+            COALESCE(f_current.equity_method_investments, 0) + 
+            COALESCE(f_current.ppe, 0) + 
+            COALESCE(f_current.right_of_use_assets, 0) + 
+            COALESCE(f_current.investment_properties_net, 0) + 
+            COALESCE(f_current.intangible_assets, 0) + 
+            COALESCE(f_current.deferred_tax_assets, 0) +
+            COALESCE(f_previous.cash_equivalents, 0) + 
+            COALESCE(f_previous.fvtpl_assets_current, 0) + 
+            COALESCE(f_previous.fvoci_assets_current, 0) + 
+            COALESCE(f_previous.amortized_assets_current, 0) + 
+            COALESCE(f_previous.hedging_assets_current, 0) + 
+            COALESCE(f_previous.contract_assets_current, 0) + 
+            COALESCE(f_previous.notes_receivable_net, 0) + 
+            COALESCE(f_previous.ar_net, 0) + 
+            COALESCE(f_previous.ar_related_net, 0) + 
+            COALESCE(f_previous.other_receivables_net, 0) + 
+            COALESCE(f_previous.inventory, 0) + 
+            COALESCE(f_previous.prepayments, 0) + 
+            COALESCE(f_previous.assets_held_for_sale_net, 0) + 
+            COALESCE(f_previous.other_fin_assets_current, 0) + 
+            COALESCE(f_previous.other_current_assets, 0) + 
+            COALESCE(f_previous.total_current_assets, 0) + 
+            COALESCE(f_previous.fvtpl_assets_noncurrent, 0) + 
+            COALESCE(f_previous.fvoci_assets_noncurrent, 0) + 
+            COALESCE(f_previous.amortized_assets_noncurrent, 0) + 
+            COALESCE(f_previous.contract_assets_noncurrent, 0) + 
+            COALESCE(f_previous.equity_method_investments, 0) + 
+            COALESCE(f_previous.ppe, 0) + 
+            COALESCE(f_previous.right_of_use_assets, 0) + 
+            COALESCE(f_previous.investment_properties_net, 0) + 
+            COALESCE(f_previous.intangible_assets, 0) + 
+            COALESCE(f_previous.deferred_tax_assets, 0)
+        ) = 0 
+        THEN 0 -- 分母為 0，直接設 0 分 
+        WHEN (
+            pl.operating_revenue_total::NUMERIC / 
+            (
+                (
+                    COALESCE(f_current.cash_equivalents, 0) + 
+                    COALESCE(f_current.fvtpl_assets_current, 0) + 
+                    COALESCE(f_current.fvoci_assets_current, 0) + 
+                    COALESCE(f_current.amortized_assets_current, 0) + 
+                    COALESCE(f_current.hedging_assets_current, 0) + 
+                    COALESCE(f_current.contract_assets_current, 0) + 
+                    COALESCE(f_current.notes_receivable_net, 0) + 
+                    COALESCE(f_current.ar_net, 0) + 
+                    COALESCE(f_current.ar_related_net, 0) + 
+                    COALESCE(f_current.other_receivables_net, 0) + 
+                    COALESCE(f_current.inventory, 0) + 
+                    COALESCE(f_current.prepayments, 0) + 
+                    COALESCE(f_current.assets_held_for_sale_net, 0) + 
+                    COALESCE(f_current.other_fin_assets_current, 0) + 
+                    COALESCE(f_current.other_current_assets, 0) + 
+                    COALESCE(f_current.total_current_assets, 0) + 
+                    COALESCE(f_current.fvtpl_assets_noncurrent, 0) + 
+                    COALESCE(f_current.fvoci_assets_noncurrent, 0) + 
+                    COALESCE(f_current.amortized_assets_noncurrent, 0) + 
+                    COALESCE(f_current.contract_assets_noncurrent, 0) + 
+                    COALESCE(f_current.equity_method_investments, 0) + 
+                    COALESCE(f_current.ppe, 0) + 
+                    COALESCE(f_current.right_of_use_assets, 0) + 
+                    COALESCE(f_current.investment_properties_net, 0) + 
+                    COALESCE(f_current.intangible_assets, 0) + 
+                    COALESCE(f_current.deferred_tax_assets, 0) +
+                    COALESCE(f_previous.cash_equivalents, 0) + 
+                    COALESCE(f_previous.fvtpl_assets_current, 0) + 
+                    COALESCE(f_previous.fvoci_assets_current, 0) + 
+                    COALESCE(f_previous.amortized_assets_current, 0) + 
+                    COALESCE(f_previous.hedging_assets_current, 0) + 
+                    COALESCE(f_previous.contract_assets_current, 0) + 
+                    COALESCE(f_previous.notes_receivable_net, 0) + 
+                    COALESCE(f_previous.ar_net, 0) + 
+                    COALESCE(f_previous.ar_related_net, 0) + 
+                    COALESCE(f_previous.other_receivables_net, 0) + 
+                    COALESCE(f_previous.inventory, 0) + 
+                    COALESCE(f_previous.prepayments, 0) + 
+                    COALESCE(f_previous.assets_held_for_sale_net, 0) + 
+                    COALESCE(f_previous.other_fin_assets_current, 0) + 
+                    COALESCE(f_previous.other_current_assets, 0) + 
+                    COALESCE(f_previous.total_current_assets, 0) + 
+                    COALESCE(f_previous.fvtpl_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.fvoci_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.amortized_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.contract_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.equity_method_investments, 0) + 
+                    COALESCE(f_previous.ppe, 0) + 
+                    COALESCE(f_previous.right_of_use_assets, 0) + 
+                    COALESCE(f_previous.investment_properties_net, 0) + 
+                    COALESCE(f_previous.intangible_assets, 0) + 
+                    COALESCE(f_previous.deferred_tax_assets, 0)
+                )::NUMERIC/2.0
+            )
+        ) / 1.5 * 85 > 100 
+        THEN 100 
+        WHEN (
+            pl.operating_revenue_total::NUMERIC / 
+            (
+                (
+                    COALESCE(f_current.cash_equivalents, 0) + 
+                    COALESCE(f_current.fvtpl_assets_current, 0) + 
+                    COALESCE(f_current.fvoci_assets_current, 0) + 
+                    COALESCE(f_current.amortized_assets_current, 0) + 
+                    COALESCE(f_current.hedging_assets_current, 0) + 
+                    COALESCE(f_current.contract_assets_current, 0) + 
+                    COALESCE(f_current.notes_receivable_net, 0) + 
+                    COALESCE(f_current.ar_net, 0) + 
+                    COALESCE(f_current.ar_related_net, 0) + 
+                    COALESCE(f_current.other_receivables_net, 0) + 
+                    COALESCE(f_current.inventory, 0) + 
+                    COALESCE(f_current.prepayments, 0) + 
+                    COALESCE(f_current.assets_held_for_sale_net, 0) + 
+                    COALESCE(f_current.other_fin_assets_current, 0) + 
+                    COALESCE(f_current.other_current_assets, 0) + 
+                    COALESCE(f_current.total_current_assets, 0) + 
+                    COALESCE(f_current.fvtpl_assets_noncurrent, 0) + 
+                    COALESCE(f_current.fvoci_assets_noncurrent, 0) + 
+                    COALESCE(f_current.amortized_assets_noncurrent, 0) + 
+                    COALESCE(f_current.contract_assets_noncurrent, 0) + 
+                    COALESCE(f_current.equity_method_investments, 0) + 
+                    COALESCE(f_current.ppe, 0) + 
+                    COALESCE(f_current.right_of_use_assets, 0) + 
+                    COALESCE(f_current.investment_properties_net, 0) + 
+                    COALESCE(f_current.intangible_assets, 0) + 
+                    COALESCE(f_current.deferred_tax_assets, 0) +
+                    COALESCE(f_previous.cash_equivalents, 0) + 
+                    COALESCE(f_previous.fvtpl_assets_current, 0) + 
+                    COALESCE(f_previous.fvoci_assets_current, 0) + 
+                    COALESCE(f_previous.amortized_assets_current, 0) + 
+                    COALESCE(f_previous.hedging_assets_current, 0) + 
+                    COALESCE(f_previous.contract_assets_current, 0) + 
+                    COALESCE(f_previous.notes_receivable_net, 0) + 
+                    COALESCE(f_previous.ar_net, 0) + 
+                    COALESCE(f_previous.ar_related_net, 0) + 
+                    COALESCE(f_previous.other_receivables_net, 0) + 
+                    COALESCE(f_previous.inventory, 0) + 
+                    COALESCE(f_previous.prepayments, 0) + 
+                    COALESCE(f_previous.assets_held_for_sale_net, 0) + 
+                    COALESCE(f_previous.other_fin_assets_current, 0) + 
+                    COALESCE(f_previous.other_current_assets, 0) + 
+                    COALESCE(f_previous.total_current_assets, 0) + 
+                    COALESCE(f_previous.fvtpl_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.fvoci_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.amortized_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.contract_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.equity_method_investments, 0) + 
+                    COALESCE(f_previous.ppe, 0) + 
+                    COALESCE(f_previous.right_of_use_assets, 0) + 
+                    COALESCE(f_previous.investment_properties_net, 0) + 
+                    COALESCE(f_previous.intangible_assets, 0) + 
+                    COALESCE(f_previous.deferred_tax_assets, 0)
+                )::NUMERIC/2.0
+            )
+        ) / 1.5 * 85 < 0 
+        THEN 0 
+        ELSE (
+            pl.operating_revenue_total::NUMERIC / 
+            (
+                (
+                    COALESCE(f_current.cash_equivalents, 0) + 
+                    COALESCE(f_current.fvtpl_assets_current, 0) + 
+                    COALESCE(f_current.fvoci_assets_current, 0) + 
+                    COALESCE(f_current.amortized_assets_current, 0) + 
+                    COALESCE(f_current.hedging_assets_current, 0) + 
+                    COALESCE(f_current.contract_assets_current, 0) + 
+                    COALESCE(f_current.notes_receivable_net, 0) + 
+                    COALESCE(f_current.ar_net, 0) + 
+                    COALESCE(f_current.ar_related_net, 0) + 
+                    COALESCE(f_current.other_receivables_net, 0) + 
+                    COALESCE(f_current.inventory, 0) + 
+                    COALESCE(f_current.prepayments, 0) + 
+                    COALESCE(f_current.assets_held_for_sale_net, 0) + 
+                    COALESCE(f_current.other_fin_assets_current, 0) + 
+                    COALESCE(f_current.other_current_assets, 0) + 
+                    COALESCE(f_current.total_current_assets, 0) + 
+                    COALESCE(f_current.fvtpl_assets_noncurrent, 0) + 
+                    COALESCE(f_current.fvoci_assets_noncurrent, 0) + 
+                    COALESCE(f_current.amortized_assets_noncurrent, 0) + 
+                    COALESCE(f_current.contract_assets_noncurrent, 0) + 
+                    COALESCE(f_current.equity_method_investments, 0) + 
+                    COALESCE(f_current.ppe, 0) + 
+                    COALESCE(f_current.right_of_use_assets, 0) + 
+                    COALESCE(f_current.investment_properties_net, 0) + 
+                    COALESCE(f_current.intangible_assets, 0) + 
+                    COALESCE(f_current.deferred_tax_assets, 0) +
+                    COALESCE(f_previous.cash_equivalents, 0) + 
+                    COALESCE(f_previous.fvtpl_assets_current, 0) + 
+                    COALESCE(f_previous.fvoci_assets_current, 0) + 
+                    COALESCE(f_previous.amortized_assets_current, 0) + 
+                    COALESCE(f_previous.hedging_assets_current, 0) + 
+                    COALESCE(f_previous.contract_assets_current, 0) + 
+                    COALESCE(f_previous.notes_receivable_net, 0) + 
+                    COALESCE(f_previous.ar_net, 0) + 
+                    COALESCE(f_previous.ar_related_net, 0) + 
+                    COALESCE(f_previous.other_receivables_net, 0) + 
+                    COALESCE(f_previous.inventory, 0) + 
+                    COALESCE(f_previous.prepayments, 0) + 
+                    COALESCE(f_previous.assets_held_for_sale_net, 0) + 
+                    COALESCE(f_previous.other_fin_assets_current, 0) + 
+                    COALESCE(f_previous.other_current_assets, 0) + 
+                    COALESCE(f_previous.total_current_assets, 0) + 
+                    COALESCE(f_previous.fvtpl_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.fvoci_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.amortized_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.contract_assets_noncurrent, 0) + 
+                    COALESCE(f_previous.equity_method_investments, 0) + 
+                    COALESCE(f_previous.ppe, 0) + 
+                    COALESCE(f_previous.right_of_use_assets, 0) + 
+                    COALESCE(f_previous.investment_properties_net, 0) + 
+                    COALESCE(f_previous.intangible_assets, 0) + 
+                    COALESCE(f_previous.deferred_tax_assets, 0)
+                )::NUMERIC/2.0
+            )
+        ) / 1.5 * 85
+    END AS radar_score 
+
+FROM public.pl_income_basics pl
+INNER JOIN public.financial_basics f_current 
+    ON pl.tax_id = f_current.tax_id 
+    AND pl.fiscal_year = f_current.fiscal_year
+LEFT JOIN public.financial_basics f_previous 
+    ON pl.tax_id = f_previous.tax_id 
+    AND f_previous.fiscal_year = (pl.fiscal_year::INTEGER - 1)
+WHERE
+    pl.fiscal_year = :fiscal_year
+    AND pl.tax_id = :tax_id;
+```
+
+**查詢參數：**
+- `:fiscal_year` - 會計年度 (例：'2024')
+- `:tax_id` - 統一編號 (例：'24566673' 富鴻網)
+
+**預期結果欄位：**
+- `total_assets_turnover_ratio` - 總資產週轉率數值
+- `radar_score` - 雷達圖標準化分數 (0-100)
+
+**評分標準：**
+- **基準值：** 1.5 (週轉1.5次視為標準)
+- **最高分：** 85分
+- **特殊處理：** 總資產為0時給0分，分數上限100分、下限0分
+
+---
+
 ### 指標2：應收帳款週轉率
 
 **商業邏輯：**
@@ -106,7 +634,7 @@ WHERE
 - **應收帳款組成：** 應收票據淨額 + 應收帳款淨額 + 應收帳款-關係人淨額
 - **評分邏輯：** (週轉率 ÷ 基準值12) × 85分
 - **分數範圍：** 0-100分
-- **維度權重：** 佔營運能力 25%
+- **維度權重：** 佔營運能力 33.33%
 
 **資料來源：**
 - 營業收入合計：`pl_income_basics.operating_revenue_total`
@@ -196,6 +724,22 @@ WHERE
 **實際測試數據：**
 - **富鴻網 (24566673)：** radar_score = 69.52
 - **遠傳電信 (97179430)：** radar_score = 61.33
+
+### 營運能力維度綜合分數計算
+
+**計算公式：**
+營運能力分數 = (存貨週轉率分數 + 應收帳款週轉率分數 + 總資產週轉率分數) ÷ 3
+
+**權重分配：**
+- 存貨週轉率：33.33%
+- 應收帳款週轉率：33.33%
+- 總資產週轉率：33.33%
+
+**實作說明：**
+- 三個指標分數均等權重
+- 採用算術平均數計算
+- 各項指標分數範圍為0-100分
+- 綜合分數亦為0-100分
 
 ---
 

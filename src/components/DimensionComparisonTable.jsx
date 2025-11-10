@@ -94,6 +94,10 @@ const DimensionComparisonTable = ({ primaryCompany, compareCompany }) => {
     應收帳款週轉率: {
       primary: comparisonData.primary.營運能力?.receivables_turnover?.score || 0,
       compare: comparisonData.compare.營運能力?.receivables_turnover?.score || 0
+    },
+    總資產週轉率: {
+      primary: comparisonData.primary.營運能力?.total_assets_turnover?.score || 0,
+      compare: comparisonData.compare.營運能力?.total_assets_turnover?.score || 0
     }
   };
 
@@ -234,6 +238,39 @@ const DimensionComparisonTable = ({ primaryCompany, compareCompany }) => {
                             <div
                               className="h-2 bg-teal-400 rounded-full transition-all duration-1000"
                               style={{ width: `${Math.min(operationalMetrics.應收帳款週轉率.compare, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 總資產週轉率 */}
+                    <div className="flex items-center py-2">
+                      <div className="flex-1">
+                        <div className="text-gray-700 font-medium">總資產週轉率</div>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <div className="flex flex-col items-center space-y-1">
+                          <div className="text-lg font-bold text-orange-400">
+                            {Math.round(operationalMetrics.總資產週轉率.primary * 100) / 100}
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="h-2 bg-orange-400 rounded-full transition-all duration-1000"
+                              style={{ width: `${Math.min(operationalMetrics.總資產週轉率.primary, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <div className="flex flex-col items-center space-y-1">
+                          <div className="text-lg font-bold text-teal-400">
+                            {Math.round(operationalMetrics.總資產週轉率.compare * 100) / 100}
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="h-2 bg-teal-400 rounded-full transition-all duration-1000"
+                              style={{ width: `${Math.min(operationalMetrics.總資產週轉率.compare, 100)}%` }}
                             />
                           </div>
                         </div>
