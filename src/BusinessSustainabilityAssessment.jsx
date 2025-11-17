@@ -26,6 +26,10 @@ import {
 } from './config/businessLogic.js';
 import DimensionComparisonTable from './components/DimensionComparisonTable.jsx';
 
+// 新的UI組件
+import { Card, Button, Select, Loading, Table } from './components/ui';
+import { chartThemes, getDimensionColor, getPerformanceColor, customTooltipStyle } from './components/charts/chartThemes';
+
 const BusinessSustainabilityAssessment = () => {
   // 使用新的公司代碼系統
   const [selectedCompany, setSelectedCompany] = useState('FET'); // 遠傳電信
@@ -1044,13 +1048,14 @@ const BusinessSustainabilityAssessment = () => {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-slate-800">財務基本數據</h2>
             <div className="flex space-x-3">
-              <button 
+              <Button 
                 onClick={handleAdd}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                variant="primary"
+                icon={Plus}
+                iconPosition="left"
               >
-                <Plus className="w-4 h-4" />
-                <span>新增資料</span>
-              </button>
+                新增資料
+              </Button>
             </div>
           </div>
 
@@ -1114,12 +1119,7 @@ const BusinessSustainabilityAssessment = () => {
                   {loading ? (
                     <tr>
                       <td colSpan="7" className="px-6 py-8 text-center text-slate-600">
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
-                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                          <span className="ml-2">載入中...</span>
-                        </div>
+                        <Loading type="dots" text="載入中..." />
                       </td>
                     </tr>
                   ) : error ? (
@@ -1128,12 +1128,12 @@ const BusinessSustainabilityAssessment = () => {
                         <div className="flex flex-col items-center space-y-2">
                           <AlertTriangle className="w-8 h-8" />
                           <div>連線錯誤: {error}</div>
-                          <button 
+                          <Button 
                             onClick={fetchFinancialBasicsData}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            variant="primary"
                           >
                             重新載入
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -1219,13 +1219,14 @@ const BusinessSustainabilityAssessment = () => {
               {currentPage === 'pl_income_basics' ? '損益基本數據' : '資料管理'}
             </h2>
             <div className="flex space-x-3">
-              <button 
+              <Button 
                 onClick={handleAdd}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                variant="primary"
+                icon={Plus}
+                iconPosition="left"
               >
-                <Plus className="w-4 h-4" />
-                <span>新增資料</span>
-              </button>
+                新增資料
+              </Button>
             </div>
           </div>
 
@@ -1290,12 +1291,7 @@ const BusinessSustainabilityAssessment = () => {
                   {loading ? (
                     <tr>
                       <td colSpan="8" className="px-6 py-8 text-center text-slate-600">
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
-                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                          <span className="ml-2">載入中...</span>
-                        </div>
+                        <Loading type="dots" text="載入中..." />
                       </td>
                     </tr>
                   ) : error ? (
@@ -1304,12 +1300,12 @@ const BusinessSustainabilityAssessment = () => {
                         <div className="flex flex-col items-center space-y-2">
                           <AlertTriangle className="w-8 h-8" />
                           <div>連線錯誤: {error}</div>
-                          <button 
+                          <Button 
                             onClick={fetchFinancialData}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            variant="primary"
                           >
                             重新載入
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -1937,31 +1933,40 @@ const BusinessSustainabilityAssessment = () => {
           <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
             <h3 className="text-xl font-bold mb-6 text-center text-slate-800">六大核心能力比較雷達圖</h3>
             <ResponsiveContainer width="100%" height={410}>
-              <RadarChart data={radarData}>
-                <PolarGrid gridType="polygon" stroke="#64748b" strokeOpacity={0.4} />
+              <RadarChart data={radarData} margin={{ top: 20, right: 80, bottom: 20, left: 80 }}>
+                <PolarGrid 
+                  gridType="polygon" 
+                  stroke="var(--neutral-300)"
+                  strokeOpacity={0.6}
+                  fill="var(--primary-50)"
+                  fillOpacity={0.1}
+                />
                 <PolarAngleAxis 
                   dataKey="dimension" 
-                  tick={{ fontSize: 16, fill: '#1e293b' }}
+                  tick={{ fontSize: 13, fill: 'var(--neutral-700)', fontWeight: 500, fontFamily: 'Inter, sans-serif' }}
                   className="text-sm"
+                  tickFormatter={(value) => value.length > 8 ? `${value.slice(0, 6)}...` : value}
                 />
                 <PolarRadiusAxis 
                   angle={90} 
                   domain={[0, 100]} 
-                  tick={{ fontSize: 10, fill: '#1e293b' }}
+                  tick={{ fontSize: 11, fill: 'var(--neutral-500)' }}
+                  tickCount={6}
                 />
                 <Tooltip
+                  contentStyle={customTooltipStyle}
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-                          <p className="font-semibold text-gray-800 mb-2">{label}</p>
+                        <div style={customTooltipStyle}>
+                          <p className="font-semibold text-neutral-800 mb-2">{label}</p>
                           {payload.map((entry, index) => (
                             <div key={index} className="flex items-center gap-2">
                               <div 
                                 className="w-3 h-3 rounded-full" 
                                 style={{ backgroundColor: entry.color }}
                               ></div>
-                              <span className="text-gray-700">
+                              <span className="text-neutral-700">
                                 {entry.name}: <span className="font-bold">
                                   {Number(entry.value) % 1 === 0 ? 
                                     Number(entry.value).toString() : 
@@ -1980,23 +1985,32 @@ const BusinessSustainabilityAssessment = () => {
                 <Radar
                   name={companyData[selectedCompany].name}
                   dataKey="主要公司"
-                  stroke="#FFB84D"
-                  fill="#FFB84D"
-                  fillOpacity={0.4}
+                  stroke="var(--primary-500)"
+                  fill="var(--primary-400)"
+                  fillOpacity={0.3}
                   strokeWidth={3}
-                  dot={{ fill: '#FFB84D', strokeWidth: 3, r: 5, fillOpacity: 1 }}
+                  dot={{ fill: 'var(--primary-600)', strokeWidth: 2, r: 5, fillOpacity: 1 }}
+                  animationBegin={0}
+                  animationDuration={1000}
                 />
                 <Radar
                   name={safeGetCompanyData(compareCompany).name}
                   dataKey="比較公司"
-                  stroke="#4ECDC4"
-                  fill="#4ECDC4"
-                  fillOpacity={0.3}
+                  stroke="var(--secondary-500)"
+                  fill="var(--secondary-400)"
+                  fillOpacity={0.2}
                   strokeWidth={3}
-                  dot={{ fill: '#4ECDC4', strokeWidth: 3, r: 4, fillOpacity: 1 }}
+                  dot={{ fill: 'var(--secondary-600)', strokeWidth: 2, r: 4, fillOpacity: 1 }}
+                  animationBegin={200}
+                  animationDuration={1000}
                 />
                 <Legend 
-                  wrapperStyle={{ paddingTop: '20px' }}
+                  wrapperStyle={{ 
+                    paddingTop: '20px',
+                    fontSize: '14px',
+                    fontFamily: 'Inter, sans-serif',
+                    color: 'var(--neutral-700)'
+                  }}
                   iconType="circle"
                 />
               </RadarChart>
@@ -2072,38 +2086,38 @@ const BusinessSustainabilityAssessment = () => {
   };
 
   return (
-    <div className="min-h-screen dynamic-bg text-slate-900 flex">
+    <div className="min-h-screen dynamic-bg text-neutral-900 flex">
       {/* 左側邊欄 */}
-      <div className="w-64 liquid-glass-card shadow-xl border-r border-slate-500/20 flex flex-col h-screen overflow-hidden backdrop-blur-xl text-slate-800">
+      <aside className="w-64 liquid-glass-card shadow-xl border-r border-white/20 flex flex-col h-screen overflow-hidden backdrop-blur-xl text-neutral-800">
         {/* Logo區域 */}
-        <div className="p-4 border-b border-white/20">
-          <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-2 rounded-lg shadow-lg">
-              <User className="w-6 h-6 text-white" />
+        <div className="p-6 border-b border-white/20">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="bg-gradient-to-br from-primary-500 to-secondary-500 p-3 rounded-xl shadow-lg">
+              <Building className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-800">
+              <h1 className="text-lg font-bold text-gradient">
                 企業評估平台
               </h1>
+              <p className="text-xs text-neutral-600 font-medium">Business Assessment</p>
             </div>
           </div>
-        </div>
-
-        {/* 搜尋框 */}
-        <div className="p-4 border-b border-white/20">
+          
+          {/* 搜尋框 */}
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="Search here..." 
-              className="w-full liquid-glass rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/50 border border-slate-300/50 placeholder-slate-500 text-slate-800"
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-500" />
+            <input
+              type="text"
+              placeholder="搜尋功能..."
+              className="form-input w-full pl-10 text-sm placeholder-neutral-500"
             />
           </div>
         </div>
 
+
         {/* 選單項目 - 可滾動 */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-2 space-y-1">
+        <nav className="flex-1 overflow-y-auto">
+          <div className="p-3 space-y-2">
             {menuItems.map((item) => (
               <div key={item.id}>
                 {/* 主選單項目 */}
@@ -2115,28 +2129,28 @@ const BusinessSustainabilityAssessment = () => {
                       setCurrentPage(item.id);
                     }
                   }}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 group relative ${
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-normal group relative ${
                     (currentPage === item.id || (item.expandable && (currentPage === 'pl_income_basics' || currentPage === 'financial_basics')))
-                      ? 'warm-gradient-card text-slate-800 shadow-lg' 
-                      : 'text-slate-600 hover:warm-gradient-card hover:text-slate-800'
+                      ? 'warm-gradient-card text-neutral-800 shadow-lg transform hover:-translate-y-0.5' 
+                      : 'text-neutral-600 hover:warm-gradient-card hover:text-neutral-800 hover:shadow-md hover:-translate-y-0.5'
                   }`}
                 >
-                  <div className={(currentPage === item.id || (item.expandable && (currentPage === 'pl_income_basics' || currentPage === 'financial_basics'))) ? 'text-slate-800' : 'text-slate-500 group-hover:text-slate-800'}>
+                  <div className={(currentPage === item.id || (item.expandable && (currentPage === 'pl_income_basics' || currentPage === 'financial_basics'))) ? 'text-neutral-800' : 'text-neutral-500 group-hover:text-neutral-800'}>
                     {item.icon}
                   </div>
                   <span className="font-medium flex-1 text-left">{item.label}</span>
                   {item.expandable && (
-                    <div className="text-slate-500 group-hover:text-slate-800">
+                    <div className="text-neutral-500 group-hover:text-neutral-800">
                       {dataManagementExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                     </div>
                   )}
                   {item.badge && (
-                    <div className="ml-auto bg-gradient-to-r from-slate-200 to-slate-300 text-slate-800 text-xs px-2 py-1 rounded-full shadow-lg">
+                    <div className="ml-auto bg-gradient-to-r from-primary-500 to-secondary-500 text-white text-xs px-3 py-1 rounded-full shadow-lg font-semibold">
                       {item.badge}
                     </div>
                   )}
                   {(currentPage === item.id || (item.expandable && (currentPage === 'pl_income_basics' || currentPage === 'financial_basics'))) && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-slate-600 to-slate-800 rounded-r shadow-lg"></div>
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-secondary-500 rounded-r"></div>
                   )}
                 </button>
 
@@ -2150,18 +2164,18 @@ const BusinessSustainabilityAssessment = () => {
                           setCurrentPage(subItem.id);
                           setSelectedDataType(subItem.id);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg transition-all duration-300 group relative ${
+                        className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-normal group relative ${
                           currentPage === subItem.id 
-                            ? 'warm-gradient-card text-slate-800 shadow-lg border-l-2 border-slate-600' 
-                            : 'text-slate-600 hover:warm-gradient-card hover:text-slate-800'
+                            ? 'warm-gradient-card text-neutral-800 shadow-lg border-l-2 border-primary-500' 
+                            : 'text-neutral-600 hover:warm-gradient-card hover:text-neutral-800 hover:shadow-sm'
                         }`}
                       >
-                        <div className={currentPage === subItem.id ? 'text-slate-800' : 'text-slate-500 group-hover:text-slate-800'}>
+                        <div className={currentPage === subItem.id ? 'text-neutral-800' : 'text-neutral-500 group-hover:text-neutral-800'}>
                           {subItem.icon}
                         </div>
                         <span className="font-medium text-sm">{subItem.label}</span>
                         {currentPage === subItem.id && (
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-slate-600 to-slate-800 rounded-r shadow-lg"></div>
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-secondary-500 rounded-r"></div>
                         )}
                       </button>
                     ))}
@@ -2170,29 +2184,32 @@ const BusinessSustainabilityAssessment = () => {
               </div>
             ))}
           </div>
-        </div>
+        </nav>
 
         {/* 底部用戶資訊 */}
-        <div className="p-4 border-t border-white/20">
-          <div className="flex items-center space-x-3 warm-gradient-card rounded-lg p-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-slate-200 to-slate-300 rounded-full flex items-center justify-center shadow-lg">
-              <User className="w-5 h-5 text-slate-700" />
+        <footer className="p-4 border-t border-white/20">
+          <div className="flex items-center space-x-3 warm-gradient-card rounded-xl p-4 hover-lift">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center shadow-lg">
+              <User className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <div className="text-sm font-medium text-slate-800">Audit01</div>
-              <div className="text-xs text-slate-600">聯稽總部</div>
+              <div className="text-sm font-semibold text-neutral-800">Audit01</div>
+              <div className="text-xs text-neutral-600 font-medium">聯稽總部</div>
             </div>
+            <button className="text-neutral-500 hover:text-neutral-700 transition-colors">
+              <Settings className="w-5 h-5" />
+            </button>
           </div>
-        </div>
-      </div>
+        </footer>
+      </aside>
 
       {/* 主要內容區域 */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="liquid-glass-card border-b border-slate-500/20 px-6 py-4 shadow-xl backdrop-blur-xl text-slate-800">
+        <header className="liquid-glass-card border-b border-white/20 px-6 py-5 shadow-xl backdrop-blur-xl text-neutral-800">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold">
+              <h2 className="text-2xl font-bold text-gradient">
                 {currentPage === 'dashboard' ? '六大核心能力' : 
                  currentPage === 'profile' ? '用戶資料' :
                  currentPage === 'companies' ? '基本面分析' :
@@ -2202,23 +2219,23 @@ const BusinessSustainabilityAssessment = () => {
                  currentPage === 'reports' ? '報告中心' :
                  currentPage}
               </h2>
-              <p className="text-slate-600 text-sm">企業持續經營能力分析</p>
+              <p className="text-neutral-600 text-sm font-medium mt-1">企業持續經營能力分析</p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-slate-600">評估日期</div>
-              <div className="text-lg font-semibold text-slate-800">2025-08-31</div>
+              <div className="text-sm text-neutral-500 font-medium">評估日期</div>
+              <div className="text-xl font-bold text-neutral-800 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-primary-500" />
+                2025-08-31
+              </div>
             </div>
           </div>
-        </div>
+        </header>
 
         {/* 內容區域 - 可滾動 */}
-        <div className="flex-1 overflow-y-auto" style={{
-          background: 'rgba(255, 255, 255, 0.03)',
-          backdropFilter: 'blur(1px)'
-        }}>
+        <section className="flex-1 overflow-y-auto bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm">
           {renderPageContent()}
-        </div>
-      </div>
+        </section>
+      </main>
 
       {/* 全域彈窗 - 編輯彈出視窗 */}
       {showEditModal && (
@@ -2241,7 +2258,7 @@ const BusinessSustainabilityAssessment = () => {
               </div>
             </div>
             <div className="flex space-x-3 mt-6 pt-4 border-t">
-              <button
+              <Button
                 onClick={() => {
                   if (currentPage === 'financial_basics') {
                     updateFinancialBasicsRecord(editingItem);
@@ -2250,19 +2267,21 @@ const BusinessSustainabilityAssessment = () => {
                   }
                   setShowEditModal(false);
                 }}
-                className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+                variant="primary"
+                className="flex-1"
               >
                 更新
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   setShowEditModal(false);
                   setEditingItem(null);
                 }}
-                className="flex-1 bg-slate-300 text-slate-700 py-2 px-4 rounded-lg hover:bg-slate-400 transition-colors"
+                variant="secondary"
+                className="flex-1"
               >
                 取消
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -2280,7 +2299,7 @@ const BusinessSustainabilityAssessment = () => {
               您確定要刪除這筆資料嗎？此操作無法復原。
             </p>
             <div className="flex space-x-3">
-              <button
+              <Button
                 onClick={() => {
                   if (currentPage === 'financial_basics') {
                     deleteFinancialBasicsRecord(deleteItem);
@@ -2290,19 +2309,21 @@ const BusinessSustainabilityAssessment = () => {
                   setShowDeleteModal(false);
                   setDeleteItem(null);
                 }}
-                className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors"
+                variant="error"
+                className="flex-1"
               >
                 確認刪除
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   setShowDeleteModal(false);
                   setDeleteItem(null);
                 }}
-                className="flex-1 bg-slate-300 text-slate-700 py-2 px-4 rounded-lg hover:bg-slate-400 transition-colors"
+                variant="secondary"
+                className="flex-1"
               >
                 取消
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -2330,23 +2351,25 @@ const BusinessSustainabilityAssessment = () => {
               </div>
             </div>
             <div className="flex space-x-3 mt-6 pt-4 border-t">
-              <button
+              <Button
                 onClick={() => {
                   addRecord(newItem);
                 }}
-                className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+                variant="primary"
+                className="flex-1"
               >
                 新增
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   setShowAddModal(false);
                   setNewItem({});
                 }}
-                className="flex-1 bg-slate-300 text-slate-700 py-2 px-4 rounded-lg hover:bg-slate-400 transition-colors"
+                variant="secondary"
+                className="flex-1"
               >
                 取消
-              </button>
+              </Button>
             </div>
           </div>
         </div>
