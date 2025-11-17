@@ -1985,22 +1985,22 @@ const BusinessSustainabilityAssessment = () => {
                 <Radar
                   name={companyData[selectedCompany].name}
                   dataKey="主要公司"
-                  stroke="var(--primary-500)"
-                  fill="var(--primary-400)"
+                  stroke="#FB923C"
+                  fill="#FB923C"
                   fillOpacity={0.3}
                   strokeWidth={3}
-                  dot={{ fill: 'var(--primary-600)', strokeWidth: 2, r: 5, fillOpacity: 1 }}
+                  dot={{ fill: '#EA580C', strokeWidth: 2, r: 5, fillOpacity: 1 }}
                   animationBegin={0}
                   animationDuration={1000}
                 />
                 <Radar
                   name={safeGetCompanyData(compareCompany).name}
                   dataKey="比較公司"
-                  stroke="var(--secondary-500)"
-                  fill="var(--secondary-400)"
+                  stroke="#2DD4BF"
+                  fill="#2DD4BF"
                   fillOpacity={0.2}
                   strokeWidth={3}
-                  dot={{ fill: 'var(--secondary-600)', strokeWidth: 2, r: 4, fillOpacity: 1 }}
+                  dot={{ fill: '#14B8A6', strokeWidth: 2, r: 4, fillOpacity: 1 }}
                   animationBegin={200}
                   animationDuration={1000}
                 />
@@ -2225,7 +2225,7 @@ const BusinessSustainabilityAssessment = () => {
               <div className="text-sm text-neutral-500 font-medium">評估日期</div>
               <div className="text-xl font-bold text-neutral-800 flex items-center gap-2">
                 <Activity className="w-5 h-5 text-primary-500" />
-                2025-08-31
+                {new Date().getFullYear()}-{String(new Date().getMonth() + 1).padStart(2, '0')}-01
               </div>
             </div>
           </div>
