@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Award, AlertTriangle, CheckCircle, BarChart3, Zap, Leaf, Lightbulb, User, Building, FileText, Settings, History, MessageSquare, Star, LogOut, Search, Activity, Target, Database, Plus, Edit, Trash2, Eye, Download, Filter, ChevronDown, ChevronRight, DollarSign, Calculator } from 'lucide-react';
+import { TrendingUp, Award, AlertTriangle, CheckCircle, BarChart3, Zap, Leaf, Lightbulb, User, Building, FileText, Settings, History, MessageSquare, Star, LogOut, Search, Activity, Target, Database, Plus, Edit, Trash2, Eye, Download, Filter, ChevronDown, ChevronRight, DollarSign, Calculator, BookOpen } from 'lucide-react';
 import { supabase } from './supabaseClient';
 // 新的服務層導入
 import { 
@@ -68,6 +68,55 @@ const BusinessSustainabilityAssessment = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [dataManagementExpanded, setDataManagementExpanded] = useState(false);
   const [selectedDataType, setSelectedDataType] = useState('pl_income_basics');
+  
+  // 指標來源頁面的狀態
+  const [activeTab, setActiveTab] = useState('all');
+  const [expandedCards, setExpandedCards] = useState({});
+
+  // 指標來源頁面的函數
+  const toggleCard = (cardId) => {
+    setExpandedCards(prev => ({
+      ...prev,
+      [cardId]: !prev[cardId]
+    }));
+  };
+
+  const switchTab = (tabId) => {
+    setActiveTab(tabId);
+    setExpandedCards({}); // 收起所有展開的卡片
+  };
+
+  // 獲取公司財務數據 (基本面分析專用)
+  const getCompanyBasicFinancialData = (companyId) => {
+    const financialData = {
+      FET: { // 遠傳電信
+        eps: '3.56元',
+        pe: '26.4倍',
+        bookValue: '38.5元'
+      },
+      CHT: { // 中華電信
+        eps: '4.80元',
+        pe: '26.5倍',
+        bookValue: '48.2元'
+      },
+      TWM: { // 台灣大哥大
+        eps: '4.57元',
+        pe: '18.5倍',
+        bookValue: '42.8元'
+      },
+      FOXCONN: { // 富鴻網
+        eps: '2.50元',
+        pe: '15.2倍',
+        bookValue: '35.0元'
+      }
+    };
+
+    return financialData[companyId] || {
+      eps: '待計算',
+      pe: '待計算',
+      bookValue: '待計算'
+    };
+  };
 
   // 當頁面切換到資料管理的子項目時，自動展開資料管理選單
   useEffect(() => {
@@ -89,14 +138,19 @@ const BusinessSustainabilityAssessment = () => {
     if (amount === '無數據') return '無數據';
     if (amount === '載入中...') return '載入中...';
     if (typeof amount !== 'number') return amount; // 返回原始值如果不是數字
-    if (amount >= 1000000000000) { // 兆
-      return `${(amount / 1000000000000).toFixed(2)} 兆元`;
-    } else if (amount >= 100000000) { // 億
-      return `${(amount / 100000000).toFixed(0)} 億元`;
-    } else if (amount >= 10000) { // 萬
-      return `${(amount / 10000).toFixed(0)} 萬元`;
+    
+    const absAmount = Math.abs(amount);
+    const sign = amount < 0 ? '-' : '';
+    
+    if (absAmount >= 1000000000000) { // 兆
+      return `${sign}${(absAmount / 1000000000000).toFixed(2)} 兆元`;
+    } else if (absAmount >= 100000000) { // 億
+      return `${sign}${(absAmount / 100000000).toFixed(1)} 億元`;
+    } else if (absAmount >= 10000) { // 萬
+      return `${sign}${(absAmount / 10000).toFixed(1)} 萬元`;
     } else {
-      return `${amount.toLocaleString()} 元`;
+      // 對於小於萬元的數字，也轉換為萬元顯示
+      return `${sign}${(absAmount / 10000).toFixed(1)} 萬元`;
     }
   };
 
@@ -986,6 +1040,74 @@ const BusinessSustainabilityAssessment = () => {
         { period: '2025-Q3', value: 4800, growth: 14 },
         { period: '2026-Q1', value: 5000, growth: 4 }
       ]
+    },
+    CHT: { // 中華電信
+      earnings: [
+        { period: '2023-Q3', value: 4.2, growth: 8 },
+        { period: '2024-Q1', value: 4.5, growth: 7 },
+        { period: '2024-Q3', value: 4.8, growth: 7 },
+        { period: '2025-Q1', value: 4.9, growth: 2 },
+        { period: '2025-Q3', value: 5.0, growth: 2 },
+        { period: '2026-Q1', value: 5.2, growth: 4 }
+      ],
+      revenue: [
+        { period: '2023-Q3', value: 2720, growth: 1 },
+        { period: '2024-Q1', value: 2750, growth: 1 },
+        { period: '2024-Q3', value: 2800, growth: 2 },
+        { period: '2025-Q1', value: 2820, growth: 1 },
+        { period: '2025-Q3', value: 2850, growth: 1 },
+        { period: '2026-Q1', value: 2880, growth: 1 }
+      ],
+      ebitda: [
+        { period: '2023-Q3', value: 170, growth: 2 },
+        { period: '2024-Q1', value: 175, growth: 3 },
+        { period: '2024-Q3', value: 180, growth: 3 },
+        { period: '2025-Q1', value: 185, growth: 3 },
+        { period: '2025-Q3', value: 190, growth: 3 },
+        { period: '2026-Q1', value: 195, growth: 3 }
+      ],
+      marketCap: [
+        { period: '2023-Q3', value: 9800, growth: 5 },
+        { period: '2024-Q1', value: 10000, growth: 2 },
+        { period: '2024-Q3', value: 10200, growth: 2 },
+        { period: '2025-Q1', value: 10300, growth: 1 },
+        { period: '2025-Q3', value: 10400, growth: 1 },
+        { period: '2026-Q1', value: 10500, growth: 1 }
+      ]
+    },
+    TWM: { // 台灣大哥大
+      earnings: [
+        { period: '2023-Q3', value: 4.0, growth: 12 },
+        { period: '2024-Q1', value: 4.2, growth: 5 },
+        { period: '2024-Q3', value: 4.57, growth: 9 },
+        { period: '2025-Q1', value: 4.6, growth: 1 },
+        { period: '2025-Q3', value: 4.7, growth: 2 },
+        { period: '2026-Q1', value: 4.8, growth: 2 }
+      ],
+      revenue: [
+        { period: '2023-Q3', value: 1200, growth: 3 },
+        { period: '2024-Q1', value: 1250, growth: 4 },
+        { period: '2024-Q3', value: 1280, growth: 2 },
+        { period: '2025-Q1', value: 1300, growth: 2 },
+        { period: '2025-Q3', value: 1320, growth: 2 },
+        { period: '2026-Q1', value: 1350, growth: 2 }
+      ],
+      ebitda: [
+        { period: '2023-Q3', value: 165, growth: 5 },
+        { period: '2024-Q1', value: 170, growth: 3 },
+        { period: '2024-Q3', value: 175, growth: 3 },
+        { period: '2025-Q1', value: 180, growth: 3 },
+        { period: '2025-Q3', value: 185, growth: 3 },
+        { period: '2026-Q1', value: 190, growth: 3 }
+      ],
+      marketCap: [
+        { period: '2023-Q3', value: 3300, growth: 8 },
+        { period: '2024-Q1', value: 3450, growth: 5 },
+        { period: '2024-Q3', value: 3520, growth: 2 },
+        { period: '2025-Q1', value: 3550, growth: 1 },
+        { period: '2025-Q3', value: 3580, growth: 1 },
+        { period: '2026-Q1', value: 3600, growth: 1 }
+      ]
     }
   };
 
@@ -1003,9 +1125,8 @@ const BusinessSustainabilityAssessment = () => {
         { id: 'financial_basics', label: '財務基本數據', icon: <Calculator className="w-4 h-4" /> }
       ]
     },
+    { id: 'sources', label: '指標來源', icon: <BookOpen className="w-5 h-5" /> },
     { id: 'reports', label: '報表', icon: <FileText className="w-5 h-5" /> },
-    { id: 'analytics', label: '趨勢分析', icon: <TrendingUp className="w-5 h-5" /> },
-    { id: 'messages', label: '最新訊息', icon: <MessageSquare className="w-5 h-5" />, badge: '3' },
     { id: 'profile', label: 'Profile', icon: <User className="w-5 h-5" /> }
   ];
 
@@ -1655,19 +1776,19 @@ const BusinessSustainabilityAssessment = () => {
               <div className="warm-gradient-card p-4 rounded-lg">
                 <div className="text-slate-600 text-sm">淨值</div>
                 <div className="text-2xl font-bold text-slate-800">
-                  市值: 待計算
+                  {getCompanyBasicFinancialData(selectedCompany).bookValue}
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
                 <div className="text-slate-600 text-sm">本益比</div>
                 <div className="text-2xl font-bold text-slate-800">
-                  P/E: 待計算
+                  P/E: {getCompanyBasicFinancialData(selectedCompany).pe}
                 </div>
               </div>
               <div className="warm-gradient-card p-4 rounded-lg">
                 <div className="text-slate-600 text-sm">每股盈餘</div>
                 <div className="text-2xl font-bold text-slate-800">
-                  EPS: 待計算
+                  EPS: {getCompanyBasicFinancialData(selectedCompany).eps}
                 </div>
               </div>
             </div>
@@ -1696,6 +1817,633 @@ const BusinessSustainabilityAssessment = () => {
               <div className="text-yellow-400 font-semibold">進行中</div>
             </div>
           </div>
+        </div>
+      );
+    }
+
+    if (currentPage === 'sources') {
+      return (
+        <div className="p-6" style={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #667eea 66%, #d4b5f7 100%)',
+          minHeight: '100vh'
+        }}>
+          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+            {/* 頁面標題 */}
+            <div className="text-center mb-12" style={{ animation: 'fadeInDown 0.8s ease' }}>
+              <h1 className="text-white mb-4" style={{ 
+                fontSize: '42px', 
+                fontWeight: '700', 
+                textShadow: '0 2px 20px rgba(0, 0, 0, 0.15)' 
+              }}>
+                🔬 指標來源
+              </h1>
+              <p className="text-white text-lg leading-relaxed" style={{ opacity: 0.95 }}>
+                每項指標均基於國際頂尖研究機構的學術研究與業界最佳實務<br />
+                確保評估體系的理論基礎與實務價值
+              </p>
+            </div>
+
+            {/* Tab導航 */}
+            <div className="flex gap-4 mb-10 flex-wrap justify-center" style={{ animation: 'fadeIn 1s ease 0.2s both' }}>
+              {[
+                { id: 'all', label: '全部指標' },
+                { id: 'operation', label: '營運能力' },
+                { id: 'financial', label: '財務能力' },
+                { id: 'growth', label: '成長能力' },
+                { id: 'esg', label: 'ESG永續力' },
+                { id: 'innovation', label: '研發創新' },
+                { id: 'digital', label: '資訊化' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => switchTab(tab.id)}
+                  className={`px-8 py-4 font-semibold rounded-2xl transition-all duration-300 border-2 ${
+                    activeTab === tab.id 
+                      ? 'bg-white text-purple-700 border-white shadow-lg' 
+                      : 'bg-white/15 border-white/20 text-white hover:bg-white/25 hover:shadow-lg hover:-translate-y-1'
+                  }`}
+                  style={{ backdropFilter: 'blur(10px)' }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 全部指標 */}
+            {activeTab === 'all' && (
+              <div style={{ animation: 'fadeInUp 0.6s ease' }}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+                  <div className="text-center p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl" 
+                       style={{ 
+                         background: 'rgba(255, 255, 255, 0.15)', 
+                         backdropFilter: 'blur(15px)', 
+                         border: '2px solid rgba(255, 255, 255, 0.25)' 
+                       }}>
+                    <div className="text-white text-5xl font-bold mb-2">34</div>
+                    <div className="text-white/90">評估指標總數</div>
+                  </div>
+                  <div className="text-center p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl" 
+                       style={{ 
+                         background: 'rgba(255, 255, 255, 0.15)', 
+                         backdropFilter: 'blur(15px)', 
+                         border: '2px solid rgba(255, 255, 255, 0.25)' 
+                       }}>
+                    <div className="text-white text-5xl font-bold mb-2">30+</div>
+                    <div className="text-white/90">學術研究來源</div>
+                  </div>
+                  <div className="text-center p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl" 
+                       style={{ 
+                         background: 'rgba(255, 255, 255, 0.15)', 
+                         backdropFilter: 'blur(15px)', 
+                         border: '2px solid rgba(255, 255, 255, 0.25)' 
+                       }}>
+                    <div className="text-white text-5xl font-bold mb-2">6</div>
+                    <div className="text-white/90">核心能力維度</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* 營運能力指標 */}
+                  {[
+                    {
+                      id: 'receivables_turnover',
+                      title: '應收帳款週轉率',
+                      tag: '營運能力',
+                      description: '代表公司收現速度快不快,越高表示現金回收效率佳。',
+                      source: 'Which metrics really drive total returns to shareholders',
+                      org: '🏛️ McKinsey & Company (2022)'
+                    },
+                    {
+                      id: 'inventory_turnover',
+                      title: '存貨週轉率',
+                      tag: '營運能力',
+                      description: '衡量庫存管理效率,越高代表存貨變現快,不易積壓。',
+                      source: 'Uncovering cash and insights from working capital',
+                      org: '🏛️ McKinsey & Company (2021)'
+                    },
+                    {
+                      id: 'total_asset_turnover',
+                      title: '總資產週轉率',
+                      tag: '營運能力',
+                      description: '看公司整體資產運用效率,數字越高代表資產使用越有效率。',
+                      source: 'A long-term look at ROIC',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'operating_cycle',
+                      title: '營運週期',
+                      tag: '營運能力',
+                      description: '公司完成一次「買進—生產/銷售—收款」的時間,越短代表越有效率。',
+                      source: 'Uncovering cash and insights from working capital',
+                      org: '🏛️ McKinsey & Company (2014)'
+                    },
+                    {
+                      id: 'current_ratio',
+                      title: '流動比率',
+                      tag: '財務能力',
+                      description: '衡量短期償債能力,反映企業應對短期財務壓力的能力。',
+                      source: 'Capital ratios and financial distress',
+                      org: '🏛️ McKinsey & Company (2021)'
+                    },
+                    {
+                      id: 'quick_ratio',
+                      title: '速動比率',
+                      tag: '財務能力',
+                      description: '更嚴格的短期償債能力評估,不包含存貨等較難變現的資產。',
+                      source: 'How to improve liquidity accuracy at a time of economic uncertainty',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'roe',
+                      title: 'ROE (股東權益報酬率)',
+                      tag: '財務能力',
+                      description: '股東權益報酬,反映企業為股東創造價值的能力;持續高於同業為佳。',
+                      source: 'How to choose between growth and ROIC',
+                      org: '🏛️ McKinsey & Company (2022)'
+                    },
+                    {
+                      id: 'debt_ratio',
+                      title: '負債比率',
+                      tag: '財務能力',
+                      description: '衡量資產中由債務融資比例,反映企業財務槓桿使用情況。',
+                      source: 'IMD Center for Future Readiness',
+                      org: '🎓 IMD Business School'
+                    },
+                    {
+                      id: 'revenue_growth',
+                      title: '營收成長率',
+                      tag: '成長能力',
+                      description: '反映企業規模擴張能力,是評估企業成長動能的關鍵指標。',
+                      source: 'Revenue growth: Ten rules for success',
+                      org: '🏛️ McKinsey & Company (2021)'
+                    },
+                    {
+                      id: 'gross_profit_growth',
+                      title: '毛利成長率',
+                      tag: '成長能力',
+                      description: '不僅看營收,還要看獲利是否同步上升,反映企業的盈利質量。',
+                      source: 'Achieving extraordinary growth: Myths and realities',
+                      org: '🏛️ McKinsey & Company (2024)'
+                    },
+                    {
+                      id: 'new_product_revenue',
+                      title: '新產品營收佔比',
+                      tag: '成長能力',
+                      description: '新產品營收 / 總營收,衡量企業創新能力與市場適應性。',
+                      source: 'Taking the measure of innovation with conversion metrics',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'revenue_cagr',
+                      title: '營收複合年均成長率',
+                      tag: '成長能力',
+                      description: '衡量長期營收趨勢,比單一年份更穩定,反映企業持續成長能力。',
+                      source: 'IMD Center for Future Readiness',
+                      org: '🎓 IMD Business School'
+                    },
+                    {
+                      id: 'energy_efficiency',
+                      title: '能源效率比',
+                      tag: 'ESG永續力',
+                      description: '營業收入 / 總能源消耗,反映企業環境績效與成本控制能力。',
+                      source: 'Energy efficiency: A compelling global resource',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'employee_retention',
+                      title: '員工留任率',
+                      tag: 'ESG永續力',
+                      description: '(期末員工-新進員工) / 期初員工,衡量組織穩定性與人才吸引力。',
+                      source: 'It\'s Time to Reimagine Employee Retention',
+                      org: '🎓 Harvard Business Review (2022)'
+                    },
+                    {
+                      id: 'compliance_rate',
+                      title: '合規達成率',
+                      tag: 'ESG永續力',
+                      description: '通過法遵項數 / 總檢查項數,反映企業風險管理能力。',
+                      source: 'ESG Reporting Takes Major Step Forward',
+                      org: '🌐 WEF with Deloitte, EY, KPMG & PwC (2021)'
+                    },
+                    {
+                      id: 'renewable_energy_ratio',
+                      title: '再生能源佔整體用電比例',
+                      tag: 'ESG永續力',
+                      description: '再生能源佔整體使用能源比例,衡量企業對永續能源的投入。',
+                      source: 'SASB Standards',
+                      org: '🌍 Sustainability Accounting Standards Board'
+                    },
+                    {
+                      id: 'rd_expense_ratio',
+                      title: '研發支出佔比',
+                      tag: '研發創新',
+                      description: '研發支出 / 營業收入,反映企業對創新的投入承諾。',
+                      source: 'The Trillion-Dollar R&D Fix',
+                      org: '🎓 Harvard Business Review (2012)'
+                    },
+                    {
+                      id: 'ip_growth',
+                      title: '智慧財產權成長率',
+                      tag: '研發創新',
+                      description: '(今年專利-去年專利) / 去年專利,衡量創新產出與技術累積能力。',
+                      source: 'Getting tangible about intangibles',
+                      org: '🏛️ McKinsey & Company (2024)'
+                    },
+                    {
+                      id: 'rd_cagr',
+                      title: '研發費用年複合成長率',
+                      tag: '研發創新',
+                      description: '可以看出企業長期對於研發的投入,反映創新承諾的持續性。',
+                      source: 'IMD Center for Future Readiness',
+                      org: '🎓 IMD Business School'
+                    },
+                    {
+                      id: 'product_update_cycle',
+                      title: '產品更新週期',
+                      tag: '研發創新',
+                      description: '主要產品線平均更新頻率(月數),反映市場回應速度與創新執行力。',
+                      source: 'Taking the measure of product development',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'digitalization_level',
+                      title: '數位化程度',
+                      tag: '資訊化',
+                      description: '公司所有流程中以資訊化的佔比程度,反映數位轉型進展。',
+                      source: 'What is digital transformation?',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'it_investment_intensity',
+                      title: 'IT投資強度',
+                      tag: '資訊化',
+                      description: 'IT支出 / 營業收入,預測企業未來競爭力的重要指標。',
+                      source: 'How high performers optimize IT productivity for revenue growth',
+                      org: '🏛️ McKinsey & Company (2024)'
+                    },
+                    {
+                      id: 'data_driven_decision_ratio',
+                      title: '資料驅動決策比例',
+                      tag: '資訊化',
+                      description: '有數據支持決策 / 重要決策總數,衡量組織數據成熟度。',
+                      source: 'Charting a path to the data- and AI-driven enterprise of 2030',
+                      org: '🏛️ McKinsey & Company (2024)'
+                    }
+                  ].map((indicator) => (
+                    <div
+                      key={indicator.id}
+                      className={`p-8 rounded-3xl transition-all duration-500 cursor-pointer relative overflow-hidden ${
+                        expandedCards[indicator.id] ? 'transform -translate-y-2 shadow-2xl' : 'hover:-translate-y-2 hover:shadow-2xl'
+                      }`}
+                      style={{ 
+                        background: expandedCards[indicator.id] ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.15)',
+                        backdropFilter: 'blur(15px)', 
+                        border: expandedCards[indicator.id] ? '2px solid rgba(255, 255, 255, 0.4)' : '2px solid rgba(255, 255, 255, 0.25)',
+                        animationDelay: `${Math.floor(Math.random() * 6) * 0.05}s`
+                      }}
+                      onClick={() => toggleCard(indicator.id)}
+                    >
+                      <div className="flex justify-between items-start mb-5">
+                        <div>
+                          <div className="text-white text-xl font-bold mb-2">{indicator.title}</div>
+                          <span className="inline-block px-3 py-1 rounded-full text-xs text-white font-semibold" 
+                                style={{ background: 'rgba(255, 255, 255, 0.25)' }}>
+                            {indicator.tag}
+                          </span>
+                        </div>
+                        <span className="text-white text-2xl transition-transform duration-300" 
+                              style={{ transform: expandedCards[indicator.id] ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                          ▼
+                        </span>
+                      </div>
+                      <div className="text-white/95 text-sm leading-relaxed mb-5">
+                        {indicator.description}
+                      </div>
+                      
+                      <div className={`transition-all duration-500 overflow-hidden ${
+                        expandedCards[indicator.id] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      }`} style={{ 
+                        borderTop: expandedCards[indicator.id] ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
+                        paddingTop: expandedCards[indicator.id] ? '20px' : '0'
+                      }}>
+                        <div className="flex items-center gap-3 text-white text-sm font-semibold mb-4 opacity-90">
+                          📚 學術來源
+                        </div>
+                        <div className="p-5 rounded-2xl transition-all duration-300 hover:translate-x-1" 
+                             style={{ 
+                               background: 'rgba(255, 255, 255, 0.15)', 
+                               border: '1px solid rgba(255, 255, 255, 0.2)' 
+                             }}>
+                          <div className="text-white font-semibold leading-relaxed mb-2">
+                            {indicator.source}
+                          </div>
+                          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs text-white font-semibold" 
+                               style={{ background: 'rgba(255, 255, 255, 0.25)' }}>
+                            {indicator.org}
+                          </div>
+                          <div className="inline-flex items-center gap-2 text-white text-sm px-4 py-2 rounded-lg mt-2 transition-all duration-300 hover:translate-x-1" 
+                               style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
+                            查看研究報告 →
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 其他Tab內容 */}
+            {activeTab !== 'all' && (
+              <div style={{ animation: 'fadeInUp 0.6s ease' }}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {[
+                    {
+                      id: 'receivables_turnover',
+                      title: '應收帳款週轉率',
+                      tag: '營運能力',
+                      description: '代表公司收現速度快不快,越高表示現金回收效率佳。',
+                      source: 'Which metrics really drive total returns to shareholders',
+                      org: '🏛️ McKinsey & Company (2022)'
+                    },
+                    {
+                      id: 'inventory_turnover',
+                      title: '存貨週轉率',
+                      tag: '營運能力',
+                      description: '衡量庫存管理效率,越高代表存貨變現快,不易積壓。',
+                      source: 'Uncovering cash and insights from working capital',
+                      org: '🏛️ McKinsey & Company (2021)'
+                    },
+                    {
+                      id: 'total_asset_turnover',
+                      title: '總資產週轉率',
+                      tag: '營運能力',
+                      description: '看公司整體資產運用效率,數字越高代表資產使用越有效率。',
+                      source: 'A long-term look at ROIC',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'operating_cycle',
+                      title: '營運週期',
+                      tag: '營運能力',
+                      description: '公司完成一次「買進—生產/銷售—收款」的時間,越短代表越有效率。',
+                      source: 'Uncovering cash and insights from working capital',
+                      org: '🏛️ McKinsey & Company (2014)'
+                    },
+                    {
+                      id: 'current_ratio',
+                      title: '流動比率',
+                      tag: '財務能力',
+                      description: '衡量短期償債能力,反映企業應對短期財務壓力的能力。',
+                      source: 'Capital ratios and financial distress',
+                      org: '🏛️ McKinsey & Company (2021)'
+                    },
+                    {
+                      id: 'quick_ratio',
+                      title: '速動比率',
+                      tag: '財務能力',
+                      description: '更嚴格的短期償債能力評估,不包含存貨等較難變現的資產。',
+                      source: 'How to improve liquidity accuracy at a time of economic uncertainty',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'roe',
+                      title: 'ROE (股東權益報酬率)',
+                      tag: '財務能力',
+                      description: '股東權益報酬,反映企業為股東創造價值的能力;持續高於同業為佳。',
+                      source: 'How to choose between growth and ROIC',
+                      org: '🏛️ McKinsey & Company (2022)'
+                    },
+                    {
+                      id: 'debt_ratio',
+                      title: '負債比率',
+                      tag: '財務能力',
+                      description: '衡量資產中由債務融資比例,反映企業財務槓桿使用情況。',
+                      source: 'IMD Center for Future Readiness',
+                      org: '🎓 IMD Business School'
+                    },
+                    {
+                      id: 'revenue_growth',
+                      title: '營收成長率',
+                      tag: '成長能力',
+                      description: '反映企業規模擴張能力,是評估企業成長動能的關鍵指標。',
+                      source: 'Revenue growth: Ten rules for success',
+                      org: '🏛️ McKinsey & Company (2021)'
+                    },
+                    {
+                      id: 'gross_profit_growth',
+                      title: '毛利成長率',
+                      tag: '成長能力',
+                      description: '不僅看營收,還要看獲利是否同步上升,反映企業的盈利質量。',
+                      source: 'Achieving extraordinary growth: Myths and realities',
+                      org: '🏛️ McKinsey & Company (2024)'
+                    },
+                    {
+                      id: 'new_product_revenue',
+                      title: '新產品營收佔比',
+                      tag: '成長能力',
+                      description: '新產品營收 / 總營收,衡量企業創新能力與市場適應性。',
+                      source: 'Taking the measure of innovation with conversion metrics',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'revenue_cagr',
+                      title: '營收複合年均成長率',
+                      tag: '成長能力',
+                      description: '衡量長期營收趨勢,比單一年份更穩定,反映企業持續成長能力。',
+                      source: 'IMD Center for Future Readiness',
+                      org: '🎓 IMD Business School'
+                    },
+                    {
+                      id: 'energy_efficiency',
+                      title: '能源效率比',
+                      tag: 'ESG永續力',
+                      description: '營業收入 / 總能源消耗,反映企業環境績效與成本控制能力。',
+                      source: 'Energy efficiency: A compelling global resource',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'employee_retention',
+                      title: '員工留任率',
+                      tag: 'ESG永續力',
+                      description: '(期末員工-新進員工) / 期初員工,衡量組織穩定性與人才吸引力。',
+                      source: 'It\'s Time to Reimagine Employee Retention',
+                      org: '🎓 Harvard Business Review (2022)'
+                    },
+                    {
+                      id: 'compliance_rate',
+                      title: '合規達成率',
+                      tag: 'ESG永續力',
+                      description: '通過法遵項數 / 總檢查項數,反映企業風險管理能力。',
+                      source: 'ESG Reporting Takes Major Step Forward',
+                      org: '🌐 WEF with Deloitte, EY, KPMG & PwC (2021)'
+                    },
+                    {
+                      id: 'renewable_energy_ratio',
+                      title: '再生能源佔整體用電比例',
+                      tag: 'ESG永續力',
+                      description: '再生能源佔整體使用能源比例,衡量企業對永續能源的投入。',
+                      source: 'SASB Standards',
+                      org: '🌍 Sustainability Accounting Standards Board'
+                    },
+                    {
+                      id: 'rd_expense_ratio',
+                      title: '研發支出佔比',
+                      tag: '研發創新',
+                      description: '研發支出 / 營業收入,反映企業對創新的投入承諾。',
+                      source: 'The Trillion-Dollar R&D Fix',
+                      org: '🎓 Harvard Business Review (2012)'
+                    },
+                    {
+                      id: 'ip_growth',
+                      title: '智慧財產權成長率',
+                      tag: '研發創新',
+                      description: '(今年專利-去年專利) / 去年專利,衡量創新產出與技術累積能力。',
+                      source: 'Getting tangible about intangibles',
+                      org: '🏛️ McKinsey & Company (2024)'
+                    },
+                    {
+                      id: 'rd_cagr',
+                      title: '研發費用年複合成長率',
+                      tag: '研發創新',
+                      description: '可以看出企業長期對於研發的投入,反映創新承諾的持續性。',
+                      source: 'IMD Center for Future Readiness',
+                      org: '🎓 IMD Business School'
+                    },
+                    {
+                      id: 'product_update_cycle',
+                      title: '產品更新週期',
+                      tag: '研發創新',
+                      description: '主要產品線平均更新頻率(月數),反映市場回應速度與創新執行力。',
+                      source: 'Taking the measure of product development',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'digitalization_level',
+                      title: '數位化程度',
+                      tag: '資訊化',
+                      description: '公司所有流程中以資訊化的佔比程度,反映數位轉型進展。',
+                      source: 'What is digital transformation?',
+                      org: '🏛️ McKinsey & Company (2023)'
+                    },
+                    {
+                      id: 'it_investment_intensity',
+                      title: 'IT投資強度',
+                      tag: '資訊化',
+                      description: 'IT支出 / 營業收入,預測企業未來競爭力的重要指標。',
+                      source: 'How high performers optimize IT productivity for revenue growth',
+                      org: '🏛️ McKinsey & Company (2024)'
+                    },
+                    {
+                      id: 'data_driven_decision_ratio',
+                      title: '資料驅動決策比例',
+                      tag: '資訊化',
+                      description: '有數據支持決策 / 重要決策總數,衡量組織數據成熟度。',
+                      source: 'Charting a path to the data- and AI-driven enterprise of 2030',
+                      org: '🏛️ McKinsey & Company (2024)'
+                    }
+                  ].filter(indicator => {
+                    // 根據activeTab過濾指標
+                    const tagMapping = {
+                      operation: '營運能力',
+                      financial: '財務能力',
+                      growth: '成長能力',
+                      esg: 'ESG永續力',
+                      innovation: '研發創新',
+                      digital: '資訊化'
+                    };
+                    return indicator.tag === tagMapping[activeTab];
+                  }).map((indicator) => (
+                    <div
+                      key={indicator.id}
+                      className={`p-8 rounded-3xl transition-all duration-500 cursor-pointer relative overflow-hidden ${
+                        expandedCards[indicator.id] ? 'transform -translate-y-2 shadow-2xl' : 'hover:-translate-y-2 hover:shadow-2xl'
+                      }`}
+                      style={{ 
+                        background: expandedCards[indicator.id] ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.15)',
+                        backdropFilter: 'blur(15px)', 
+                        border: expandedCards[indicator.id] ? '2px solid rgba(255, 255, 255, 0.4)' : '2px solid rgba(255, 255, 255, 0.25)',
+                        animationDelay: `${Math.floor(Math.random() * 6) * 0.05}s`
+                      }}
+                      onClick={() => toggleCard(indicator.id)}
+                    >
+                      <div className="flex justify-between items-start mb-5">
+                        <div>
+                          <div className="text-white text-xl font-bold mb-2">{indicator.title}</div>
+                          <span className="inline-block px-3 py-1 rounded-full text-xs text-white font-semibold" 
+                                style={{ background: 'rgba(255, 255, 255, 0.25)' }}>
+                            {indicator.tag}
+                          </span>
+                        </div>
+                        <span className="text-white text-2xl transition-transform duration-300" 
+                              style={{ transform: expandedCards[indicator.id] ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                          ▼
+                        </span>
+                      </div>
+                      <div className="text-white/95 text-sm leading-relaxed mb-5">
+                        {indicator.description}
+                      </div>
+                      
+                      <div className={`transition-all duration-500 overflow-hidden ${
+                        expandedCards[indicator.id] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      }`} style={{ 
+                        borderTop: expandedCards[indicator.id] ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
+                        paddingTop: expandedCards[indicator.id] ? '20px' : '0'
+                      }}>
+                        <div className="flex items-center gap-3 text-white text-sm font-semibold mb-4 opacity-90">
+                          📚 學術來源
+                        </div>
+                        <div className="p-5 rounded-2xl transition-all duration-300 hover:translate-x-1" 
+                             style={{ 
+                               background: 'rgba(255, 255, 255, 0.15)', 
+                               border: '1px solid rgba(255, 255, 255, 0.2)' 
+                             }}>
+                          <div className="text-white font-semibold leading-relaxed mb-2">
+                            {indicator.source}
+                          </div>
+                          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs text-white font-semibold" 
+                               style={{ background: 'rgba(255, 255, 255, 0.25)' }}>
+                            {indicator.org}
+                          </div>
+                          <div className="inline-flex items-center gap-2 text-white text-sm px-4 py-2 rounded-lg mt-2 transition-all duration-300 hover:translate-x-1" 
+                               style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
+                            查看研究報告 →
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <style jsx>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes fadeInUp {
+              from {
+                opacity: 0;
+                transform: translateY(30px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            @keyframes fadeInDown {
+              from {
+                opacity: 0;
+                transform: translateY(-30px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+          `}</style>
         </div>
       );
     }
@@ -2217,6 +2965,7 @@ const BusinessSustainabilityAssessment = () => {
                  currentPage === 'pl_income_basics' ? '損益基本數據' :
                  currentPage === 'financial_basics' ? '財務基本數據' :
                  currentPage === 'reports' ? '報告中心' :
+                 currentPage === 'sources' ? '指標來源' :
                  currentPage}
               </h2>
               <p className="text-neutral-600 text-sm font-medium mt-1">企業持續經營能力分析</p>
