@@ -34,14 +34,31 @@
       "Bash(npm install:*)",
       "Bash(node:*)",
       "Bash(curl:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(rm:*)",
+      "Read(D:\\vscode/**)",
+      "Bash(cp:*)",
+      "Bash(rimraf:*)",
+      "WebFetch(domain:docs.claude.com)",
+      "WebFetch(domain:code.claude.com)",
+      "Bash(npm update:*)",
+      "Bash(claude --version)",
+      "Bash(npx claude-plugins install @anthropics/claude-code-plugins/frontend-design)",
+      "Bash(gh repo view:*)",
+      "Bash(gh api:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh workflow:*)",
+      "Bash(npx:*)",
+      "Read(c:\\Users\\fenc07837\\Downloads/**)",
+      "Bash(npm cache clean:*)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
       "D:\\vscode\\gh-pages-deploy",
       "D:\\d\\vscode",
-      "D:\\"
+      "D:\\",
+      "D:\\vscode"
     ]
   }
 }

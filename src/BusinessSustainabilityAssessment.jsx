@@ -1126,7 +1126,7 @@ const BusinessSustainabilityAssessment = () => {
       ]
     },
     { id: 'sources', label: '指標來源', icon: <BookOpen className="w-5 h-5" /> },
-    { id: 'reports', label: '報表', icon: <FileText className="w-5 h-5" /> },
+    { id: 'reports', label: '報表中心', icon: <FileText className="w-5 h-5" /> },
     { id: 'profile', label: 'Profile', icon: <User className="w-5 h-5" /> }
   ];
 
@@ -1802,19 +1802,19 @@ const BusinessSustainabilityAssessment = () => {
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-6 text-slate-800">報表中心</h2>
           <div className="space-y-4">
-            <div className="bg-slate-800 rounded-xl p-4 flex justify-between items-center">
+            <div className="liquid-glass-card rounded-xl p-4 flex justify-between items-center border border-slate-500/30 shadow-lg">
               <div>
                 <h3 className="font-bold text-slate-800">Q3 2025 企業評估報告</h3>
                 <p className="text-slate-600 text-sm">2025-08-31</p>
               </div>
-              <div className="text-green-400 font-semibold">已完成</div>
+              <div className="text-green-600 font-semibold">已完成</div>
             </div>
-            <div className="bg-slate-800 rounded-xl p-4 flex justify-between items-center">
+            <div className="liquid-glass-card rounded-xl p-4 flex justify-between items-center border border-slate-500/30 shadow-lg">
               <div>
                 <h3 className="font-bold text-slate-800">科技股比較分析</h3>
-                <p className="text-slate-400 text-sm">2025-08-28</p>
+                <p className="text-slate-600 text-sm">2025-08-28</p>
               </div>
-              <div className="text-yellow-400 font-semibold">進行中</div>
+              <div className="text-yellow-600 font-semibold">進行中</div>
             </div>
           </div>
         </div>
@@ -1823,21 +1823,20 @@ const BusinessSustainabilityAssessment = () => {
 
     if (currentPage === 'sources') {
       return (
-        <div className="p-6" style={{ 
-          background: 'linear-gradient(135deg, #667eea 0%, #667eea 66%, #d4b5f7 100%)',
+        <div className="p-6 dynamic-bg" style={{ 
           minHeight: '100vh'
         }}>
           <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
             {/* 頁面標題 */}
             <div className="text-center mb-12" style={{ animation: 'fadeInDown 0.8s ease' }}>
-              <h1 className="text-white mb-4" style={{ 
+              <h1 className="text-slate-800 mb-4" style={{ 
                 fontSize: '42px', 
                 fontWeight: '700', 
-                textShadow: '0 2px 20px rgba(0, 0, 0, 0.15)' 
+                textShadow: '0 2px 20px rgba(0, 0, 0, 0.1)' 
               }}>
                 🔬 指標來源
               </h1>
-              <p className="text-white text-lg leading-relaxed" style={{ opacity: 0.95 }}>
+              <p className="text-slate-700 text-lg leading-relaxed font-medium">
                 每項指標均基於國際頂尖研究機構的學術研究與業界最佳實務<br />
                 確保評估體系的理論基礎與實務價值
               </p>
@@ -1859,10 +1858,9 @@ const BusinessSustainabilityAssessment = () => {
                   onClick={() => switchTab(tab.id)}
                   className={`px-8 py-4 font-semibold rounded-2xl transition-all duration-300 border-2 ${
                     activeTab === tab.id 
-                      ? 'bg-white text-purple-700 border-white shadow-lg' 
-                      : 'bg-white/15 border-white/20 text-white hover:bg-white/25 hover:shadow-lg hover:-translate-y-1'
+                      ? 'warm-gradient-card text-slate-800 border-slate-400 shadow-lg' 
+                      : 'liquid-glass-card border-slate-400/30 text-slate-700 hover:warm-gradient-card hover:text-slate-800 hover:shadow-lg hover:-translate-y-1'
                   }`}
-                  style={{ backdropFilter: 'blur(10px)' }}
                 >
                   {tab.label}
                 </button>
@@ -1873,32 +1871,17 @@ const BusinessSustainabilityAssessment = () => {
             {activeTab === 'all' && (
               <div style={{ animation: 'fadeInUp 0.6s ease' }}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
-                  <div className="text-center p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl" 
-                       style={{ 
-                         background: 'rgba(255, 255, 255, 0.15)', 
-                         backdropFilter: 'blur(15px)', 
-                         border: '2px solid rgba(255, 255, 255, 0.25)' 
-                       }}>
-                    <div className="text-white text-5xl font-bold mb-2">34</div>
-                    <div className="text-white/90">評估指標總數</div>
+                  <div className="text-center p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl liquid-glass-card border border-slate-500/30 shadow-lg">
+                    <div className="text-slate-800 text-5xl font-bold mb-2">34</div>
+                    <div className="text-slate-600">評估指標總數</div>
                   </div>
-                  <div className="text-center p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl" 
-                       style={{ 
-                         background: 'rgba(255, 255, 255, 0.15)', 
-                         backdropFilter: 'blur(15px)', 
-                         border: '2px solid rgba(255, 255, 255, 0.25)' 
-                       }}>
-                    <div className="text-white text-5xl font-bold mb-2">30+</div>
-                    <div className="text-white/90">學術研究來源</div>
+                  <div className="text-center p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl liquid-glass-card border border-slate-500/30 shadow-lg">
+                    <div className="text-slate-800 text-5xl font-bold mb-2">30+</div>
+                    <div className="text-slate-600">學術研究來源</div>
                   </div>
-                  <div className="text-center p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl" 
-                       style={{ 
-                         background: 'rgba(255, 255, 255, 0.15)', 
-                         backdropFilter: 'blur(15px)', 
-                         border: '2px solid rgba(255, 255, 255, 0.25)' 
-                       }}>
-                    <div className="text-white text-5xl font-bold mb-2">6</div>
-                    <div className="text-white/90">核心能力維度</div>
+                  <div className="text-center p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl liquid-glass-card border border-slate-500/30 shadow-lg">
+                    <div className="text-slate-800 text-5xl font-bold mb-2">6</div>
+                    <div className="text-slate-600">核心能力維度</div>
                   </div>
                 </div>
 
@@ -2092,57 +2075,47 @@ const BusinessSustainabilityAssessment = () => {
                   ].map((indicator) => (
                     <div
                       key={indicator.id}
-                      className={`p-8 rounded-3xl transition-all duration-500 cursor-pointer relative overflow-hidden ${
-                        expandedCards[indicator.id] ? 'transform -translate-y-2 shadow-2xl' : 'hover:-translate-y-2 hover:shadow-2xl'
+                      className={`p-8 rounded-3xl transition-all duration-500 cursor-pointer relative overflow-hidden liquid-glass-card border border-slate-500/30 shadow-lg ${
+                        expandedCards[indicator.id] ? 'transform -translate-y-2 shadow-2xl border-slate-400/50' : 'hover:-translate-y-2 hover:shadow-2xl'
                       }`}
                       style={{ 
-                        background: expandedCards[indicator.id] ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.15)',
-                        backdropFilter: 'blur(15px)', 
-                        border: expandedCards[indicator.id] ? '2px solid rgba(255, 255, 255, 0.4)' : '2px solid rgba(255, 255, 255, 0.25)',
                         animationDelay: `${Math.floor(Math.random() * 6) * 0.05}s`
                       }}
                       onClick={() => toggleCard(indicator.id)}
                     >
                       <div className="flex justify-between items-start mb-5">
                         <div>
-                          <div className="text-white text-xl font-bold mb-2">{indicator.title}</div>
-                          <span className="inline-block px-3 py-1 rounded-full text-xs text-white font-semibold" 
-                                style={{ background: 'rgba(255, 255, 255, 0.25)' }}>
+                          <div className="text-slate-800 text-xl font-bold mb-2">{indicator.title}</div>
+                          <span className="inline-block px-3 py-1 rounded-full text-xs text-slate-700 font-semibold warm-gradient-card">
                             {indicator.tag}
                           </span>
                         </div>
-                        <span className="text-white text-2xl transition-transform duration-300" 
+                        <span className="text-slate-600 text-2xl transition-transform duration-300" 
                               style={{ transform: expandedCards[indicator.id] ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                           ▼
                         </span>
                       </div>
-                      <div className="text-white/95 text-sm leading-relaxed mb-5">
+                      <div className="text-slate-700 text-sm leading-relaxed mb-5">
                         {indicator.description}
                       </div>
                       
                       <div className={`transition-all duration-500 overflow-hidden ${
                         expandedCards[indicator.id] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                       }`} style={{ 
-                        borderTop: expandedCards[indicator.id] ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
+                        borderTop: expandedCards[indicator.id] ? '1px solid rgba(100, 116, 139, 0.3)' : 'none',
                         paddingTop: expandedCards[indicator.id] ? '20px' : '0'
                       }}>
-                        <div className="flex items-center gap-3 text-white text-sm font-semibold mb-4 opacity-90">
+                        <div className="flex items-center gap-3 text-slate-700 text-sm font-semibold mb-4">
                           📚 學術來源
                         </div>
-                        <div className="p-5 rounded-2xl transition-all duration-300 hover:translate-x-1" 
-                             style={{ 
-                               background: 'rgba(255, 255, 255, 0.15)', 
-                               border: '1px solid rgba(255, 255, 255, 0.2)' 
-                             }}>
-                          <div className="text-white font-semibold leading-relaxed mb-2">
+                        <div className="p-5 rounded-2xl transition-all duration-300 hover:translate-x-1 warm-gradient-card border border-slate-400/30">
+                          <div className="text-slate-800 font-semibold leading-relaxed mb-2">
                             {indicator.source}
                           </div>
-                          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs text-white font-semibold" 
-                               style={{ background: 'rgba(255, 255, 255, 0.25)' }}>
+                          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs text-slate-700 font-semibold bg-slate-200/80">
                             {indicator.org}
                           </div>
-                          <div className="inline-flex items-center gap-2 text-white text-sm px-4 py-2 rounded-lg mt-2 transition-all duration-300 hover:translate-x-1" 
-                               style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
+                          <div className="inline-flex items-center gap-2 text-slate-700 text-sm px-4 py-2 rounded-lg mt-2 transition-all duration-300 hover:translate-x-1 bg-slate-100/60">
                             查看研究報告 →
                           </div>
                         </div>
@@ -2356,57 +2329,47 @@ const BusinessSustainabilityAssessment = () => {
                   }).map((indicator) => (
                     <div
                       key={indicator.id}
-                      className={`p-8 rounded-3xl transition-all duration-500 cursor-pointer relative overflow-hidden ${
-                        expandedCards[indicator.id] ? 'transform -translate-y-2 shadow-2xl' : 'hover:-translate-y-2 hover:shadow-2xl'
+                      className={`p-8 rounded-3xl transition-all duration-500 cursor-pointer relative overflow-hidden liquid-glass-card border border-slate-500/30 shadow-lg ${
+                        expandedCards[indicator.id] ? 'transform -translate-y-2 shadow-2xl border-slate-400/50' : 'hover:-translate-y-2 hover:shadow-2xl'
                       }`}
                       style={{ 
-                        background: expandedCards[indicator.id] ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.15)',
-                        backdropFilter: 'blur(15px)', 
-                        border: expandedCards[indicator.id] ? '2px solid rgba(255, 255, 255, 0.4)' : '2px solid rgba(255, 255, 255, 0.25)',
                         animationDelay: `${Math.floor(Math.random() * 6) * 0.05}s`
                       }}
                       onClick={() => toggleCard(indicator.id)}
                     >
                       <div className="flex justify-between items-start mb-5">
                         <div>
-                          <div className="text-white text-xl font-bold mb-2">{indicator.title}</div>
-                          <span className="inline-block px-3 py-1 rounded-full text-xs text-white font-semibold" 
-                                style={{ background: 'rgba(255, 255, 255, 0.25)' }}>
+                          <div className="text-slate-800 text-xl font-bold mb-2">{indicator.title}</div>
+                          <span className="inline-block px-3 py-1 rounded-full text-xs text-slate-700 font-semibold warm-gradient-card">
                             {indicator.tag}
                           </span>
                         </div>
-                        <span className="text-white text-2xl transition-transform duration-300" 
+                        <span className="text-slate-600 text-2xl transition-transform duration-300" 
                               style={{ transform: expandedCards[indicator.id] ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                           ▼
                         </span>
                       </div>
-                      <div className="text-white/95 text-sm leading-relaxed mb-5">
+                      <div className="text-slate-700 text-sm leading-relaxed mb-5">
                         {indicator.description}
                       </div>
                       
                       <div className={`transition-all duration-500 overflow-hidden ${
                         expandedCards[indicator.id] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                       }`} style={{ 
-                        borderTop: expandedCards[indicator.id] ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
+                        borderTop: expandedCards[indicator.id] ? '1px solid rgba(100, 116, 139, 0.3)' : 'none',
                         paddingTop: expandedCards[indicator.id] ? '20px' : '0'
                       }}>
-                        <div className="flex items-center gap-3 text-white text-sm font-semibold mb-4 opacity-90">
+                        <div className="flex items-center gap-3 text-slate-700 text-sm font-semibold mb-4">
                           📚 學術來源
                         </div>
-                        <div className="p-5 rounded-2xl transition-all duration-300 hover:translate-x-1" 
-                             style={{ 
-                               background: 'rgba(255, 255, 255, 0.15)', 
-                               border: '1px solid rgba(255, 255, 255, 0.2)' 
-                             }}>
-                          <div className="text-white font-semibold leading-relaxed mb-2">
+                        <div className="p-5 rounded-2xl transition-all duration-300 hover:translate-x-1 warm-gradient-card border border-slate-400/30">
+                          <div className="text-slate-800 font-semibold leading-relaxed mb-2">
                             {indicator.source}
                           </div>
-                          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs text-white font-semibold" 
-                               style={{ background: 'rgba(255, 255, 255, 0.25)' }}>
+                          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs text-slate-700 font-semibold bg-slate-200/80">
                             {indicator.org}
                           </div>
-                          <div className="inline-flex items-center gap-2 text-white text-sm px-4 py-2 rounded-lg mt-2 transition-all duration-300 hover:translate-x-1" 
-                               style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
+                          <div className="inline-flex items-center gap-2 text-slate-700 text-sm px-4 py-2 rounded-lg mt-2 transition-all duration-300 hover:translate-x-1 bg-slate-100/60">
                             查看研究報告 →
                           </div>
                         </div>
@@ -2964,7 +2927,7 @@ const BusinessSustainabilityAssessment = () => {
                  currentPage === 'data-management' ? '資料管理' :
                  currentPage === 'pl_income_basics' ? '損益基本數據' :
                  currentPage === 'financial_basics' ? '財務基本數據' :
-                 currentPage === 'reports' ? '報告中心' :
+                 currentPage === 'reports' ? '報表中心' :
                  currentPage === 'sources' ? '指標來源' :
                  currentPage}
               </h2>
