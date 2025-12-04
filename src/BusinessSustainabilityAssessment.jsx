@@ -1145,6 +1145,32 @@ const BusinessSustainabilityAssessment = () => {
     }
     
     if (currentPage === 'financial_basics') {
+      return (
+        <DataManagementPage
+          dataType="financial"
+          pageTitle="財務基本數據"
+          data={financialBasicsData}
+          loading={loading}
+          error={error}
+          yearFilter={yearFilter}
+          companyFilter={companyFilter}
+          onYearFilterChange={setYearFilter}
+          onCompanyFilterChange={setCompanyFilter}
+          onClearFilters={() => {
+            setYearFilter('');
+            setCompanyFilter('');
+          }}
+          onAdd={handleAdd}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onReload={fetchFinancialBasicsData}
+          formatNumber={formatNumber}
+        />
+      );
+    }
+
+    // 暫時保留原始代碼作為備份（將在後續清理）
+    if (currentPage === 'financial_basics_old') {
       // 取得唯一的年度和公司名稱選項
       const uniqueYears = [...new Set(financialBasicsData.map(item => item.fiscal_year))].filter(Boolean).sort((a, b) => b - a);
       const uniqueCompanies = [...new Set(financialBasicsData.map(item => item.company_name))].filter(Boolean).sort();
@@ -1161,7 +1187,7 @@ const BusinessSustainabilityAssessment = () => {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-slate-800">財務基本數據</h2>
             <div className="flex space-x-3">
-              <Button 
+              <Button
                 onClick={handleAdd}
                 variant="primary"
                 icon={Plus}
@@ -1314,6 +1340,32 @@ const BusinessSustainabilityAssessment = () => {
     }
     
     if (currentPage === 'data-management' || currentPage === 'pl_income_basics') {
+      return (
+        <DataManagementPage
+          dataType="pl_income"
+          pageTitle={currentPage === 'pl_income_basics' ? '損益基本數據' : '資料管理'}
+          data={financialData}
+          loading={loading}
+          error={error}
+          yearFilter={yearFilter}
+          companyFilter={companyFilter}
+          onYearFilterChange={setYearFilter}
+          onCompanyFilterChange={setCompanyFilter}
+          onClearFilters={() => {
+            setYearFilter('');
+            setCompanyFilter('');
+          }}
+          onAdd={handleAdd}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onReload={fetchFinancialData}
+          formatNumber={formatNumber}
+        />
+      );
+    }
+
+    // 暫時保留原始代碼作為備份（將在後續清理）
+    if (currentPage === 'data-management_old' || currentPage === 'pl_income_basics_old') {
       // 取得唯一的年度和公司名稱選項
       const uniqueYears = [...new Set(financialData.map(item => item.fiscal_year))].filter(Boolean).sort((a, b) => b - a);
       const uniqueCompanies = [...new Set(financialData.map(item => item.company_name))].filter(Boolean).sort();
@@ -1332,7 +1384,7 @@ const BusinessSustainabilityAssessment = () => {
               {currentPage === 'pl_income_basics' ? '損益基本數據' : '資料管理'}
             </h2>
             <div className="flex space-x-3">
-              <Button 
+              <Button
                 onClick={handleAdd}
                 variant="primary"
                 icon={Plus}
@@ -1491,9 +1543,23 @@ const BusinessSustainabilityAssessment = () => {
 
     if (currentPage === 'companies') {
       return (
+        <CompaniesPage
+          selectedCompany={selectedCompany}
+          onCompanyChange={setSelectedCompany}
+          companyOptions={companyOptions}
+          fundamentalData={fundamentalData}
+          safeGetCompanyData={safeGetCompanyData}
+          getCompanyBasicFinancialData={getCompanyBasicFinancialData}
+        />
+      );
+    }
+
+    // 暫時保留原始代碼作為備份（將在後續清理）
+    if (currentPage === 'companies_old') {
+      return (
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-end mb-6">
-            <select 
+            <select
               value={selectedCompany}
               onChange={(e) => setSelectedCompany(e.target.value)}
               className="liquid-glass-card custom-select px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 text-slate-800"
