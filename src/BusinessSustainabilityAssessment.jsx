@@ -1860,8 +1860,13 @@ const BusinessSustainabilityAssessment = () => {
     }
 
     if (currentPage === 'sources') {
+      return <SourcesPage />;
+    }
+
+    // 暫時保留原始代碼作為備份（將在後續清理）
+    if (currentPage === 'sources_old') {
       return (
-        <div className="p-6 dynamic-bg" style={{ 
+        <div className="p-6 dynamic-bg" style={{
           minHeight: '100vh'
         }}>
           <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
