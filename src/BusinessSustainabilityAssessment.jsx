@@ -30,6 +30,14 @@ import DimensionComparisonTable from './components/DimensionComparisonTable.jsx'
 import { Card, Button, Select, Loading, Table } from './components/ui';
 import { chartThemes, getDimensionColor, getPerformanceColor, customTooltipStyle } from './components/charts/chartThemes';
 
+// 頁面組件
+import { MainLayout } from './components/layout/MainLayout';
+import { ProfilePage } from './components/pages/ProfilePage';
+import { ReportsPage } from './components/pages/ReportsPage';
+import { SourcesPage } from './components/pages/SourcesPage';
+import { CompaniesPage } from './components/pages/CompaniesPage';
+import { DataManagementPage } from './components/pages/DataManagementPage';
+
 const BusinessSustainabilityAssessment = () => {
   // 使用新的公司代碼系統
   const [selectedCompany, setSelectedCompany] = useState('FET'); // 遠傳電信
@@ -1133,23 +1141,7 @@ const BusinessSustainabilityAssessment = () => {
   // 渲染不同頁面內容
   const renderPageContent = () => {
     if (currentPage === 'profile') {
-      return (
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6 text-slate-800">用戶資料</h2>
-          <div className="bg-slate-800 rounded-xl p-6">
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center">
-                <User className="w-10 h-10 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold">Audit01</h3>
-                <p className="text-slate-400">聯稽總部</p>
-                <p className="text-slate-400">audit01@company.com</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
+      return <ProfilePage />;
     }
     
     if (currentPage === 'financial_basics') {
@@ -1798,27 +1790,7 @@ const BusinessSustainabilityAssessment = () => {
     }
     
     if (currentPage === 'reports') {
-      return (
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6 text-slate-800">報表中心</h2>
-          <div className="space-y-4">
-            <div className="liquid-glass-card rounded-xl p-4 flex justify-between items-center border border-slate-500/30 shadow-lg">
-              <div>
-                <h3 className="font-bold text-slate-800">Q3 2025 企業評估報告</h3>
-                <p className="text-slate-600 text-sm">2025-08-31</p>
-              </div>
-              <div className="text-green-600 font-semibold">已完成</div>
-            </div>
-            <div className="liquid-glass-card rounded-xl p-4 flex justify-between items-center border border-slate-500/30 shadow-lg">
-              <div>
-                <h3 className="font-bold text-slate-800">科技股比較分析</h3>
-                <p className="text-slate-600 text-sm">2025-08-28</p>
-              </div>
-              <div className="text-yellow-600 font-semibold">進行中</div>
-            </div>
-          </div>
-        </div>
-      );
+      return <ReportsPage />;
     }
 
     if (currentPage === 'sources') {
