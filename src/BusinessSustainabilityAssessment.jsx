@@ -38,108 +38,92 @@ import { SourcesPage } from './components/pages/SourcesPage';
 import { CompaniesPage } from './components/pages/CompaniesPage';
 import { DataManagementPage } from './components/pages/DataManagementPage';
 
+// Context Hooks
+import { useCompany, useDataManagement, useUI } from './contexts';
+
 const BusinessSustainabilityAssessment = () => {
-  // 使用新的公司代碼系統
-  const [selectedCompany, setSelectedCompany] = useState('FET'); // 遠傳電信
-  const [compareCompany, setCompareCompany] = useState('CHT'); // 中華電信
-  
-  // 新增動態資料狀態
-  const [companyMetrics, setCompanyMetrics] = useState({});
-  const [comparisonData, setComparisonData] = useState(null);
-  const [metricsLoading, setMetricsLoading] = useState(false);
-  const [metricsError, setMetricsError] = useState(null);
-  const [hoveredMetric, setHoveredMetric] = useState(null);
-  
-  // 新增公司數據快取機制
-  const [companyDataCache, setCompanyDataCache] = useState({});
-  const [loadingStates, setLoadingStates] = useState({
-    selectedCompany: false,
-    compareCompany: false
-  });
-  // 新增財務數據快取
-  const [financialDataCache, setFinancialDataCache] = useState({});
-  // 觸發重新渲染的狀態
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  // 動態公司選項列表
-  const [companyOptions, setCompanyOptions] = useState([
-    { value: 'FET', label: '遠傳電信股份有限公司', tax_id: '97179430' },
-    { value: 'CHT', label: '中華電信股份有限公司', tax_id: '96979933' },
-    { value: 'TWM', label: '台灣大哥大哦股份有限公司', tax_id: '97176270' },
-    { value: 'FOXCONN', label: '富鴻網股份有限公司', tax_id: '24566673' }
-  ]);
-  const [compareOptions, setCompareOptions] = useState([
-    { value: 'FET', label: '遠傳電信股份有限公司', tax_id: '97179430' },
-    { value: 'CHT', label: '中華電信股份有限公司', tax_id: '96979933' },
-    { value: 'TWM', label: '台灣大哥大哦股份有限公司', tax_id: '97176270' },
-    { value: 'FOXCONN', label: '富鴻網股份有限公司', tax_id: '24566673' }
-  ]);
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [dataManagementExpanded, setDataManagementExpanded] = useState(false);
-  const [selectedDataType, setSelectedDataType] = useState('pl_income_basics');
-  
-  // 指標來源頁面的狀態
-  const [activeTab, setActiveTab] = useState('all');
-  const [expandedCards, setExpandedCards] = useState({});
+  // 使用 Context Hooks
+  const {
+    selectedCompany,
+    setSelectedCompany,
+    compareCompany,
+    setCompareCompany,
+    companyOptions,
+    compareOptions,
+    companyMetrics,
+    setCompanyMetrics,
+    comparisonData,
+    setComparisonData,
+    metricsLoading,
+    setMetricsLoading,
+    metricsError,
+    setMetricsError,
+    hoveredMetric,
+    setHoveredMetric,
+    companyDataCache,
+    setCompanyDataCache,
+    financialDataCache,
+    setFinancialDataCache,
+    loadingStates,
+    setLoadingStates,
+    fundamentalData,
+    getCompanyBasicFinancialData,
+    safeGetCompanyData
+  } = useCompany();
 
-  // 指標來源頁面的函數
-  const toggleCard = (cardId) => {
-    setExpandedCards(prev => ({
-      ...prev,
-      [cardId]: !prev[cardId]
-    }));
-  };
+  const {
+    financialData,
+    setFinancialData,
+    financialBasicsData,
+    setFinancialBasicsData,
+    loading,
+    setLoading,
+    error,
+    setError,
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    yearFilter,
+    setYearFilter,
+    companyFilter,
+    setCompanyFilter,
+    clearFilters,
+    editingItem,
+    setEditingItem,
+    showEditModal,
+    setShowEditModal,
+    showDeleteModal,
+    setShowDeleteModal,
+    showAddModal,
+    setShowAddModal,
+    refreshTrigger,
+    setRefreshTrigger,
+    formatNumber
+  } = useDataManagement();
 
-  const switchTab = (tabId) => {
-    setActiveTab(tabId);
-    setExpandedCards({}); // 收起所有展開的卡片
-  };
+  const {
+    currentPage,
+    setCurrentPage,
+    dataManagementExpanded,
+    setDataManagementExpanded,
+    toggleDataManagement,
+    selectedDataType,
+    setSelectedDataType,
+    handleDataTypeChange
+  } = useUI();
 
-  // 獲取公司財務數據 (基本面分析專用)
-  const getCompanyBasicFinancialData = (companyId) => {
-    const financialData = {
-      FET: { // 遠傳電信
-        eps: '3.56元',
-        pe: '26.4倍',
-        bookValue: '38.5元'
-      },
-      CHT: { // 中華電信
-        eps: '4.80元',
-        pe: '26.5倍',
-        bookValue: '48.2元'
-      },
-      TWM: { // 台灣大哥大
-        eps: '4.57元',
-        pe: '18.5倍',
-        bookValue: '42.8元'
-      },
-      FOXCONN: { // 富鴻網
-        eps: '2.50元',
-        pe: '15.2倍',
-        bookValue: '35.0元'
-      }
-    };
-
-    return financialData[companyId] || {
-      eps: '待計算',
-      pe: '待計算',
-      bookValue: '待計算'
-    };
-  };
+  // 以下是主組件自己的狀態（不需要全局共享的）
+  // 注意：大部分狀態已移至 Context，這裡只保留組件特定的狀態
 
   // 當頁面切換到資料管理的子項目時，自動展開資料管理選單
   useEffect(() => {
     if (currentPage === 'pl_income_basics' || currentPage === 'financial_basics') {
       setDataManagementExpanded(true);
     }
-  }, [currentPage]);
+  }, [currentPage, setDataManagementExpanded]);
 
-  // 數字格式化函數 - 加上千分位逗號
-  const formatNumber = (num) => {
-    if (num === null || num === undefined) return 'N/A';
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
-
-  // 財務數據格式化函數
+  // 財務數據格式化函數（formatNumber 已從 useDataManagement 獲取）
   const formatCurrency = (amount) => {
     if (!amount || amount === '待確認') return '待確認';
     if (amount === 'N/A') return 'N/A';
