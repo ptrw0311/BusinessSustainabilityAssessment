@@ -747,15 +747,19 @@ const BusinessSustainabilityAssessment = () => {
   const getCompanyDisplayData = (companyKey) => {
     const company = COMPANIES[companyKey];
     const metrics = companyMetrics[companyKey];
-    
+
     if (!company) return null;
-    
+
+    // 計算綜合分數和等級
+    const overallScore = metrics?.overall_score || 0;
+    const scoreLevel = metrics?.score_level || getScoreLevel(overallScore);
+
     return {
       name: company.name,
       ticker: company.ticker,
       taxId: company.taxId,
-      overallScore: metrics?.overall_score || 0,
-      scoreLevel: metrics?.score_level || getScoreLevel(0),
+      overallScore,
+      scoreLevel,
       // 維度分數
       metrics: metrics?.dimension_scores || {
         營運能力: 0,
@@ -2410,7 +2414,7 @@ const BusinessSustainabilityAssessment = () => {
               {/* 右側大圓形綜合評價 */}
               <div className="rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg"
                    style={{
-                     background: getPerformanceBackground(safeGetCompanyData(selectedCompany).overallScore),
+                     background: getPerformanceBackground(companyData[selectedCompany]?.overallScore),
                      backdropFilter: 'blur(16px)',
                      WebkitBackdropFilter: 'blur(16px)',
                      border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -2418,10 +2422,10 @@ const BusinessSustainabilityAssessment = () => {
                    }}>
                 <div className="text-white text-sm font-medium mb-2">綜合評價</div>
                 <div className="text-2xl mb-2">
-                  {safeGetCompanyData(selectedCompany).scoreLevel?.icon || '🚨'}
+                  {companyData[selectedCompany]?.scoreLevel?.icon || '🚨'}
                 </div>
                 <div className="text-2xl font-bold text-white">
-                  {safeGetCompanyData(selectedCompany).scoreLevel?.level || '風險'}
+                  {companyData[selectedCompany]?.scoreLevel?.level || '風險'}
                 </div>
               </div>
             </div>
@@ -2472,7 +2476,7 @@ const BusinessSustainabilityAssessment = () => {
               {/* 右側大圓形綜合評價 */}
               <div className="rounded-3xl p-8 flex flex-col items-center justify-center min-w-[200px] shadow-lg"
                    style={{
-                     background: getPerformanceBackground(safeGetCompanyData(compareCompany).overallScore),
+                     background: getPerformanceBackground(companyData[compareCompany]?.overallScore),
                      backdropFilter: 'blur(16px)',
                      WebkitBackdropFilter: 'blur(16px)',
                      border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -2480,10 +2484,10 @@ const BusinessSustainabilityAssessment = () => {
                    }}>
                 <div className="text-white text-sm font-medium mb-2">綜合評價</div>
                 <div className="text-2xl mb-2">
-                  {safeGetCompanyData(compareCompany).scoreLevel?.icon || '🚨'}
+                  {companyData[compareCompany]?.scoreLevel?.icon || '🚨'}
                 </div>
                 <div className="text-2xl font-bold text-white">
-                  {safeGetCompanyData(compareCompany).scoreLevel?.level || '風險'}
+                  {companyData[compareCompany]?.scoreLevel?.level || '風險'}
                 </div>
               </div>
             </div>
