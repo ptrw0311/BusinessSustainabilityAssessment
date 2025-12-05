@@ -115,6 +115,8 @@ const BusinessSustainabilityAssessment = () => {
 
   // 以下是主組件自己的狀態（不需要全局共享的）
   // 注意：大部分狀態已移至 Context，這裡只保留組件特定的狀態
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [newItem, setNewItem] = useState({});
 
   // 當頁面切換到資料管理的子項目時，自動展開資料管理選單
   useEffect(() => {
@@ -397,24 +399,8 @@ const BusinessSustainabilityAssessment = () => {
     noncurrent_assets_total: '非流動資產合計',
     assets_total: '資產總計'
   };
-  
-  // 資料管理相關狀態
-  const [financialData, setFinancialData] = useState([]);
-  const [financialBasicsData, setFinancialBasicsData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [yearFilter, setYearFilter] = useState('');
-  const [companyFilter, setCompanyFilter] = useState('');
-  const [editingItem, setEditingItem] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [deleteItem, setDeleteItem] = useState(null);
-  const [newItem, setNewItem] = useState({});
 
-  // 資料管理功能
+  // 資料管理功能 (狀態已從 useDataManagement Hook 取得)
   const fetchFinancialData = async () => {
     try {
       setLoading(true);
@@ -796,30 +782,8 @@ const BusinessSustainabilityAssessment = () => {
     // 向後相容的別名
     TSMC: getCompanyDisplayData('CHT') // 映射到中華電信
   };
-  
-  // 安全獲取公司資料的輔助函數
-  const safeGetCompanyData = (companyKey) => {
-    const data = companyData[companyKey];
-    if (!data) {
-      return {
-        name: '載入中...',
-        ticker: companyKey,
-        overallScore: 0,
-        metrics: {
-          營運能力: 0,
-          財務能力: 0,
-          未來力: 0,
-          AI數位力: 0,
-          ESG永續力: 0,
-          創新能力: 0
-        },
-        loading: true
-      };
-    }
-    return data;
-  };
 
-  // 從 supabase 動態獲取公司選項
+  // 從 supabase 動態獲取公司選項 (safeGetCompanyData 已從 useCompany Hook 取得)
   const loadCompanyOptions = async () => {
     try {
       console.log('🔍 正在從 supabase 獲取公司選項...');
@@ -963,147 +927,7 @@ const BusinessSustainabilityAssessment = () => {
     { period: '4Q25', score: 85 }
   ];
 
-  // 基本面數據
-  const fundamentalData = {
-    FET: {
-      earnings: [
-        { period: '2023-Q3', value: 1.8, growth: -8 },
-        { period: '2024-Q1', value: 2.0, growth: 11 },
-        { period: '2024-Q3', value: 2.1, growth: 5 },
-        { period: '2025-Q1', value: 2.15, growth: 2 },
-        { period: '2025-Q3', value: 2.2, growth: 2 },
-        { period: '2026-Q1', value: 2.3, growth: 5 }
-      ],
-      revenue: [
-        { period: '2023-Q3', value: 980, growth: 2 },
-        { period: '2024-Q1', value: 1020, growth: 4 },
-        { period: '2024-Q3', value: 1040, growth: 2 },
-        { period: '2025-Q1', value: 1051, growth: 1 },
-        { period: '2025-Q3', value: 1065, growth: 1 },
-        { period: '2026-Q1', value: 1080, growth: 1 }
-      ],
-      ebitda: [
-        { period: '2023-Q3', value: 180, growth: 3 },
-        { period: '2024-Q1', value: 185, growth: 3 },
-        { period: '2024-Q3', value: 190, growth: 3 },
-        { period: '2025-Q1', value: 195, growth: 3 },
-        { period: '2025-Q3', value: 200, growth: 3 },
-        { period: '2026-Q1', value: 205, growth: 3 }
-      ],
-      marketCap: [
-        { period: '2023-Q3', value: 2800, growth: -2 },
-        { period: '2024-Q1', value: 2900, growth: 4 },
-        { period: '2024-Q3', value: 3000, growth: 3 },
-        { period: '2025-Q1', value: 3036, growth: 1 },
-        { period: '2025-Q3', value: 3050, growth: 0 },
-        { period: '2026-Q1', value: 3080, growth: 1 }
-      ]
-    },
-    NVDA: {
-      earnings: [
-        { period: '2023-Q3', value: 0.4, growth: -5 },
-        { period: '2024-Q1', value: 0.6, growth: 50 },
-        { period: '2024-Q3', value: 0.8, growth: 33 },
-        { period: '2025-Q1', value: 0.95, growth: 19 },
-        { period: '2025-Q3', value: 1.0, growth: 5 },
-        { period: '2026-Q1', value: 1.1, growth: 10 }
-      ],
-      revenue: [
-        { period: '2023-Q3', value: 10000, growth: 100 },
-        { period: '2024-Q1', value: 15000, growth: 150 },
-        { period: '2024-Q3', value: 25000, growth: 167 },
-        { period: '2025-Q1', value: 35000, growth: 140 },
-        { period: '2025-Q3', value: 42000, growth: 120 },
-        { period: '2026-Q1', value: 48000, growth: 114 }
-      ],
-      ebitda: [
-        { period: '2023-Q3', value: 8000, growth: 0 },
-        { period: '2024-Q1', value: 12000, growth: 200 },
-        { period: '2024-Q3', value: 20000, growth: 500 },
-        { period: '2025-Q1', value: 25000, growth: 108 },
-        { period: '2025-Q3', value: 28000, growth: 40 },
-        { period: '2026-Q1', value: 30000, growth: 25 }
-      ],
-      marketCap: [
-        { period: '2023-Q3', value: 800, growth: 0 },
-        { period: '2024-Q1', value: 1200, growth: 50 },
-        { period: '2024-Q3', value: 2800, growth: 133 },
-        { period: '2025-Q1', value: 4200, growth: 50 },
-        { period: '2025-Q3', value: 4800, growth: 14 },
-        { period: '2026-Q1', value: 5000, growth: 4 }
-      ]
-    },
-    CHT: { // 中華電信
-      earnings: [
-        { period: '2023-Q3', value: 4.2, growth: 8 },
-        { period: '2024-Q1', value: 4.5, growth: 7 },
-        { period: '2024-Q3', value: 4.8, growth: 7 },
-        { period: '2025-Q1', value: 4.9, growth: 2 },
-        { period: '2025-Q3', value: 5.0, growth: 2 },
-        { period: '2026-Q1', value: 5.2, growth: 4 }
-      ],
-      revenue: [
-        { period: '2023-Q3', value: 2720, growth: 1 },
-        { period: '2024-Q1', value: 2750, growth: 1 },
-        { period: '2024-Q3', value: 2800, growth: 2 },
-        { period: '2025-Q1', value: 2820, growth: 1 },
-        { period: '2025-Q3', value: 2850, growth: 1 },
-        { period: '2026-Q1', value: 2880, growth: 1 }
-      ],
-      ebitda: [
-        { period: '2023-Q3', value: 170, growth: 2 },
-        { period: '2024-Q1', value: 175, growth: 3 },
-        { period: '2024-Q3', value: 180, growth: 3 },
-        { period: '2025-Q1', value: 185, growth: 3 },
-        { period: '2025-Q3', value: 190, growth: 3 },
-        { period: '2026-Q1', value: 195, growth: 3 }
-      ],
-      marketCap: [
-        { period: '2023-Q3', value: 9800, growth: 5 },
-        { period: '2024-Q1', value: 10000, growth: 2 },
-        { period: '2024-Q3', value: 10200, growth: 2 },
-        { period: '2025-Q1', value: 10300, growth: 1 },
-        { period: '2025-Q3', value: 10400, growth: 1 },
-        { period: '2026-Q1', value: 10500, growth: 1 }
-      ]
-    },
-    TWM: { // 台灣大哥大
-      earnings: [
-        { period: '2023-Q3', value: 4.0, growth: 12 },
-        { period: '2024-Q1', value: 4.2, growth: 5 },
-        { period: '2024-Q3', value: 4.57, growth: 9 },
-        { period: '2025-Q1', value: 4.6, growth: 1 },
-        { period: '2025-Q3', value: 4.7, growth: 2 },
-        { period: '2026-Q1', value: 4.8, growth: 2 }
-      ],
-      revenue: [
-        { period: '2023-Q3', value: 1200, growth: 3 },
-        { period: '2024-Q1', value: 1250, growth: 4 },
-        { period: '2024-Q3', value: 1280, growth: 2 },
-        { period: '2025-Q1', value: 1300, growth: 2 },
-        { period: '2025-Q3', value: 1320, growth: 2 },
-        { period: '2026-Q1', value: 1350, growth: 2 }
-      ],
-      ebitda: [
-        { period: '2023-Q3', value: 165, growth: 5 },
-        { period: '2024-Q1', value: 170, growth: 3 },
-        { period: '2024-Q3', value: 175, growth: 3 },
-        { period: '2025-Q1', value: 180, growth: 3 },
-        { period: '2025-Q3', value: 185, growth: 3 },
-        { period: '2026-Q1', value: 190, growth: 3 }
-      ],
-      marketCap: [
-        { period: '2023-Q3', value: 3300, growth: 8 },
-        { period: '2024-Q1', value: 3450, growth: 5 },
-        { period: '2024-Q3', value: 3520, growth: 2 },
-        { period: '2025-Q1', value: 3550, growth: 1 },
-        { period: '2025-Q3', value: 3580, growth: 1 },
-        { period: '2026-Q1', value: 3600, growth: 1 }
-      ]
-    }
-  };
-
-  // 側邊選單項目
+  // 側邊選單項目 (fundamentalData 已從 useCompany Hook 取得)
   const menuItems = [
     { id: 'dashboard', label: '六大核心能力', icon: <Target className="w-5 h-5" />, active: true },
     { id: 'companies', label: '基本面分析', icon: <Building className="w-5 h-5" /> },

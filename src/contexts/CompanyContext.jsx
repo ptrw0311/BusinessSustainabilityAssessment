@@ -55,12 +55,12 @@ export const CompanyProvider = ({ children }) => {
   // 安全獲取公司數據
   const safeGetCompanyData = useCallback((companyId) => {
     const companies = {
-      FET: { name: '遠傳電信', ticker: '4904' },
-      CHT: { name: '中華電信', ticker: '2412' },
-      TWM: { name: '台灣大哥大', ticker: '3045' },
-      FOXCONN: { name: '富鴻網', ticker: '8940' }
+      FET: { name: '遠傳電信', ticker: '4904', taxId: '97179430' },
+      CHT: { name: '中華電信', ticker: '2412', taxId: '96979933' },
+      TWM: { name: '台灣大哥大', ticker: '3045', taxId: '97176270' },
+      FOXCONN: { name: '富鴻網', ticker: '8940', taxId: '24566673' }
     };
-    return companies[companyId] || { name: 'Unknown', ticker: 'N/A' };
+    return companies[companyId] || { name: 'Unknown', ticker: 'N/A', taxId: null };
   }, []);
 
   // 基本面數據（用於圖表）
