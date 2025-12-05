@@ -1,0 +1,41 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#0ea5e9"/>
+
+  <!-- Building Icon -->
+  <g transform="translate(6, 8)">
+    <!-- Main building structure -->
+    <rect x="0" y="4" width="10" height="14" fill="#fff" opacity="0.9"/>
+    <rect x="12" y="0" width="8" height="18" fill="#fff" opacity="0.9"/>
+
+    <!-- Windows -->
+    <rect x="2" y="6" width="2" height="2" fill="#0ea5e9"/>
+    <rect x="6" y="6" width="2" height="2" fill="#0ea5e9"/>
+    <rect x="2" y="10" width="2" height="2" fill="#0ea5e9"/>
+    <rect x="6" y="10" width="2" height="2" fill="#0ea5e9"/>
+    <rect x="2" y="14" width="2" height="2" fill="#0ea5e9"/>
+    <rect x="6" y="14" width="2" height="2" fill="#0ea5e9"/>
+
+    <rect x="14" y="3" width="2" height="2" fill="#0ea5e9"/>
+    <rect x="14" y="7" width="2" height="2" fill="#0ea5e9"/>
+    <rect x="14" y="11" width="2" height="2" fill="#0ea5e9"/>
+    <rect x="14" y="15" width="2" height="2" fill="#0ea5e9"/>
+  </g>
+
+  <!-- Trend line overlay (bottom right) -->
+  <polyline
+    points="18,24 20,22 22,23 24,20 26,21"
+    stroke="#a855f7"
+    stroke-width="2"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Trend points -->
+  <circle cx="18" cy="24" r="1.5" fill="#a855f7"/>
+  <circle cx="20" cy="22" r="1.5" fill="#a855f7"/>
+  <circle cx="22" cy="23" r="1.5" fill="#a855f7"/>
+  <circle cx="24" cy="20" r="1.5" fill="#a855f7"/>
+  <circle cx="26" cy="21" r="1.5" fill="#a855f7"/>
+</svg>

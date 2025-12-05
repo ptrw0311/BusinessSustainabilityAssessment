@@ -2303,7 +2303,7 @@ const BusinessSustainabilityAssessment = () => {
     return (
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* 公司選擇區 */}
-        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 mb-6 text-slate-800">
+        <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 mb-6 text-slate-800 reveal-stagger-1">
           <div className="flex flex-row justify-between items-center">
             {/* 主要分析公司 - 左對齊 */}
             <div className="flex items-center space-x-3">
@@ -2340,7 +2340,7 @@ const BusinessSustainabilityAssessment = () => {
         </div>
 
         {/* 評分標準 */}
-        <div className="liquid-glass-card rounded-xl p-4 shadow-lg border border-orange-500/30">
+        <div className="liquid-glass-card rounded-xl p-4 shadow-lg border border-orange-500/30 reveal-stagger-2">
           <h3 className="text-lg font-bold mb-3 text-slate-800">評分標準</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {Object.entries(performanceColors).map(([level, color]) => (
@@ -2370,7 +2370,7 @@ const BusinessSustainabilityAssessment = () => {
         {/* 公司概覽 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 主要公司 */}
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 text-slate-800">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 text-slate-800 card-enhanced reveal-stagger-3 tilt-subtle-left">
             <div className="flex items-center space-x-4 mb-6">
               <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-3 rounded-lg shadow-lg">
                 <Award className="w-8 h-8 text-white" />
@@ -2432,7 +2432,7 @@ const BusinessSustainabilityAssessment = () => {
           </div>
 
           {/* 比較公司 */}
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 text-slate-800">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 text-slate-800 card-enhanced reveal-stagger-3 tilt-subtle-right">
             <div className="flex items-center space-x-4 mb-6">
               <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-lg shadow-lg">
                 <Award className="w-8 h-8 text-white" />
@@ -2496,9 +2496,9 @@ const BusinessSustainabilityAssessment = () => {
 
         {/* 六大維度雷達圖 - 比較模式 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
-            <h3 className="text-xl font-bold mb-6 text-center text-slate-800">六大核心能力比較雷達圖</h3>
-            <ResponsiveContainer width="100%" height={410}>
+          <div className="liquid-glass-card rounded-xl p-6 pb-4 shadow-xl border-2 border-primary-500/40 card-enhanced glow-on-hover reveal-stagger-4 space-breathing-md">
+            <h3 className="text-xl font-bold mb-4 text-center text-slate-800">六大核心能力比較雷達圖</h3>
+            <ResponsiveContainer width="100%" height={450}>
               <RadarChart data={radarData} margin={{ top: 20, right: 80, bottom: 20, left: 80 }}>
                 <PolarGrid 
                   gridType="polygon" 
@@ -2592,7 +2592,7 @@ const BusinessSustainabilityAssessment = () => {
 
         {/* 趨勢分析 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 card-enhanced reveal-stagger-5">
             <h3 className="text-xl font-bold mb-6 text-slate-800">評分趨勢</h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={trendData}>
@@ -2620,7 +2620,7 @@ const BusinessSustainabilityAssessment = () => {
           </div>
 
           {/* 風險預警 */}
-          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
+          <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 card-enhanced reveal-stagger-6">
             <h3 className="text-xl font-bold mb-6 text-slate-800">風險預警指標</h3>
             <div className="space-y-4">
               <div className="flex items-center space-x-3 p-3 warm-gradient-card border border-green-500/30 rounded-lg">

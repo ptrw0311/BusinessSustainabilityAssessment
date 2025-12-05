@@ -1,0 +1,35 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#0ea5e9"/>
+
+  <!-- Radar Chart Grid -->
+  <g transform="translate(16, 16)">
+    <!-- Grid circles -->
+    <circle cx="0" cy="0" r="12" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="8" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="4" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+
+    <!-- Grid lines (6 axes) -->
+    <line x1="0" y1="0" x2="0" y2="-12" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="10.4" y2="-6" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="10.4" y2="6" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="0" y2="12" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="-10.4" y2="6" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="-10.4" y2="-6" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+
+    <!-- Radar data area (filled polygon) -->
+    <polygon points="0,-10 8,-5 7,6 0,9 -7,5 -8,-4"
+             fill="rgba(168, 85, 247, 0.5)"
+             stroke="#a855f7"
+             stroke-width="1.5"
+             stroke-linejoin="round"/>
+
+    <!-- Data points -->
+    <circle cx="0" cy="-10" r="1.5" fill="#fff"/>
+    <circle cx="8" cy="-5" r="1.5" fill="#fff"/>
+    <circle cx="7" cy="6" r="1.5" fill="#fff"/>
+    <circle cx="0" cy="9" r="1.5" fill="#fff"/>
+    <circle cx="-7" cy="5" r="1.5" fill="#fff"/>
+    <circle cx="-8" cy="-4" r="1.5" fill="#fff"/>
+  </g>
+</svg>

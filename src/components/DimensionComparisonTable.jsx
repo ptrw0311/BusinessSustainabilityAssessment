@@ -129,7 +129,7 @@ const DimensionComparisonTable = ({ primaryCompany, compareCompany }) => {
   const dimensionOrder = ['營運能力', '財務能力', '未來力', 'AI數位力', 'ESG永續力', '創新能力'];
 
   return (
-    <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30">
+    <div className="liquid-glass-card rounded-xl p-6 shadow-lg border border-slate-500/30 card-enhanced reveal-stagger-4">
       <h3 className="text-xl font-bold mb-6 text-slate-800">維度評分比較</h3>
 
       {/* Image #1 格式的簡潔表格 */}

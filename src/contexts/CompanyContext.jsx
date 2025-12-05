@@ -15,14 +15,14 @@ export const CompanyProvider = ({ children }) => {
   const [companyOptions] = useState([
     { value: 'FET', label: '遠傳電信股份有限公司', tax_id: '97179430' },
     { value: 'CHT', label: '中華電信股份有限公司', tax_id: '96979933' },
-    { value: 'TWM', label: '台灣大哥大哦股份有限公司', tax_id: '97176270' },
+    { value: 'TWM', label: '台灣大哥大股份有限公司', tax_id: '97176270' },
     { value: 'FOXCONN', label: '富鴻網股份有限公司', tax_id: '24566673' }
   ]);
 
   const [compareOptions] = useState([
     { value: 'FET', label: '遠傳電信股份有限公司', tax_id: '97179430' },
     { value: 'CHT', label: '中華電信股份有限公司', tax_id: '96979933' },
-    { value: 'TWM', label: '台灣大哥大哦股份有限公司', tax_id: '97176270' },
+    { value: 'TWM', label: '台灣大哥大股份有限公司', tax_id: '97176270' },
     { value: 'FOXCONN', label: '富鴻網股份有限公司', tax_id: '24566673' }
   ]);
 

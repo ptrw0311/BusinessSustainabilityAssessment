@@ -1,9 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* =============== DESIGN TOKENS =============== */
 :root {
+  /* Typography - 更有特色的字體組合 */
+  --font-display: 'Space Grotesk', sans-serif;  /* 標題用：幾何感、現代 */
+  --font-body: 'DM Sans', sans-serif;            /* 內文用：清晰、專業 */
   /* Primary Colors - 主色調 */
   --primary-50: #f0f9ff;
   --primary-100: #e0f2fe;
@@ -116,10 +121,44 @@
 html, body, #root {
   height: 100%;
   margin: 0;
-  font-family: 'Inter', 'Noto Sans TC', sans-serif;
+  font-family: var(--font-body), 'Noto Sans TC', sans-serif;
   background: linear-gradient(135deg, var(--primary-50) 0%, var(--secondary-50) 100%);
   color: var(--neutral-800);
   line-height: 1.6;
+}
+
+/* Paper Grain Texture Overlay - 增加質感 */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.035;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  animation: grainMove 8s steps(10) infinite;
+}
+
+@keyframes grainMove {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -5%); }
+  20% { transform: translate(-10%, 5%); }
+  30% { transform: translate(5%, -10%); }
+  40% { transform: translate(-5%, 15%); }
+  50% { transform: translate(-10%, 5%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 10%); }
+  80% { transform: translate(-15%, 0%); }
+  90% { transform: translate(10%, 5%); }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), 'Noto Sans TC', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 /* =============== GLASS EFFECT COMPONENTS =============== */
@@ -528,4 +567,191 @@ html, body, #root {
 
 .hover-lift:hover {
   transform: translateY(-2px);
+}
+
+/* =============== STAGGERED REVEAL ANIMATIONS =============== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.reveal-stagger-1 {
+  animation: fadeInUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms both;
+}
+
+.reveal-stagger-2 {
+  animation: fadeInUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+}
+
+.reveal-stagger-3 {
+  animation: fadeInUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both;
+}
+
+.reveal-stagger-4 {
+  animation: fadeInUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 400ms both;
+}
+
+.reveal-stagger-5 {
+  animation: fadeInUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 500ms both;
+}
+
+.reveal-stagger-6 {
+  animation: fadeInUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 600ms both;
+}
+
+.reveal-left {
+  animation: fadeInLeft 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms both;
+}
+
+.reveal-scale {
+  animation: scaleIn 500ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+}
+
+/* =============== ENHANCED MICRO-INTERACTIONS =============== */
+
+/* Card hover with subtle scale */
+.card-enhanced {
+  transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-enhanced:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12), 0 8px 16px -8px rgba(0, 0, 0, 0.08);
+}
+
+/* Subtle glow on hover */
+.glow-on-hover {
+  position: relative;
+  transition: all 300ms ease;
+}
+
+.glow-on-hover::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, var(--primary-400), var(--secondary-400));
+  border-radius: inherit;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 300ms ease;
+  filter: blur(8px);
+}
+
+.glow-on-hover:hover::after {
+  opacity: 0.3;
+}
+
+/* Button press animation */
+.btn-press {
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Smooth border expand */
+.border-expand {
+  position: relative;
+  overflow: hidden;
+}
+
+.border-expand::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-500), var(--secondary-500));
+  transform: translateX(-100%);
+  transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.border-expand:hover::before {
+  transform: translateX(0);
+}
+
+/* =============== ASYMMETRIC LAYOUT HELPERS =============== */
+
+/* 打破對稱的輕微旋轉效果 */
+.tilt-subtle-left {
+  transform: rotate(-0.5deg);
+  transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tilt-subtle-left:hover {
+  transform: rotate(0deg) translateY(-4px);
+}
+
+.tilt-subtle-right {
+  transform: rotate(0.5deg);
+  transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tilt-subtle-right:hover {
+  transform: rotate(0deg) translateY(-4px);
+}
+
+/* 非對稱間距 */
+.asymmetric-padding {
+  padding: 2rem 1.5rem 2.5rem 2rem;
+}
+
+/* =============== BREATHING SPACE UTILITIES =============== */
+
+.space-breathing-sm {
+  margin: 1.5rem 0;
+}
+
+.space-breathing-md {
+  margin: 3rem 0;
+}
+
+.space-breathing-lg {
+  margin: 4.5rem 0;
+}
+
+.space-breathing-xl {
+  margin: 6rem 0;
+}
+
+/* Generous padding for cards */
+.card-spacious {
+  padding: 2.5rem;
+}
+
+.card-spacious-lg {
+  padding: 3.5rem;
 }
