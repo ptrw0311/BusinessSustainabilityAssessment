@@ -935,9 +935,10 @@ const BusinessSustainabilityAssessment = () => {
   const menuItems = [
     { id: 'dashboard', label: '六大核心能力', icon: <Target className="w-5 h-5" />, active: true },
     { id: 'companies', label: '基本面分析', icon: <Building className="w-5 h-5" /> },
-    { 
-      id: 'data-management', 
-      label: '資料管理', 
+    { id: 'sources', label: '指標來源', icon: <BookOpen className="w-5 h-5" /> },
+    {
+      id: 'data-management',
+      label: '資料管理',
       icon: <Database className="w-5 h-5" />,
       expandable: true,
       subItems: [
@@ -945,7 +946,6 @@ const BusinessSustainabilityAssessment = () => {
         { id: 'financial_basics', label: '財務基本數據', icon: <Calculator className="w-4 h-4" /> }
       ]
     },
-    { id: 'sources', label: '指標來源', icon: <BookOpen className="w-5 h-5" /> },
     { id: 'reports', label: '報表中心', icon: <FileText className="w-5 h-5" /> },
     { id: 'profile', label: 'Profile', icon: <User className="w-5 h-5" /> }
   ];
