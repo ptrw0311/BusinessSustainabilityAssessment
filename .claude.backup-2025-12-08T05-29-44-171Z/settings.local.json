@@ -67,13 +67,7 @@
       "Skill(document-skills:xlsx)",
       "Bash(python:*)",
       "Bash(pip install:*)",
-      "Bash(iconv:*)",
-      "Bash(find:*)",
-      "Bash(claude-code-spec-workflow get-template-context:*)",
-      "Bash(claude-code-spec-workflow get-spec-context:*)",
-      "Bash(claude-code-spec-workflow get-content:*)",
-      "Bash(dir:*)",
-      "mcp__web-search-prime__webSearchPrime"
+      "Bash(iconv:*)"
     ],
     "deny": [],
     "ask": [],

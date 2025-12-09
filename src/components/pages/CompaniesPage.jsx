@@ -72,11 +72,16 @@ export const CompaniesPage = ({
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                  backgroundColor: 'rgba(30, 41, 59, 0.95)',
                   border: '1px solid rgba(148, 163, 184, 0.3)',
                   borderRadius: '8px',
-                  backdropFilter: 'blur(8px)'
+                  color: '#f8fafc',
+                  backdropFilter: 'blur(8px)',
+                  fontSize: '14px'
                 }}
+                labelStyle={{ color: '#f8fafc', fontWeight: 'bold' }}
+                itemStyle={{ color: '#f8fafc' }}
+                formatter={(value) => [`每股盈餘 ${value}`]}
               />
               <Bar
                 dataKey="value"
@@ -133,11 +138,16 @@ export const CompaniesPage = ({
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                  backgroundColor: 'rgba(30, 41, 59, 0.95)',
                   border: '1px solid rgba(148, 163, 184, 0.3)',
                   borderRadius: '8px',
-                  backdropFilter: 'blur(8px)'
+                  color: '#f8fafc',
+                  backdropFilter: 'blur(8px)',
+                  fontSize: '14px'
                 }}
+                labelStyle={{ color: '#f8fafc', fontWeight: 'bold' }}
+                itemStyle={{ color: '#f8fafc' }}
+                formatter={(value) => [`每股淨值 ${value}`]}
               />
               <Bar
                 dataKey="value"
@@ -194,11 +204,16 @@ export const CompaniesPage = ({
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                  backgroundColor: 'rgba(30, 41, 59, 0.95)',
                   border: '1px solid rgba(148, 163, 184, 0.3)',
                   borderRadius: '8px',
-                  backdropFilter: 'blur(8px)'
+                  color: '#f8fafc',
+                  backdropFilter: 'blur(8px)',
+                  fontSize: '14px'
                 }}
+                labelStyle={{ color: '#f8fafc', fontWeight: 'bold' }}
+                itemStyle={{ color: '#f8fafc' }}
+                formatter={(value) => [`營收 ${value}`]}
               />
               <Bar
                 dataKey="value"
@@ -255,11 +270,16 @@ export const CompaniesPage = ({
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                  backgroundColor: 'rgba(30, 41, 59, 0.95)',
                   border: '1px solid rgba(148, 163, 184, 0.3)',
                   borderRadius: '8px',
-                  backdropFilter: 'blur(8px)'
+                  color: '#f8fafc',
+                  backdropFilter: 'blur(8px)',
+                  fontSize: '14px'
                 }}
+                labelStyle={{ color: '#f8fafc', fontWeight: 'bold' }}
+                itemStyle={{ color: '#f8fafc' }}
+                formatter={(value) => [`EBITDA ${value}`]}
               />
               <Bar
                 dataKey="value"

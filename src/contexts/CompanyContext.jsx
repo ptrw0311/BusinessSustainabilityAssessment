@@ -8,8 +8,8 @@ const CompanyContext = createContext(null);
 
 export const CompanyProvider = ({ children }) => {
   // 公司選擇狀態
-  const [selectedCompany, setSelectedCompany] = useState('FET');
-  const [compareCompany, setCompareCompany] = useState('CHT');
+  const [selectedCompany, setSelectedCompany] = useState('FOXCONN');
+  const [compareCompany, setCompareCompany] = useState('TWM');
 
   // 公司選項列表
   const [companyOptions] = useState([
