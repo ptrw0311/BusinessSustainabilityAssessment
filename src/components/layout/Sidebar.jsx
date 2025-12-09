@@ -30,7 +30,7 @@ export const Sidebar = ({
   onDataManagementToggle,
   onDataTypeChange
 }) => {
-  // 雷達圖 SVG 圖示組件
+  // 雷達圖 SVG 圖示組件 - Fixed menu order
   const RadarIcon = ({ className }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g transform="translate(12, 12)">
@@ -64,6 +64,7 @@ export const Sidebar = ({
   const menuItems = [
     { id: 'dashboard', label: '六大核心能力', icon: <RadarIcon className="w-5 h-5" />, active: true },
     { id: 'companies', label: '基本面分析', icon: <Building className="w-5 h-5" /> },
+    { id: 'sources', label: '指標來源', icon: <BookOpen className="w-5 h-5" /> },
     {
       id: 'data-management',
       label: '資料管理',
@@ -74,7 +75,6 @@ export const Sidebar = ({
         { id: 'financial_basics', label: '財務基本數據', icon: <Calculator className="w-4 h-4" /> }
       ]
     },
-    { id: 'sources', label: '指標來源', icon: <BookOpen className="w-5 h-5" /> },
     { id: 'reports', label: '報表中心', icon: <FileText className="w-5 h-5" /> },
     { id: 'profile', label: 'Profile', icon: <User className="w-5 h-5" /> }
   ];
