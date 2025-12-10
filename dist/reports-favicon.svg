@@ -1,0 +1,34 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#0ea5e9"/>
+
+  <!-- Document with chart Icon -->
+  <g transform="translate(7, 4)">
+    <!-- Document base -->
+    <rect x="0" y="0" width="18" height="24" rx="1" fill="#fff" opacity="0.9"/>
+    <rect x="0" y="0" width="18" height="24" rx="1" stroke="#a855f7" stroke-width="1.5" fill="none"/>
+
+    <!-- Document header lines -->
+    <line x1="3" y1="3" x2="15" y2="3" stroke="#a855f7" stroke-width="1.2" opacity="0.7"/>
+    <line x1="3" y1="6" x2="12" y2="6" stroke="#a855f7" stroke-width="0.8" opacity="0.5"/>
+
+    <!-- Bar chart inside document -->
+    <g transform="translate(3, 10)">
+      <!-- Bar 1 -->
+      <rect x="0" y="7" width="2" height="5" fill="#a855f7" opacity="0.8"/>
+      <!-- Bar 2 -->
+      <rect x="3.5" y="4" width="2" height="8" fill="#a855f7" opacity="0.8"/>
+      <!-- Bar 3 -->
+      <rect x="7" y="5" width="2" height="7" fill="#a855f7" opacity="0.8"/>
+      <!-- Bar 4 -->
+      <rect x="10.5" y="2" width="2" height="10" fill="#a855f7" opacity="0.8"/>
+
+      <!-- X axis -->
+      <line x1="0" y1="12" x2="13" y2="12" stroke="#a855f7" stroke-width="0.8" opacity="0.5"/>
+    </g>
+
+    <!-- Folded corner -->
+    <path d="M 14 0 L 14 4 L 18 4 Z" fill="#0ea5e9" opacity="0.6"/>
+    <path d="M 14 0 L 14 4 L 18 4 Z" stroke="#a855f7" stroke-width="1" fill="none"/>
+  </g>
+</svg>
