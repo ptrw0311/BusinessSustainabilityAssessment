@@ -73,7 +73,9 @@
       "Bash(claude-code-spec-workflow get-spec-context:*)",
       "Bash(claude-code-spec-workflow get-content:*)",
       "Bash(dir:*)",
-      "mcp__web-search-prime__webSearchPrime"
+      "mcp__web-search-prime__webSearchPrime",
+      "mcp__playwright__browser_press_key",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": [],
