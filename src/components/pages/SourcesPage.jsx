@@ -143,11 +143,11 @@ export const SourcesPage = () => {
       org: '🏛️ McKinsey & Company (2022)'
     },
 
-    // 成長能力 (10個)
+    // 未來力 (10個)
     {
       id: 'revenue_growth',
       title: '營收成長率',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '反映企業規模擴張能力。',
       source: 'Revenue growth: Ten rules for success',
@@ -156,7 +156,7 @@ export const SourcesPage = () => {
     {
       id: 'revenue_cagr',
       title: '營收複合年均成長率',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '衡量長期營收趨勢，比單一年份更穩定。',
       source: 'IMD Center for Future Readiness',
@@ -165,7 +165,7 @@ export const SourcesPage = () => {
     {
       id: 'gross_profit_growth',
       title: '毛利成長率',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '不僅看營收，還要看獲利是否同步上升。',
       source: 'Achieving extraordinary growth: Myths and realities',
@@ -174,7 +174,7 @@ export const SourcesPage = () => {
     {
       id: 'eps_growth',
       title: 'EPS 成長率',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '投資領域最常用的獲利成長指標。',
       source: 'Growth Metrics Analysis',
@@ -183,7 +183,7 @@ export const SourcesPage = () => {
     {
       id: 'operating_cf_growth',
       title: '營業現金流成長率',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '較高的營業現金流能促進企業成長。',
       source: 'Cash Flow Growth Indicators',
@@ -192,7 +192,7 @@ export const SourcesPage = () => {
     {
       id: 'total_assets_growth',
       title: '總資產成長率',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '顯示企業是否積極擴張資產。',
       source: 'Asset Growth and Performance',
@@ -201,7 +201,7 @@ export const SourcesPage = () => {
     {
       id: 'rd_growth',
       title: '研發成長率',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '顯示企業未來成長潛力。',
       source: 'R&D Investment Trends',
@@ -210,7 +210,7 @@ export const SourcesPage = () => {
     {
       id: 'employee_growth',
       title: '員工數成長率',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '企業規模是否擴張的一個輔助指標。',
       source: 'Workforce Expansion Analysis',
@@ -219,7 +219,7 @@ export const SourcesPage = () => {
     {
       id: 'new_product_revenue_ratio',
       title: '新產品營收佔比',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '新產品營收 / 總營收。',
       source: 'Taking the measure of innovation with conversion metrics',
@@ -228,7 +228,7 @@ export const SourcesPage = () => {
     {
       id: 'market_diversification',
       title: '市場多元化指數',
-      tag: '成長能力',
+      tag: '未來力',
       category: 'growth',
       description: '1 - Σ(各市場營收占比²)。',
       source: 'Mapping the value of diversification',
@@ -370,7 +370,7 @@ export const SourcesPage = () => {
             { id: 'all', label: '全部指標' },
             { id: 'operation', label: '營運能力' },
             { id: 'financial', label: '財務能力' },
-            { id: 'growth', label: '成長能力' },
+            { id: 'growth', label: '未來力' },
             { id: 'esg', label: 'ESG永續力' },
             { id: 'innovation', label: '研發創新' },
             { id: 'digital', label: '資訊化' }
