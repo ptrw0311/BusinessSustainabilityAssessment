@@ -1599,7 +1599,7 @@ export const calculateRevenueGrowthScore = (growthRate) => {
 - **指標名稱**：營收年複合成長率 (Revenue Compound Annual Growth Rate, CAGR)
 - **所屬維度**：未來力
 - **維度權重**：50% (在未來力維度中)
-- **業務意義**：衡量企業營收在過去3年的年複合成長率，反映長期成長趨勢。CAGR 越高代表企業長期成長能力越穩健。
+- **業務意義**：衡量企業營收在過去3年的年複合成長率，反映長期成長趨勢。CAGR 越高代表企業長期未來力越穩健。
 
 ##### 計算公式
 

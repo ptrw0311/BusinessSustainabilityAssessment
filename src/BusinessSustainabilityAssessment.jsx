@@ -1703,7 +1703,7 @@ const BusinessSustainabilityAssessment = () => {
                 { id: 'all', label: '全部指標' },
                 { id: 'operation', label: '營運能力' },
                 { id: 'financial', label: '財務能力' },
-                { id: 'growth', label: '成長能力' },
+                { id: 'growth', label: '未來力' },
                 { id: 'esg', label: 'ESG永續力' },
                 { id: 'innovation', label: '研發創新' },
                 { id: 'digital', label: '資訊化' }
@@ -1810,7 +1810,7 @@ const BusinessSustainabilityAssessment = () => {
                     {
                       id: 'revenue_growth',
                       title: '營收成長率',
-                      tag: '成長能力',
+                      tag: '未來力',
                       description: '反映企業規模擴張能力,是評估企業成長動能的關鍵指標。',
                       source: 'Revenue growth: Ten rules for success',
                       org: '🏛️ McKinsey & Company (2021)'
@@ -1818,7 +1818,7 @@ const BusinessSustainabilityAssessment = () => {
                     {
                       id: 'gross_profit_growth',
                       title: '毛利成長率',
-                      tag: '成長能力',
+                      tag: '未來力',
                       description: '不僅看營收,還要看獲利是否同步上升,反映企業的盈利質量。',
                       source: 'Achieving extraordinary growth: Myths and realities',
                       org: '🏛️ McKinsey & Company (2024)'
@@ -1826,7 +1826,7 @@ const BusinessSustainabilityAssessment = () => {
                     {
                       id: 'new_product_revenue',
                       title: '新產品營收佔比',
-                      tag: '成長能力',
+                      tag: '未來力',
                       description: '新產品營收 / 總營收,衡量企業創新能力與市場適應性。',
                       source: 'Taking the measure of innovation with conversion metrics',
                       org: '🏛️ McKinsey & Company (2023)'
@@ -1834,8 +1834,8 @@ const BusinessSustainabilityAssessment = () => {
                     {
                       id: 'revenue_cagr',
                       title: '營收複合年均成長率',
-                      tag: '成長能力',
-                      description: '衡量長期營收趨勢,比單一年份更穩定,反映企業持續成長能力。',
+                      tag: '未來力',
+                      description: '衡量長期營收趨勢,比單一年份更穩定,反映企業持續未來力。',
                       source: 'IMD Center for Future Readiness',
                       org: '🎓 IMD Business School'
                     },
@@ -2053,7 +2053,7 @@ const BusinessSustainabilityAssessment = () => {
                     {
                       id: 'revenue_growth',
                       title: '營收成長率',
-                      tag: '成長能力',
+                      tag: '未來力',
                       description: '反映企業規模擴張能力,是評估企業成長動能的關鍵指標。',
                       source: 'Revenue growth: Ten rules for success',
                       org: '🏛️ McKinsey & Company (2021)'
@@ -2061,7 +2061,7 @@ const BusinessSustainabilityAssessment = () => {
                     {
                       id: 'gross_profit_growth',
                       title: '毛利成長率',
-                      tag: '成長能力',
+                      tag: '未來力',
                       description: '不僅看營收,還要看獲利是否同步上升,反映企業的盈利質量。',
                       source: 'Achieving extraordinary growth: Myths and realities',
                       org: '🏛️ McKinsey & Company (2024)'
@@ -2069,7 +2069,7 @@ const BusinessSustainabilityAssessment = () => {
                     {
                       id: 'new_product_revenue',
                       title: '新產品營收佔比',
-                      tag: '成長能力',
+                      tag: '未來力',
                       description: '新產品營收 / 總營收,衡量企業創新能力與市場適應性。',
                       source: 'Taking the measure of innovation with conversion metrics',
                       org: '🏛️ McKinsey & Company (2023)'
@@ -2077,8 +2077,8 @@ const BusinessSustainabilityAssessment = () => {
                     {
                       id: 'revenue_cagr',
                       title: '營收複合年均成長率',
-                      tag: '成長能力',
-                      description: '衡量長期營收趨勢,比單一年份更穩定,反映企業持續成長能力。',
+                      tag: '未來力',
+                      description: '衡量長期營收趨勢,比單一年份更穩定,反映企業持續未來力。',
                       source: 'IMD Center for Future Readiness',
                       org: '🎓 IMD Business School'
                     },
@@ -2175,7 +2175,7 @@ const BusinessSustainabilityAssessment = () => {
                     const tagMapping = {
                       operation: '營運能力',
                       financial: '財務能力',
-                      growth: '成長能力',
+                      growth: '未來力',
                       esg: 'ESG永續力',
                       innovation: '研發創新',
                       digital: '資訊化'
